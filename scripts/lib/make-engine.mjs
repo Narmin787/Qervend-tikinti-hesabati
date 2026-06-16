@@ -1,16 +1,15 @@
 // Builds engine/report.html: original skeleton + engine scripts, but with
-// data/config externalized and ECharts loaded from CDN.
+// data/config externalized, ECharts from CDN, and executive UX enhancements
+// (status strip + Excel/PDF download + print styles). All enhancements are
+// applied here so report.html stays reproducible.
 import fs from 'node:fs';
 
 const lines = fs.readFileSync('index.html', 'utf8').split('\n');
 const L = (a, b) => lines.slice(a - 1, b).join('\n'); // 1-based inclusive
 
-// Part A: <!doctype> + head(css) + body skeleton, up to the line before <!-- KONFİG -->
-const skeleton = L(1, 272);
-// Part B: engine scripts (charts.js + insights + render). After the inlined ECharts block.
-const engine = L(1337, 1960);
-// Tail
-const tail = L(1961, lines.length);
+const skeleton = L(1, 272);          // <!doctype> + head(css) + body skeleton
+const engine = L(1337, 1960);        // engine scripts (charts.js + insights + render)
+const tail = L(1961, lines.length);  // </body></html>
 
 const includes = `
 <!-- ============================================================
@@ -23,25 +22,74 @@ const includes = `
 <script src="./data.js"></script>
 `;
 
-// `engine` already contains its own <script>…</script> blocks (charts.js,
-// insights, render), so it must NOT be wrapped in another <script>.
+// engine already contains its own <script>…</script> blocks → do NOT re-wrap.
 let html = [skeleton, includes, engine, tail].join('\n');
 
-// --- Enhancement: optional source-PDF link in the footer (meta.sourcePdf) ---
-html = html.replace(
-  '.foot .prep{margin-top:4px; color:var(--faint)}',
-  `.foot .prep{margin-top:4px; color:var(--faint)}
+// ------------------------------------------------------------------
+// 1) Footer source-PDF link CSS  (also holds executive-toolbar CSS)
+// ------------------------------------------------------------------
+const uxCss = `.foot .prep{margin-top:4px; color:var(--faint)}
 .foot .src-pdf{margin-bottom:8px}
 .foot .src-pdf a{display:inline-block; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--blue); text-decoration:none; font-weight:600}
-.foot .src-pdf a:hover{background:var(--page)}`
+.foot .src-pdf a:hover{background:var(--page)}
+
+/* ---------- Executive toolbar (UX) ---------- */
+.exec-toolbar{position:sticky; top:0; z-index:50; display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; justify-content:space-between;
+  background:rgba(255,255,255,.93); -webkit-backdrop-filter:saturate(1.1) blur(6px); backdrop-filter:saturate(1.1) blur(6px);
+  border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:10px 14px; margin-bottom:8px}
+.et-left{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; font-size:12.5px; color:var(--muted)}
+.et-fig b{color:var(--ink); font-weight:800; font-size:14.5px}
+.status-pill{display:inline-flex; align-items:center; font-weight:800; font-size:11px; letter-spacing:.05em; text-transform:uppercase; padding:5px 11px; border-radius:999px; color:#fff}
+.status-pill.good{background:var(--good)} .status-pill.warn{background:var(--warn)} .status-pill.risk{background:var(--risk)}
+.et-left .good{color:var(--good); font-weight:700} .et-left .warn{color:var(--warn); font-weight:700} .et-left .risk{color:var(--risk); font-weight:700}
+.et-actions{display:flex; gap:8px}
+.et-btn{display:inline-flex; align-items:center; gap:6px; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink); background:var(--card);
+  border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 13px; cursor:pointer; text-decoration:none; transition:all .12s}
+.et-btn:hover{border-color:#cfd5e0; box-shadow:var(--shadow)}
+
+@media print{
+  .exec-toolbar{position:static; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; border-color:#ddd}
+  .et-actions{display:none}
+  .tip{display:none !important}
+  body{font-size:11.5px; background:#fff}
+  .wrap{max-width:none; padding:0}
+  .section,.chart-card,.kpi{break-inside:avoid}
+}`;
+html = html.replace('.foot .prep{margin-top:4px; color:var(--faint)}', uxCss);
+
+// ------------------------------------------------------------------
+// 2) Executive toolbar markup (status + Excel/PDF buttons), at top of .wrap
+// ------------------------------------------------------------------
+const toolbar = `  <div class="exec-toolbar" id="execToolbar">
+    <div class="et-left" id="etStatus"></div>
+    <div class="et-actions">
+      <button class="et-btn" id="btnPrint" type="button" title="PDF kimi yadda saxla / çap et">📄 PDF</button>
+      <a class="et-btn" id="btnXlsx" href="./data.xlsx" download title="Excel məlumatını yüklə">📊 Excel</a>
+    </div>
+  </div>
+
+  <!-- BÖLMƏ 1 — Başlıq və layihə kimliyi -->`;
+html = html.replace('  <!-- BÖLMƏ 1 — Başlıq və layihə kimliyi -->', toolbar);
+
+// ------------------------------------------------------------------
+// 3) Harden esc() to also escape quotes (XSS-safe attributes)
+// ------------------------------------------------------------------
+html = html.replace(
+  `const esc = s => String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));`,
+  `const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));`
 );
+
+// ------------------------------------------------------------------
+// 4) Footer source-PDF link, with URL sanitization (no javascript: etc.)
+// ------------------------------------------------------------------
 html = html.replace(
   `  function renderFooter(){
     const fo=(L.footer)||{};
     $('footer').innerHTML = \`<div>\${esc(fo.sources||'')}</div><div class="prep">\${esc(fo.prepared||'')}</div>\`;
   }`,
   `  function renderFooter(){
-    const fo=(L.footer)||{}; const pdf=(D.meta&&D.meta.sourcePdf)||'';
+    const fo=(L.footer)||{}; let pdf=(D.meta&&D.meta.sourcePdf)||'';
+    if(pdf && !/^https?:\\/\\//i.test(pdf) && !/^[\\w./-]+$/.test(pdf)) pdf=''; // allow http(s) or relative paths only
     const pdfLink = pdf
       ? \`<div class="src-pdf"><a href="\${esc(pdf)}" target="_blank" rel="noopener">📄 Mənbə sənədi (PDF)</a></div>\`
       : '';
@@ -49,6 +97,56 @@ html = html.replace(
   }`
 );
 
-if (!html.includes('src-pdf')) { console.error('WARN: footer/CSS enhancement did not apply'); process.exit(1); }
+// ------------------------------------------------------------------
+// 5) Post-boot enhancement script: fills status strip + wires buttons.
+//     Written with string concatenation (no ${} / backticks) to keep it
+//     out of this file's own template interpolation.
+// ------------------------------------------------------------------
+const enhance = `<script>
+/* Executive toolbar — status strip + Excel/PDF actions. Runs after the report boots. */
+(function(){
+  function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
+  function esc(s){ s=(s==null?'':String(s)); return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fmt(n){ return (n==null||(typeof n==='number'&&isNaN(n)))?'—':String(n); }
+  ready(function(){
+    var D=window.DASH||{}, m=D.meta||{};
+    var f=(typeof m.officialOverall==='number')?m.officialOverall:null;
+    var p=(typeof m.officialPlan==='number')?m.officialPlan:null;
+    var dev=(f!=null&&p!=null)?(f-p):null;
+    var cls='good', txt='Qrafik üzrə';
+    if(dev!=null){
+      if(dev<=-15){cls='risk'; txt='Ciddi geri qalma';}
+      else if(dev<=-5){cls='warn'; txt='Cədvəldən geri';}
+      else if(dev<0){cls='warn'; txt='Cüzi geri qalma';}
+      else {cls='good'; txt='Qrafik üzrə';}
+    }
+    var devStr=(dev!=null)?((dev>0?'+':'')+dev.toFixed(2)+' f.b.'):'—';
+    var s=
+      '<span class="status-pill '+cls+'">'+esc(txt)+'</span>'+
+      '<span class="et-fig"><b>'+fmt(f)+(f!=null?'%':'')+'</b> icra · plan '+fmt(p)+(p!=null?'%':'')+' · <span class="'+cls+'">'+esc(devStr)+'</span></span>'+
+      '<span class="et-fig">Qalan <b>~'+fmt(m.daysRemaining)+'</b> gün · Hədəf '+esc(m.revisedFinish||m.plannedFinish||'—')+'</span>';
+    var es=document.getElementById('etStatus'); if(es){ es.innerHTML=s; }
+    var bp=document.getElementById('btnPrint'); if(bp){ bp.addEventListener('click', function(){ window.print(); }); }
+    var bx=document.getElementById('btnXlsx');
+    if(bx){ try{ fetch(bx.getAttribute('href'),{method:'HEAD'}).then(function(r){ if(!r.ok){bx.style.display='none';} }).catch(function(){ bx.style.display='none'; }); }catch(e){} }
+  });
+})();
+</script>
+`;
+html = html.replace('</body>', enhance + '</body>');
+
+// ------------------------------------------------------------------
+// Guards: ensure every enhancement actually applied
+// ------------------------------------------------------------------
+for (const [marker, name] of [
+  ['src-pdf', 'footer PDF CSS'],
+  ['exec-toolbar', 'executive toolbar'],
+  ['btnXlsx', 'Excel button'],
+  ['&#39;', 'esc hardening'],
+  ['etStatus', 'status strip script'],
+]) {
+  if (!html.includes(marker)) { console.error('ERROR: enhancement missing:', name); process.exit(1); }
+}
+
 fs.writeFileSync('engine/report.html', html);
 console.log('Wrote engine/report.html (' + html.length + ' bytes)');

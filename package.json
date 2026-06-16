@@ -4,13 +4,20 @@
   "private": true,
   "description": "Tikinti gedişatı hesabatlarını Excel-dən avtomatik yaradan generator (AI olmadan).",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "template": "node scripts/make-template.js",
-    "build": "node scripts/build.js",
-    "seed": "node scripts/data-to-xlsx.js"
+    "build": "node scripts/build.mjs",
+    "engine": "node scripts/lib/make-engine.mjs",
+    "template": "node scripts/make-template.mjs",
+    "seed": "node scripts/data-to-xlsx.mjs",
+    "test": "node scripts/lib/roundtrip-test.mjs && node scripts/lib/smoke.mjs && node scripts/lib/smoke-ux.mjs"
   },
   "dependencies": {
-    "exceljs": "^4.4.0",
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
     "jsdom": "^29.1.1"
   }
 }
