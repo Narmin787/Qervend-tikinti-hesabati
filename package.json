@@ -1,0 +1,16 @@
+{
+  "name": "tikinti-hesabati-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tikinti gedişatı hesabatlarını Excel-dən avtomatik yaradan generator (AI olmadan).",
+  "type": "module",
+  "scripts": {
+    "template": "node scripts/make-template.js",
+    "build": "node scripts/build.js",
+    "seed": "node scripts/data-to-xlsx.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "jsdom": "^29.1.1"
+  }
+}

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qərvənd kəndi — Tikinti Gedişatı Hesabatı</title>
+<style>
+/* ============================================================
+   QƏRVƏND DASHBOARD — Institutional light theme
+   Eyni vizual sistem: DÖVLƏTYARLI hesabatı ilə uyğun.
+   Bütün rənglər config/theme.js ilə sinxron saxlanılır.
+   ============================================================ */
+:root{
+  --plan:#7FB3E3; --fakt:#EF6F6C; --good:#1FA67E; --warn:#F2A93B; --risk:#E0483D;
+  --violet:#7C5CE6; --blue:#3B9BE8; --orange:#F2A93B; --teal:#1FA67E; --red:#E0483D;
+  --ink:#1F2440; --muted:#6B7280; --faint:#9AA1AB;
+  --page:#F4F6F9; --card:#FFFFFF; --border:#E6E9EF; --grid:#EEF1F5;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  --radius:12px; --radius-sm:9px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font); background:var(--page); color:var(--ink);
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:26px 20px 60px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Header / identity ---------- */
+.report-head{margin-bottom:18px}
+.report-title{
+  font-size:19px; font-weight:800; letter-spacing:.04em; color:var(--faint);
+  text-transform:uppercase; margin:0 0 8px;
+}
+.meta-line{
+  display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--muted);
+  padding-bottom:14px; border-bottom:1px solid var(--border);
+}
+.meta-line .mi{white-space:nowrap}
+.meta-line .mi b{color:var(--ink); font-weight:600}
+.meta-line .rev{color:var(--ink)}
+.meta-line .rev .old{text-decoration:line-through; color:var(--faint); margin-right:5px}
+
+/* ---------- Sections ---------- */
+.section{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:18px 18px 20px; margin-top:18px;
+}
+.section-title{
+  font-size:12px; font-weight:700; letter-spacing:.09em; color:var(--faint);
+  text-transform:uppercase; margin:0 0 14px;
+}
+.grid{display:grid; gap:16px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-6535{grid-template-columns:1.85fr 1fr}
+.grid-5050{grid-template-columns:1fr 1fr}
+
+/* ---------- KPI cards ---------- */
+.kpi-row{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-top:4px}
+.kpi{
+  background:var(--card); border:1px solid var(--border); border-left-width:5px;
+  border-radius:var(--radius-sm); padding:14px 15px; box-shadow:var(--shadow); min-height:96px;
+}
+.kpi.teal{border-left-color:var(--teal)}
+.kpi.violet{border-left-color:var(--violet)}
+.kpi.orange{border-left-color:var(--orange)}
+.kpi.red{border-left-color:var(--red)}
+.kpi.green{border-left-color:var(--good)}
+.kpi-value{font-size:29px; font-weight:800; color:var(--ink); line-height:1.05; letter-spacing:-.01em}
+.kpi-value .unit{font-size:16px; font-weight:700}
+.kpi-value.pending{color:var(--faint); font-size:24px}
+.kpi-label{font-size:10.5px; font-weight:700; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; margin-top:7px}
+.kpi-sub{font-size:11.5px; color:var(--muted); margin-top:5px}
+.kpi-sub .neg{color:var(--risk); font-weight:600}
+.kpi-sub .pos{color:var(--good); font-weight:600}
+.kpi-sub.pending{font-style:italic; color:var(--faint)}
+
+/* ---------- Chart cards ---------- */
+.chart-card{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:14px 14px 8px;
+}
+.chart-title{font-size:13px; font-weight:700; color:var(--ink); margin:0 0 6px; display:flex; align-items:center; gap:6px}
+.chart{width:100%}
+.tip{
+  display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%;
+  background:var(--grid); color:var(--faint); font-size:10px; font-weight:700; cursor:help; border:1px solid var(--border);
+}
+
+/* ---------- Commentary boxes ---------- */
+.note{border-radius:var(--radius-sm); padding:12px 14px; font-size:13px; line-height:1.6; margin-top:14px}
+.note b{font-weight:700}
+.note .lead{font-weight:700}
+.note-amber{background:#FFFBF0; border:1px solid #F3E2BC; border-left:4px solid var(--warn)}
+.note-amber .lead{color:#B8841B}
+.note-blue{background:#F2F8FE; border:1px solid #CFE4F7; border-left:4px solid var(--blue)}
+.note-blue .lead{color:#2A6FA8}
+.note-qeyd{background:#FFF7F6; border:1px solid #F6D6D2; border-left:4px solid var(--risk)}
+.note-qeyd .lead{color:var(--risk)}
+.note-neutral{background:#FAFBFC; border:1px solid var(--border); border-left:4px solid var(--faint)}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px}
+.tab{
+  font-size:12.5px; font-weight:600; color:var(--muted); background:var(--card);
+  border:1px solid var(--border); border-radius:8px; padding:7px 14px; cursor:pointer;
+  transition:all .12s ease; font-family:inherit;
+}
+.tab:hover{border-color:#cfd5e0; color:var(--ink)}
+.tab.active{color:var(--ink); border-color:var(--ink); border-width:1.5px; font-weight:700; box-shadow:var(--shadow)}
+
+/* ---------- Velocity table ---------- */
+.tbl-wrap{overflow-x:auto; margin-top:16px}
+table.vel{width:100%; border-collapse:collapse; font-size:12.5px}
+table.vel th, table.vel td{border:1px solid var(--border); padding:9px 10px; text-align:center}
+table.vel th{background:#F8FAFC; color:var(--muted); font-weight:600; font-size:11.5px}
+table.vel th .tip{margin-left:0; margin-top:3px}
+table.vel th .th-tip{display:block; margin-top:4px}
+table.vel td.obj{text-align:left; font-weight:600; color:var(--ink)}
+table.vel tr:first-child td.obj{font-weight:700}
+table.vel td .neg{color:var(--risk); font-weight:600}
+table.vel td .pos{color:var(--good); font-weight:600}
+.trend-cell{display:inline-flex; align-items:center; gap:7px; white-space:nowrap}
+.dot{width:10px; height:10px; border-radius:50%; flex:0 0 auto}
+.dot.good{background:var(--good)} .dot.warn{background:var(--warn)} .dot.risk{background:var(--risk)}
+
+/* ---------- Machinery grid ---------- */
+.mach-title{font-size:14px; font-weight:700; color:var(--ink); margin:20px 0 12px}
+.mach-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px 10px}
+.mach-tile{text-align:center; padding:8px 4px}
+.mach-num{font-size:22px; font-weight:800; color:var(--ink)}
+.mach-name{font-size:11.5px; color:var(--muted); margin-top:2px}
+
+/* ---------- Empty state ---------- */
+.empty-state{
+  border:1px dashed #D6DBE4; border-radius:var(--radius-sm); padding:26px 20px; text-align:center;
+  color:var(--muted); font-size:13px; line-height:1.6; background:#FCFCFD;
+}
+.empty-state .es-title{font-weight:700; color:var(--ink); margin-bottom:6px; font-size:13.5px}
+
+/* ---------- Insights ---------- */
+.insights{display:grid; grid-template-columns:1fr; gap:12px}
+.insight{
+  border:1px solid var(--border); border-left-width:4px; border-radius:var(--radius-sm);
+  padding:12px 15px;
+}
+.insight.kritik{border-left-color:var(--risk); background:#FFF7F6}
+.insight.diqqet{border-left-color:var(--warn); background:#FFFBF0}
+.insight.analiz{border-left-color:var(--blue); background:#F4F9FE}
+.insight.musbet{border-left-color:var(--good); background:#F2FBF7}
+.insight .i-title{font-size:11.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; margin-bottom:5px}
+.insight.kritik .i-title{color:#B8362C}
+.insight.diqqet .i-title{color:#B8841B}
+.insight.analiz .i-title{color:#2A6FA8}
+.insight.musbet .i-title{color:#13855F}
+.insight .i-body{font-size:13px; line-height:1.62; color:#34384A}
+.insight .i-body b{font-weight:700; color:var(--ink)}
+
+/* ---------- Footer ---------- */
+.foot{margin-top:22px; padding-top:16px; border-top:1px solid var(--border); font-size:11.5px; color:var(--muted); line-height:1.7}
+.foot .prep{margin-top:4px; color:var(--faint)}
+.foot .src-pdf{margin-bottom:8px}
+.foot .src-pdf a{display:inline-block; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--blue); text-decoration:none; font-weight:600}
+.foot .src-pdf a:hover{background:var(--page)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-6535,.grid-5050{grid-template-columns:1fr}
+  .mach-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:560px){
+  .kpi-row{grid-template-columns:1fr}
+  .report-title{font-size:16px}
+}
+
+/* ---------- Print / screenshot ---------- */
+@media print{
+  body{background:#fff}
+  .wrap{max-width:none; padding:0}
+  .section,.kpi,.chart-card,.insight{box-shadow:none; break-inside:avoid; page-break-inside:avoid}
+  .tabs{display:none}
+  .section{border-color:#d8dde6}
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- BÖLMƏ 1 — Başlıq və layihə kimliyi -->
+  <header class="report-head">
+    <h1 class="report-title" id="reportTitle">—</h1>
+    <div class="meta-line" id="metaLine"></div>
+  </header>
+
+  <!-- BÖLMƏ 2 — KPI kartları -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- BÖLMƏ 3 — Ümumi icra və plandan kənarlaşma -->
+  <section class="section" id="sec-overall">
+    <h2 class="section-title" id="t-overall"></h2>
+    <div class="grid grid-5050">
+      <div class="chart-card"><div class="chart-title" id="ct-overallBar"></div><div class="chart" id="ch-overallBar" style="height:300px"></div></div>
+      <div class="chart-card"><div class="chart-title" id="ct-overallDev"></div><div class="chart" id="ch-overallDev" style="height:300px"></div></div>
+    </div>
+    <div id="note-overall"></div>
+  </section>
+
+  <!-- BÖLMƏ 4 — Evlərin tikinti gedişatı (paket üzrə) -->
+  <section class="section" id="sec-packages">
+    <h2 class="section-title" id="t-packages"></h2>
+    <div class="grid grid-6535">
+      <div class="chart-card"><div class="chart-title" id="ct-pkgBar"></div><div class="chart" id="ch-pkgBar" style="height:300px"></div></div>
+      <div class="chart-card"><div class="chart-title" id="ct-pkgTrend"></div><div class="chart" id="ch-pkgTrend" style="height:300px"></div></div>
+    </div>
+    <div id="note-packages"></div>
+  </section>
+
+  <!-- BÖLMƏ 5 — Görülən işlər (təfsilatlı) -->
+  <section class="section" id="sec-workitems">
+    <h2 class="section-title" id="t-workitems"></h2>
+    <div class="tabs" id="lotTabs"></div>
+    <div class="chart-card"><div class="chart-title" id="ct-workItems"></div><div class="chart" id="ch-workItems" style="height:520px"></div></div>
+  </section>
+
+  <!-- BÖLMƏ 6 — Digər obyektlərin vəziyyəti -->
+  <section class="section" id="sec-other">
+    <h2 class="section-title" id="t-other"></h2>
+    <div class="grid grid-5050">
+      <div class="chart-card"><div class="chart-title" id="ct-otherBar"></div><div class="chart" id="ch-otherBar" style="height:300px"></div></div>
+      <div class="chart-card"><div class="chart-title" id="ct-otherGap"></div><div class="chart" id="ch-otherGap" style="height:300px"></div></div>
+    </div>
+    <div id="note-other"></div>
+  </section>
+
+  <!-- BÖLMƏ 7 — Kommunikasiya və infrastruktur -->
+  <section class="section" id="sec-infra">
+    <h2 class="section-title" id="t-infra"></h2>
+    <div class="chart-card"><div class="chart-title" id="ct-infra"></div><div class="chart" id="ch-infra" style="height:360px"></div></div>
+    <div id="note-infra"></div>
+  </section>
+
+  <!-- BÖLMƏ 8 — İşçi heyəti və texnika -->
+  <section class="section" id="sec-workforce">
+    <h2 class="section-title" id="t-workforce"></h2>
+    <div id="wf-body"></div>
+  </section>
+
+  <!-- BÖLMƏ 9 — Həftəlik sürət analizi -->
+  <section class="section" id="sec-velocity">
+    <h2 class="section-title" id="t-velocity"></h2>
+    <div class="grid grid-6535">
+      <div class="chart-card"><div class="chart-title" id="ct-velDev"></div><div class="chart" id="ch-velDev" style="height:300px"></div></div>
+      <div class="chart-card"><div class="chart-title" id="ct-velTempo"></div><div class="chart" id="ch-velTempo" style="height:300px"></div></div>
+    </div>
+    <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velCompliance"></div><div class="chart" id="ch-velCompliance" style="height:320px"></div></div>
+    <div class="tbl-wrap" id="velTable"></div>
+    <div id="note-velQeyd"></div>
+    <div id="note-velNetice"></div>
+  </section>
+
+  <!-- BÖLMƏ 10 — Təkliflər, risklər və analiz -->
+  <section class="section" id="sec-insights">
+    <h2 class="section-title" id="t-insights"></h2>
+    <div class="insights" id="insightsList"></div>
+  </section>
+
+  <!-- BÖLMƏ 11 — Altyazı -->
+  <footer class="foot" id="footer"></footer>
+
+</div>
+
+<!-- ============================================================
+     KONFİQ + MƏLUMAT + KİTABXANA
+     report.html bütün şəhərlər üçün eynidir. Hər şəhər üçün yalnız
+     ./data.js dəyişir (Excel şablonundan avtomatik yaradılır).
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="./config.js"></script>
+<script src="./data.js"></script>
+
+<script>
+/* ============================================================
+   charts.js — ECharts qrafik qurucuları (bir kitabxana, bütün bölmələr)
+   Layihəyə xas RƏQƏMLƏR burada YOXDUR. Yalnız təqdimat məntiqi.
+   ============================================================ */
+(function(){
+  var T = (window.DASH && window.DASH.theme) || {};
+  var C = T.colors || {};
+  var FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif';
+  var registry = [];
+
+  function mk(id){
+    var el = document.getElementById(id);
+    if(!el) return null;
+    var ch = echarts.init(el, null, {renderer:'canvas'});
+    registry.push(ch);
+    return ch;
+  }
+  function pct(v){ return (v==null?'—':(Math.round(v*100)/100)+'%'); }
+  var baseGrid = {left:8,right:16,top:30,bottom:8,containLabel:true};
+  var axisCommon = {
+    axisLine:{lineStyle:{color:'#D7DCE5'}}, axisTick:{show:false},
+    axisLabel:{color:C.muted||'#6B7280', fontFamily:FONT, fontSize:11},
+    splitLine:{lineStyle:{color:C.grid||'#EEF1F5'}}
+  };
+  var tooltipBase = {
+    confine:true, backgroundColor:'#fff', borderColor:'#E6E9EF', borderWidth:1,
+    textStyle:{color:C.ink||'#1F2440', fontFamily:FONT, fontSize:12},
+    extraCssText:'box-shadow:0 4px 14px rgba(16,24,40,.10); border-radius:8px;'
+  };
+  var ANIM = 380;
+
+  function completionColor(v){
+    var g=(T.completion&&T.completion.greenMin)||90, o=(T.completion&&T.completion.orangeMin)||50;
+    if(v>=g) return C.good; if(v>=o) return C.warn; return C.risk;
+  }
+  function complianceColor(v){
+    var g=(T.compliance&&T.compliance.greenMin)||90, y=(T.compliance&&T.compliance.yellowMin)||75;
+    if(v>=g) return C.good; if(v>=y) return C.warn; return C.risk;
+  }
+
+  function groupedBar(id, cats, plan, fakt, opts){
+    opts=opts||{}; var ch=mk(id); if(!ch) return;
+    var labels = (window.DASH.labels&&window.DASH.labels.legend)||{plan:'Plan %',fakt:'Fakt %'};
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:function(v){return pct(v);}}, tooltipBase),
+      legend:{data:[labels.plan,labels.fakt], top:0, right:6, icon:'roundRect', itemWidth:14, itemHeight:9,
+        textStyle:{color:C.muted, fontFamily:FONT, fontSize:12}},
+      grid:Object.assign({},baseGrid,{top:34,bottom: opts.rotate?40:8}),
+      xAxis:Object.assign({type:'category', data:cats},axisCommon,{splitLine:{show:false},
+        axisLabel:{color:C.muted, fontFamily:FONT, fontSize:11, interval:0, rotate:opts.rotate||0}}),
+      yAxis:Object.assign({type:'value', max:100, axisLabel:{formatter:'{value}%', color:C.muted, fontFamily:FONT, fontSize:11}},axisCommon),
+      series:[
+        {name:labels.plan, type:'bar', data:plan, color:C.plan, barMaxWidth:26, itemStyle:{borderRadius:[3,3,0,0]},
+          label: opts.showLabels?{show:true, position:'top', formatter:function(p){return pct(p.value);}, color:C.muted, fontFamily:FONT, fontSize:10}:undefined},
+        {name:labels.fakt, type:'bar', data:fakt, color:C.fakt, barMaxWidth:26, itemStyle:{borderRadius:[3,3,0,0]},
+          label: opts.showLabels?{show:true, position:'top', formatter:function(p){return pct(p.value);}, color:C.ink, fontFamily:FONT, fontSize:10, fontWeight:600}:undefined}
+      ]
+    });
+  }
+
+  function deviationBar(id, items){
+    var ch=mk(id); if(!ch) return;
+    var cats=items.map(function(d){return d.name;});
+    var vals=items.map(function(d){return +(d.fakt-d.plan).toFixed(2);});
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:function(v){return (v>0?'+':'')+v+'%';}},tooltipBase),
+      grid:{left:8,right:46,top:10,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'value', axisLabel:{formatter:'{value}%', color:C.muted, fontFamily:FONT, fontSize:11}},axisCommon),
+      yAxis:Object.assign({type:'category', data:cats, inverse:true},axisCommon,{splitLine:{show:false},
+        axisLabel:{color:C.muted, fontFamily:FONT, fontSize:11}}),
+      series:[{type:'bar', data:vals.map(function(v){return {value:v, itemStyle:{color: v>=0?C.good:C.risk, borderRadius:3}};}),
+        barMaxWidth:16,
+        label:{show:true, position:'right', formatter:function(p){return (p.value>0?'+':'')+p.value+'%';}, color:C.muted, fontFamily:FONT, fontSize:10.5}}]
+    });
+  }
+
+  function trendLine(id, points, color){
+    var ch=mk(id); if(!ch) return; color=color||C.fakt;
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', valueFormatter:function(v){return pct(v);}},tooltipBase),
+      grid:{left:8,right:18,top:18,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'category', data:points.map(function(p){return p.date;}), boundaryGap:false},axisCommon,{splitLine:{show:false}}),
+      yAxis:Object.assign({type:'value', scale:true, axisLabel:{formatter:'{value}%', color:C.muted, fontFamily:FONT, fontSize:11}},axisCommon),
+      series:[{type:'line', data:points.map(function(p){return p.fakt;}), smooth:false, symbol:'circle', symbolSize:8,
+        lineStyle:{color:color, width:2.5}, itemStyle:{color:color},
+        areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(239,111,108,.22)'},{offset:1,color:'rgba(239,111,108,.02)'}]}},
+        label:{show:true, position:'top', formatter:function(p){return pct(p.value);}, color:C.ink, fontFamily:FONT, fontSize:11, fontWeight:600}}]
+    });
+  }
+
+  function completionBars(id, items, opts){
+    opts=opts||{}; var ch=mk(id); if(!ch) return;
+    var cats=items.map(function(d){return d.name;});
+    var vals=items.map(function(d){return d.fakt;});
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'},
+        formatter:function(ps){var it=items[ps[0].dataIndex]; return it.name+'<br/>Fakt: <b>'+pct(it.fakt)+'</b>'+(it.plan!=null?'<br/>Plan: '+pct(it.plan):'');}},tooltipBase),
+      grid:{left:8,right:52,top:10,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'value', max:100, axisLabel:{formatter:'{value}%', color:C.muted, fontFamily:FONT, fontSize:11}},axisCommon),
+      yAxis:Object.assign({type:'category', data:cats, inverse:true},axisCommon,{splitLine:{show:false},
+        axisLabel:{color:C.muted, fontFamily:FONT, fontSize: opts.small?10.5:11}}),
+      series:[{type:'bar', data:vals.map(function(v){return {value:v, itemStyle:{color:completionColor(v), borderRadius:3}};}),
+        barMaxWidth:opts.small?13:16,
+        label:{show:true, position:'right', formatter:function(p){return (p.value>=99.5?'':pct(p.value));}, color:C.muted, fontFamily:FONT, fontSize:10}}]
+    });
+  }
+
+  function gapBars(id, items){
+    var ch=mk(id); if(!ch) return;
+    var cats=items.map(function(d){return d.name;});
+    var vals=items.map(function(d){return +(d.plan-d.fakt).toFixed(2);});
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:function(v){return v+'%';}},tooltipBase),
+      grid:{left:8,right:46,top:10,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'value', axisLabel:{formatter:'{value}%', color:C.muted, fontFamily:FONT, fontSize:11}},axisCommon),
+      yAxis:Object.assign({type:'category', data:cats, inverse:true},axisCommon,{splitLine:{show:false},
+        axisLabel:{color:C.muted, fontFamily:FONT, fontSize:11}}),
+      series:[{type:'bar', data:vals.map(function(v){return {value:v, itemStyle:{color:C.warn, borderRadius:3}};}),
+        barMaxWidth:16, label:{show:true, position:'right', formatter:function(p){return p.value+'%';}, color:C.muted, fontFamily:FONT, fontSize:10.5}}]
+    });
+  }
+
+  function stackedDaily(id, daily){
+    var ch=mk(id); if(!ch) return;
+    var dates=daily.map(function(d){return d.date;});
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}},tooltipBase),
+      legend:{data:['Sahə personalı','Texniki personal','İdari personal'], top:0, right:6, icon:'roundRect',
+        itemWidth:14,itemHeight:9, textStyle:{color:C.muted,fontFamily:FONT,fontSize:12}},
+      grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'category', data:dates},axisCommon,{splitLine:{show:false},axisLabel:{color:C.muted,fontFamily:FONT,fontSize:9,interval:Math.ceil(dates.length/16)}}),
+      yAxis:Object.assign({type:'value'},axisCommon),
+      series:[
+        {name:'Sahə personalı', type:'bar', stack:'p', data:daily.map(function(d){return d.sahe;}), color:C.wfSahe, barMaxWidth:18},
+        {name:'Texniki personal', type:'bar', stack:'p', data:daily.map(function(d){return d.texniki;}), color:C.wfTexniki, barMaxWidth:18},
+        {name:'İdari personal', type:'bar', stack:'p', data:daily.map(function(d){return d.idari;}), color:C.wfIdari, barMaxWidth:18}
+      ]
+    });
+  }
+  function totalLine(id, series){
+    var ch=mk(id); if(!ch) return;
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis'},tooltipBase),
+      grid:{left:8,right:16,top:18,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'category', data:series.map(function(d){return d.date;}), boundaryGap:false},axisCommon,{splitLine:{show:false},axisLabel:{color:C.muted,fontFamily:FONT,fontSize:9,interval:Math.ceil(series.length/16)}}),
+      yAxis:Object.assign({type:'value', scale:true},axisCommon),
+      series:[{type:'line', data:series.map(function(d){return d.total;}), smooth:true, symbol:'none', lineStyle:{color:C.violet,width:2.5}, itemStyle:{color:C.violet}}]
+    });
+  }
+
+  function dev3(id, rows, points){
+    var ch=mk(id); if(!ch) return;
+    var cats=rows.map(function(r){return r.short||r.obyekt;});
+    var shades=['#BFD9F2', C.plan, '#1F3F66'];
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:function(v){return (v>0?'+':'')+v+'%';}},tooltipBase),
+      legend:{data:points, top:0, right:6, icon:'roundRect', itemWidth:14,itemHeight:9, textStyle:{color:C.muted,fontFamily:FONT,fontSize:11}},
+      grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'category', data:cats},axisCommon,{splitLine:{show:false},axisLabel:{color:C.muted,fontFamily:FONT,fontSize:10,interval:0,rotate:0}}),
+      yAxis:Object.assign({type:'value', axisLabel:{formatter:'{value}%',color:C.muted,fontFamily:FONT,fontSize:11}},axisCommon),
+      series:points.map(function(p,i){return {name:p, type:'bar', data:rows.map(function(r){return r.dev3[i];}), color:shades[i], barMaxWidth:14, itemStyle:{borderRadius:2}};})
+    });
+  }
+
+  function tempoBars(id, rows){
+    var ch=mk(id); if(!ch) return;
+    var cats=rows.map(function(r){return r.short||r.obyekt;});
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:function(v){return v+'%/hft';}},tooltipBase),
+      legend:{data:['Tələb','Faktiki'], top:0, right:6, icon:'roundRect', itemWidth:14,itemHeight:9, textStyle:{color:C.muted,fontFamily:FONT,fontSize:11}},
+      grid:{left:8,right:30,top:34,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'value', axisLabel:{formatter:'{value}',color:C.muted,fontFamily:FONT,fontSize:11}},axisCommon),
+      yAxis:Object.assign({type:'category', data:cats, inverse:true},axisCommon,{splitLine:{show:false},axisLabel:{color:C.muted,fontFamily:FONT,fontSize:10.5}}),
+      series:[
+        {name:'Tələb', type:'bar', data:rows.map(function(r){return +r.teleb.toFixed(2);}), color:'#C9D6E5', barMaxWidth:9, itemStyle:{borderRadius:2}},
+        {name:'Faktiki', type:'bar', data:rows.map(function(r){return {value:+r.faktiki.toFixed(2), itemStyle:{color:complianceColor(r.uygunluq), borderRadius:2}};}), barMaxWidth:9}
+      ]
+    });
+  }
+
+  function complianceBars(id, rows){
+    var ch=mk(id); if(!ch) return;
+    var cats=rows.map(function(r){return r.short||r.obyekt;});
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:function(v){return Math.round(v)+'%';}},tooltipBase),
+      grid:{left:8,right:14,top:24,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'category', data:cats},axisCommon,{splitLine:{show:false},axisLabel:{color:C.muted,fontFamily:FONT,fontSize:10,interval:0}}),
+      yAxis:Object.assign({type:'value', axisLabel:{formatter:'{value}%',color:C.muted,fontFamily:FONT,fontSize:11}},axisCommon),
+      series:[{type:'bar',
+        data:rows.map(function(r){return {value:Math.round(r.uygunluq),
+          itemStyle:{color:complianceColor(r.uygunluq), borderRadius:[3,3,0,0]},
+          label:{color:complianceColor(r.uygunluq)}};}),
+        barMaxWidth:40,
+        label:{show:true, position:'top', formatter:function(p){return Math.round(p.value)+'%';}, fontFamily:FONT, fontSize:11, fontWeight:700},
+        markLine:{silent:true, symbol:'none', lineStyle:{type:'dashed', color:'#8A93A3', width:1.4},
+          data:[{yAxis:100}], label:{formatter:'100% = Plana uyğun', color:C.muted, fontFamily:FONT, fontSize:10, position:'insideEndTop'}}
+      }]
+    });
+  }
+
+  function resizeAll(){
+    registry.forEach(function(c){ try{ c.resize(); }catch(e){} });
+  }
+
+  window.CHARTS = {
+    groupedBar:groupedBar, deviationBar:deviationBar, trendLine:trendLine,
+    completionBars:completionBars, gapBars:gapBars, stackedDaily:stackedDaily,
+    totalLine:totalLine, dev3:dev3, tempoBars:tempoBars, complianceBars:complianceBars,
+    resizeAll:resizeAll, completionColor:completionColor, complianceColor:complianceColor
+  };
+})();
+
+</script>
+<script>
+/* ============================================================
+   insights.js — Qayda və hədd əsaslı analiz mühərriki
+   Çıxış: tam, təbii, formal Azərbaycan dilində cümlələr.
+   Emoji yoxdur. Stilistik defis/tire yoxdur. Yarımçıq ifadə yoxdur.
+   ============================================================ */
+(function(){
+  function f(v){ if(v==null) return '—'; return (Math.round(v*100)/100).toFixed(2)+'%'; }
+  function sgn(v){ const n=Math.round(v*100)/100; return (n>0?'+':'')+n.toFixed(2)+'%'; }
+  function f1(v){ return (Math.round(v*10)/10)+'%'; }
+
+  function generate(ctx){
+    const {overall, packages, infrastructure, otherObjects, workforce, velRows, cfg} = ctx;
+    const th = (cfg && cfg.thresholds) || {};
+    const out = [];
+    const add=(category,title,body)=>out.push({category,title,body});
+    const byName = {}; velRows.forEach(r=>byName[r.obyekt]=r);
+    const umumi = velRows.find(r=>/Ümumi/i.test(r.obyekt));
+
+    /* ---------- KRİTİK ---------- */
+    if(umumi){
+      const dPeriod = umumi.dev3[2]-umumi.dev3[0];
+      const dWeek = umumi.dev3[2]-umumi.dev3[1];
+      add('kritik','Ümumi gecikmə dərinləşir',
+        `Layihə üzrə ümumi icra ${f(umumi.fakt)} təşkil edir və plandan ${sgn(umumi.ferq)} geri qalır. `+
+        `Kənarlaşma keçən ayın sonundan bu hesabat tarixinə qədər ${Math.abs(dPeriod).toFixed(2)} faiz bəndi dərinləşmiş, yalnız son həftə ərzində ${Math.abs(dWeek).toFixed(2)} faiz bəndi artmışdır. `+
+        `Cari templə işlər davam etdiyi təqdirdə bitmə tarixinə qədər olan həcmin tam yerinə yetirilməsi ciddi risk altındadır.`);
+    }
+    // Sahədaxili kommunikasiya
+    const infraFakt = infrastructure.overallFakt, infraPlan = infrastructure.overallPlan;
+    if(infraFakt!=null && (infraFakt-infraPlan) <= (th.criticalDeviation||-15)){
+      const zero = infrastructure.items.filter(i=>i.fakt<=0.01 && i.plan>0).map(i=>i.name);
+      const started = infrastructure.items.filter(i=>i.fakt>0.01).map(i=>`${i.name} (${f1(i.fakt)})`);
+      add('kritik','İnfrastruktur işləri kritik səviyyədə geridə',
+        `Sahədaxili kommunikasiya üzrə ümumi icra ${f(infraFakt)} səviyyəsindədir və plandan ${sgn(infraFakt-infraPlan)} geri qalır. `+
+        (started.length?`Yalnız ${started.join(' və ')} üzrə məhdud irəliləyiş qeydə alınmışdır. `:'')+
+        (zero.length?`Su şəbəkəsi, qaz, elektrik və rabitə xətləri faktiki olaraq başlanılmamış vəziyyətdədir. `:'')+
+        `Bu şəbəkələr evlərin istismara verilməsi üçün zəruri olduğundan mobilizasiyanın təcili artırılması tələb olunur.`);
+    }
+    // En cox geride qalan ev paketi
+    const pkgs = velRows.filter(r=>/Paket/i.test(r.obyekt));
+    if(pkgs.length){
+      const worst = pkgs.slice().sort((a,b)=>a.ferq-b.ferq)[0];
+      if(worst.ferq <= (th.criticalDeviation||-15)){
+        add('kritik',`${worst.obyekt} ən çox geridədir`,
+          `${worst.obyekt} üzrə fakt ${f(worst.fakt)}, plan isə ${f(worst.plan)} olmaqla kənarlaşma ${sgn(worst.ferq)} təşkil edir. `+
+          `Obyekt plana uyğunluq göstəricisi üzrə ${Math.round(worst.uygunluq)} faiz səviyyəsindədir, yəni tələb olunan həftəlik tempin yalnız bir hissəsi əldə olunur. `+
+          `Bu paketə əlavə resurs və iş qrupu ayrılması zəruridir.`);
+      }
+    }
+
+    /* ---------- DİQQƏT ---------- */
+    // Diger obyektler muqavilesiz
+    if(otherObjects && otherObjects.objects && otherObjects.objects.length){
+      const names = otherObjects.objects.map(o=>o.name).join(', ');
+      add('diqqet','Sosial obyektlər müqavilə mərhələsindədir',
+        `Məktəb, uşaq bağçaları, inzibati bina, tibb məntəqəsi və qəbiristanlıq üzrə tikinti müqaviləsi hələ bağlanmamışdır və bu obyektlər üzrə faktiki icra başlanğıc səviyyəsində qalır. `+
+        `Plan qrafikinə görə bu obyektlər artıq irəliləməli idi, lakin müqavilə bağlanmadığı üçün gecikmə artmaqda davam edir. `+
+        `Müqavilələrin imzalanması prosesi sürətləndirilməlidir.`);
+    }
+    // En zeif tempolu paketler (uygunluq < goodCompliance amma kritik deyil)
+    const weak = pkgs.filter(r=>r.uygunluq < (th.goodCompliance||80) && r.ferq > (th.criticalDeviation||-15));
+    if(weak.length){
+      const w=weak.sort((a,b)=>a.uygunluq-b.uygunluq)[0];
+      add('diqqet',`${w.obyekt} tempi tələbdən aşağıdır`,
+        `${w.obyekt} üzrə həftəlik faktiki tempo ${w.faktiki.toFixed(2)} faiz, tələb olunan tempo isə ${w.teleb.toFixed(2)} faizdir. `+
+        `Bu, plana uyğunluğun ${Math.round(w.uygunluq)} faiz təşkil etməsi deməkdir. `+
+        `Mövcud sürət qorunarsa, paket üzrə kənarlaşma növbəti həftələrdə daha da arta bilər.`);
+    }
+    // Iscilik / texnika melumati yoxdur
+    if(workforce && workforce.available===false){
+      add('diqqet','İşçi heyəti və texnika məlumatı daxil edilməyib',
+        `Hesabat tarixinə işçi heyəti və texnika üzrə gündəlik məlumat bu sistemə əlavə edilməmişdir. `+
+        `İş gücünün dinamikası tempin əsas göstəricilərindən biri olduğundan, gündəlik hesabat məlumatlarının daxil edilməsi analizin tamlığı üçün vacibdir.`);
+    }
+
+    /* ---------- ANALİZ ---------- */
+    if(packages && packages.trend && packages.trend.length>=2){
+      const tr=packages.trend, a=tr[0], z=tr[tr.length-1];
+      const totalGrowth=(z.fakt-a.fakt);
+      let mid='';
+      if(tr.length>=3){
+        const w1=tr[1].fakt-tr[0].fakt, w2=tr[2].fakt-tr[1].fakt;
+        if(w2 < w1) mid=`Son dövrdə həftəlik artım əvvəlki həftələrə nisbətən zəifləmişdir. `;
+      }
+      add('analiz','Ümumi icra trendi',
+        `Ümumi faktiki icra ${a.date} tarixindəki ${f1(a.fakt)} səviyyəsindən ${z.date} tarixinə ${f1(z.fakt)} səviyyəsinə yüksəlmişdir və bu dövrdə ümumi artım ${totalGrowth.toFixed(2)} faiz bəndi təşkil etmişdir. `+
+        mid+
+        `Mövcud artım sürəti plan qrafikinin tələb etdiyi tempdən aşağı olduğu üçün ümumi kənarlaşma genişlənməkdə davam edir.`);
+    }
+
+    /* ---------- MÜSBƏT ---------- */
+    // Qaba isler ireleyib
+    const total = (packages && packages.items) ? null : null;
+    if(ctx.workItemsTotal){
+      const qaba = ctx.workItemsTotal.filter(i=>/Qaba işlər/i.test(i.name));
+      if(qaba.length){
+        const avg = qaba.reduce((s,i)=>s+i.fakt,0)/qaba.length;
+        if(avg >= (th.structureAheadMin||70)){
+          add('musbet','Konstruktiv işlər irəlidədir',
+            `Evlər üzrə qaba tikinti işləri, yəni bünövrə, karkas və konstruktiv mərhələ orta hesabla ${f1(avg)} səviyyəsində tamamlanmışdır. `+
+            `Bu, binaların struktur hissəsinin əsasən hazır olduğunu göstərir və bəzək, fasad və daxili işlərin sürətlə başlanması üçün şərait yaradır.`);
+        }
+      }
+    }
+    // En yaxsi tempolu paketler
+    if(pkgs.length){
+      const best = pkgs.slice().sort((a,b)=>b.uygunluq-a.uygunluq)[0];
+      if(best.uygunluq >= 70){
+        const peers = pkgs.filter(p=>p.uygunluq>=70 && p.obyekt!==best.obyekt).map(p=>p.obyekt);
+        add('musbet','Nisbətən yaxşı performans göstərən paketlər',
+          `${best.obyekt} üzrə həftəlik faktiki tempo ${best.faktiki.toFixed(2)} faiz olmaqla ev paketləri arasında ən yüksək plana uyğunluq göstəricisinə (${Math.round(best.uygunluq)} faiz) malikdir. `+
+          (peers.length?`${peers.join(' və ')} də nisbətən sabit tempdə irəliləyir. `:'')+
+          `Bu paketlərdəki iş təşkili digər sahələrə nümunə kimi tətbiq oluna bilər.`);
+      }
+    }
+
+    /* ---------- Pinned (əl ilə) ---------- */
+    if(cfg && Array.isArray(cfg.pinned)){
+      cfg.pinned.forEach(p=>{ if(p && p.category && p.title && p.body) add(p.category,p.title,p.body); });
+    }
+
+    // Sıralama: kritik, diqqet, analiz, musbet
+    const order={kritik:0,diqqet:1,analiz:2,musbet:3};
+    out.sort((a,b)=>order[a.category]-order[b.category]);
+    return out;
+  }
+
+  window.INSIGHTS = {generate};
+})();
+
+</script>
+<script>
+/* ============================================================
+   app.js — Orkestr: məlumatı oxuyur, sürət göstəricilərini hesablayır,
+   bütün bölmələri qurur. Layihəyə xas rəqəmlər BURADA yoxdur.
+   ============================================================ */
+(function(){
+  const D = window.DASH || {};
+  const L = D.labels || {}; const TH = D.theme || {}; const C = (TH.colors||{});
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const f2 = v => v==null ? '—' : (Math.round(v*100)/100).toFixed(2);
+  const pctSign = v => (v>0?'+':'')+f2(v)+'%';
+
+  /* ---------- velocity computation (transparent, data-driven) ---------- */
+  function parseDate(s){ const p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+  function shortName(n){
+    return n.replace(/\s*\(.*?\)\s*/g,'').replace('Sahədaxili komm.','Sahədaxili').replace('FYE','FYE').trim();
+  }
+  function classifyTrend(ferq, uyg, dev3){
+    const eps = TH.deviationAheadEps!=null?TH.deviationAheadEps:0.5;
+    const gc = (TH.compliance&&TH.compliance.greenMin)||90;
+    const yc = (TH.compliance&&TH.compliance.yellowMin)||75;
+    if(ferq >= eps) return 'qabaqda';
+    if(ferq > -eps) return 'plan';
+    if(uyg >= 100) return 'suretlenir';
+    if(uyg >= gc) return 'yaxin';
+    if(uyg >= yc) return 'normal';
+    if(uyg >= 50) return 'yavas';
+    return 'cox_yavas';
+  }
+  function computeVelocity(){
+    const V = D.velocity; if(!V) return [];
+    const cutoff = parseDate(V.cutoff);
+    const pw = V.priorWeeks || 3.0;
+    return V.rows.map(r=>{
+      const finish = parseDate(r.finish);
+      const weeksRem = Math.max((finish-cutoff)/(1000*3600*24*7), 0.1);
+      const ferq = r.fakt - r.plan;
+      const teleb = (100 - r.fakt)/weeksRem;
+      const faktiki = (r.fakt - r.priorFakt)/pw;
+      const uygunluq = teleb>0 ? (faktiki/teleb*100) : 0;
+      const key = classifyTrend(ferq, uygunluq, r.dev3);
+      const st = (TH.trendStates&&TH.trendStates[key])||{label:key,dot:'warn'};
+      return {obyekt:r.obyekt, short:shortName(r.obyekt), plan:r.plan, fakt:r.fakt, ferq,
+              teleb, faktiki, uygunluq, dev3:r.dev3, trendKey:key, trendLabel:st.label, dot:st.dot};
+    });
+  }
+
+  /* ---------- Section 1: header ---------- */
+  function renderHeader(){
+    const m=D.meta||{}; $('reportTitle').textContent = m.projectTitle||'';
+    const items=[];
+    items.push(`<span class="mi"><b>Hesabat:</b> ${esc(m.reportDate||'')}</span>`);
+    items.push(`<span class="mi"><b>Rəsmi kəsim:</b> ${esc(m.cutoffDate||'')}</span>`);
+    items.push(`<span class="mi">${esc(m.district||'')}</span>`);
+    items.push(`<span class="mi">${esc(m.contractor||'')}</span>`);
+    items.push(`<span class="mi"><b>Başlama:</b> ${esc(m.startDate||'')}</span>`);
+    const rev = m.revisedFinish && m.revisedFinish!==m.plannedFinish
+      ? `<span class="rev"><span class="old">${esc(m.plannedFinish)}</span>→ ${esc(m.revisedFinish)}</span>`
+      : esc(m.plannedFinish||'');
+    items.push(`<span class="mi"><b>Bitmə:</b> ${rev}</span>`);
+    if(m.baselineDays) items.push(`<span class="mi">${m.baselineDays} + ${m.extraDays} gün</span>`);
+    $('metaLine').innerHTML = items.join('');
+  }
+
+  /* ---------- Section 2: KPI ---------- */
+  function renderKPI(){
+    const row=$('kpiRow'); row.innerHTML='';
+    (D.kpi||[]).forEach(k=>{
+      const div=document.createElement('div'); div.className='kpi '+(k.accent||'teal');
+      let valHtml = k.pending
+        ? `<div class="kpi-value pending">—</div>`
+        : `<div class="kpi-value">${esc(k.value)}<span class="unit">${esc(k.unit||'')}</span></div>`;
+      let sub = k.pending
+        ? `<div class="kpi-sub pending">${esc(k.sub)}</div>`
+        : `<div class="kpi-sub">${colorizeSub(k.sub)}</div>`;
+      div.innerHTML = valHtml + `<div class="kpi-label">${esc(k.label)}</div>` + sub;
+      row.appendChild(div);
+    });
+  }
+  function colorizeSub(s){
+    // colour a trailing signed percent
+    return esc(s).replace(/(-\d[\d.]*%)/g,'<span class="neg">$1</span>').replace(/(\+\d[\d.]*%)/g,'<span class="pos">$1</span>');
+  }
+
+  /* ---------- Section 3: overall ---------- */
+  function renderOverall(){
+    const o=D.overall; if(!o) return;
+    $('t-overall').textContent=(L.sections&&L.sections.s3)||'';
+    $('ct-overallBar').textContent=(L.charts&&L.charts.overallBar)||'';
+    $('ct-overallDev').textContent=(L.charts&&L.charts.overallDev)||'';
+    CHARTS.groupedBar('ch-overallBar', o.objects.map(d=>d.name), o.objects.map(d=>d.plan), o.objects.map(d=>d.fakt), {rotate:32});
+    CHARTS.deviationBar('ch-overallDev', o.objects);
+    // auto summary
+    const m=D.meta||{}; const headDev=(m.officialOverall-m.officialPlan);
+    const sorted=o.objects.slice().sort((a,b)=>(a.fakt-a.plan)-(b.fakt-b.plan));
+    const worst=sorted.slice(0,4).map(d=>`${d.name} (${pctSign(d.fakt-d.plan)})`);
+    const ahead=o.objects.filter(d=>(d.fakt-d.plan)>0.5).map(d=>d.name);
+    let txt = `<span class="lead">Ümumi mənzərə:</span> Layihə bütövlükdə plandan ${pctSign(headDev)} geri qalır. `;
+    txt += ahead.length
+      ? `Plandan qabaqda olan obyektlər: ${ahead.join(', ')}. `
+      : `Hazırda heç bir obyekt plandan qabaqda deyil. `;
+    txt += `Layihəni ən çox geri çəkən obyektlər: ${worst.join(', ')}.`;
+    $('note-overall').innerHTML = `<div class="note note-amber">${txt}</div>`;
+  }
+
+  /* ---------- Section 4: packages ---------- */
+  function renderPackages(){
+    const p=D.packages; if(!p) return;
+    $('t-packages').textContent=(L.sections&&L.sections.s4)||'';
+    $('ct-pkgBar').textContent=(L.charts&&L.charts.pkgBar)||'';
+    $('ct-pkgTrend').textContent=(L.charts&&L.charts.pkgTrend)||'';
+    CHARTS.groupedBar('ch-pkgBar', p.items.map(d=>d.name), p.items.map(d=>d.plan), p.items.map(d=>d.fakt), {showLabels:true});
+    CHARTS.trendLine('ch-pkgTrend', p.trend);
+    const best=p.items.slice().sort((a,b)=>b.fakt-a.fakt)[0];
+    const worst=p.items.slice().sort((a,b)=>(a.fakt-a.plan)-(b.fakt-b.plan))[0];
+    const txt = `<span class="lead">Paketlər üzrə qiymətləndirmə:</span> Ev paketləri arasında ən yüksək faktiki icra ${esc(best.name)} paketindədir və ${f2(best.fakt)}% təşkil edir. `+
+      `Bütün paketlər plan qrafikindən geri qalır, ən böyük kənarlaşma isə ${esc(worst.name)} paketinə aiddir (${pctSign(worst.fakt-worst.plan)}). `+
+      `Ümumi icra trendi son ölçmələrdə yüksəlsə də, artım sürəti plan tələbindən aşağı olduğu üçün ümumi geriləmə qorunur.`;
+    $('note-packages').innerHTML = `<div class="note note-amber">${txt}</div>`;
+  }
+
+  /* ---------- Section 5: work items + tabs ---------- */
+  let WI_ACTIVE='cemi';
+  function renderWorkItems(){
+    const w=D.workItems; if(!w) return;
+    $('t-workitems').textContent=(L.sections&&L.sections.s5)||'';
+    const tabs=$('lotTabs'); tabs.innerHTML='';
+    w.lots.forEach(lot=>{
+      const b=document.createElement('button'); b.className='tab'+(lot.id===WI_ACTIVE?' active':'');
+      b.textContent=lot.name; b.onclick=()=>{WI_ACTIVE=lot.id; renderWorkItems();};
+      tabs.appendChild(b);
+    });
+    const lot=w.lots.find(l=>l.id===WI_ACTIVE)||w.lots[0];
+    $('ct-workItems').textContent=`${(L.charts&&L.charts.workItems)||'İş Maddələri'} — ${lot.name} (%)`;
+    CHARTS.completionBars('ch-workItems', lot.items, {small:true});
+  }
+
+  /* ---------- Section 6: other objects ---------- */
+  function renderOther(){
+    const o=D.otherObjects; if(!o) return;
+    $('t-other').textContent=(L.sections&&L.sections.s6)||'';
+    $('ct-otherBar').textContent=(L.charts&&L.charts.otherBar)||'';
+    $('ct-otherGap').textContent=(L.charts&&L.charts.otherGap)||'';
+    CHARTS.groupedBar('ch-otherBar', o.objects.map(d=>d.name), o.objects.map(d=>d.plan), o.objects.map(d=>d.fakt), {showLabels:true, rotate:24});
+    CHARTS.gapBars('ch-otherGap', o.objects);
+    $('note-other').innerHTML = `<div class="note note-neutral"><span class="lead" style="color:var(--muted)">Qeyd:</span> ${esc(o.contractNote)}</div>`;
+  }
+
+  /* ---------- Section 7: infrastructure ---------- */
+  function renderInfra(){
+    const inf=D.infrastructure; if(!inf) return;
+    $('t-infra').textContent=(L.sections&&L.sections.s7)||'';
+    $('ct-infra').textContent=(L.charts&&L.charts.infra)||'';
+    const items=inf.items.slice().sort((a,b)=>b.fakt-a.fakt);
+    CHARTS.completionBars('ch-infra', items, {});
+    $('note-infra').innerHTML = `<div class="note note-amber"><span class="lead">04.06 → 11.06 dəyişiklik:</span> ${esc(inf.weeklyNote)}</div>`;
+  }
+
+  /* ---------- Section 8: workforce + machinery ---------- */
+  function renderWorkforce(){
+    const w=D.workforce; if(!w) return;
+    $('t-workforce').textContent=(L.sections&&L.sections.s8)||'';
+    const body=$('wf-body');
+    if(!w.available){
+      body.innerHTML = `<div class="empty-state"><div class="es-title">Bu bölmə üçün gündəlik məlumat hələ daxil edilməyib</div>${esc(w.emptyNote)}</div>`;
+      return;
+    }
+    body.innerHTML =
+      `<div class="grid grid-6535">
+         <div class="chart-card"><div class="chart-title">${esc((L.charts&&L.charts.wfDaily)||'')}</div><div class="chart" id="ch-wfDaily" style="height:300px"></div></div>
+         <div class="chart-card"><div class="chart-title">${esc((L.charts&&L.charts.wfTotal)||'')}</div><div class="chart" id="ch-wfTotal" style="height:300px"></div></div>
+       </div>
+       <div id="note-wf"></div>
+       <div class="mach-title">${esc((L.charts&&L.charts.machinery)||'Texnika Tərkibi')}</div>
+       <div class="mach-grid" id="machGrid"></div>`;
+    CHARTS.stackedDaily('ch-wfDaily', w.daily);
+    CHARTS.totalLine('ch-wfTotal', w.totalSeries);
+    if(w.alert) $('note-wf').innerHTML=`<div class="note note-amber"><span class="lead">Diqqət:</span> ${esc(w.alert)}</div>`;
+    const mg=$('machGrid');
+    (w.machinery||[]).forEach(m=>{
+      const d=document.createElement('div'); d.className='mach-tile';
+      d.innerHTML=`<div class="mach-num">${esc(m.count)}</div><div class="mach-name">${esc(m.name)}</div>`;
+      mg.appendChild(d);
+    });
+  }
+
+  /* ---------- Section 9: velocity ---------- */
+  function renderVelocity(velRows){
+    const V=D.velocity; if(!V) return;
+    $('t-velocity').textContent=(L.sections&&L.sections.s9)||'';
+    $('ct-velDev').textContent=(L.charts&&L.charts.velDev)||'';
+    $('ct-velTempo').textContent=(L.charts&&L.charts.velTempo)||'';
+    $('ct-velCompliance').textContent=(L.charts&&L.charts.velCompliance)||'';
+    CHARTS.dev3('ch-velDev', velRows, V.points);
+    CHARTS.tempoBars('ch-velTempo', velRows);
+    CHARTS.complianceBars('ch-velCompliance', velRows);
+    // table
+    const H=(L.table&&L.table.headers)||[]; const tips=(L.table&&L.table.tips)||[];
+    let html='<table class="vel"><thead><tr>';
+    H.forEach((h,i)=>{ html+=`<th>${esc(h)}${tips[i]?`<span class="th-tip"><span class="tip" title="${esc(tips[i])}">?</span></span>`:''}</th>`; });
+    html+='</tr></thead><tbody>';
+    velRows.forEach(r=>{
+      html+='<tr>'+
+        `<td class="obj">${esc(r.obyekt)}</td>`+
+        `<td>${f2(r.plan)}</td>`+
+        `<td>${f2(r.fakt)}</td>`+
+        `<td><span class="${r.ferq>=0?'pos':'neg'}">${pctSign(r.ferq)}</span></td>`+
+        `<td><span class="${r.ferq>=0?'pos':'neg'}">${f2(r.teleb)}</span></td>`+
+        `<td>${f2(r.faktiki)}</td>`+
+        `<td>${Math.round(r.uygunluq)}%</td>`+
+        `<td><span class="trend-cell"><span class="dot ${r.dot}"></span>${esc(r.trendLabel)}</span></td>`+
+      '</tr>';
+    });
+    html+='</tbody></table>';
+    $('velTable').innerHTML=html;
+    // qeyd + netice (auto)
+    const umumi=velRows.find(r=>/Ümumi/i.test(r.obyekt));
+    const aheadAny = velRows.some(r=>r.ferq>0.5);
+    const qeyd = aheadAny
+      ? `Bəzi obyektlər plandan qabaqda olduğu üçün onların aşağı həftəlik tempi hələlik risk yaratmır.`
+      : `Hazırda bütün obyektlər plandan geri qalır. Plana uyğunluğun 100 faizdən aşağı olması kənarlaşmanın hər həftə artması deməkdir. Geriliyin bərpası üçün faktiki tempin tələb olunan tempi keçməsi zəruridir.`;
+    $('note-velQeyd').innerHTML=`<div class="note note-qeyd"><span class="lead">Qeyd:</span> ${esc(qeyd)}</div>`;
+    if(umumi){
+      const best=velRows.filter(r=>!/Ümumi/i.test(r.obyekt)).slice().sort((a,b)=>b.uygunluq-a.uygunluq)[0];
+      const worst=velRows.filter(r=>!/Ümumi/i.test(r.obyekt)).slice().sort((a,b)=>a.uygunluq-b.uygunluq)[0];
+      const netice = `Ümumi layihə tələb olunan tempin ${Math.round(umumi.uygunluq)} faizi ilə irəliləyir. Hər həftə ${f2(umumi.teleb)} faiz irəliləmə tələb olunduğu halda faktiki olaraq ${f2(umumi.faktiki)} faiz əldə edilir. `+
+        `Nisbətən yaxşı tempə malik sahə ${esc(best.short)} (${Math.round(best.uygunluq)} faiz), ən böyük risk isə ${esc(worst.short)} (${Math.round(worst.uygunluq)} faiz) üzərindədir. Əsas risk ümumi tempin tələbdən davamlı aşağı qalmasıdır.`;
+      $('note-velNetice').innerHTML=`<div class="note note-blue"><span class="lead">Nəticə:</span> ${esc(netice)}</div>`;
+    }
+  }
+
+  /* ---------- Section 10: insights ---------- */
+  function renderInsights(velRows){
+    $('t-insights').textContent=(L.sections&&L.sections.s10)||'';
+    const wiTotal=(D.workItems&&D.workItems.lots&&D.workItems.lots[0])?D.workItems.lots[0].items:null;
+    const list = INSIGHTS.generate({
+      overall:D.overall, packages:D.packages, infrastructure:D.infrastructure,
+      otherObjects:D.otherObjects, workforce:D.workforce, velRows, cfg:D.insightsConfig,
+      workItemsTotal:wiTotal
+    });
+    const cats={kritik:'KRİTİK',diqqet:'DİQQƏT',analiz:'ANALİZ',musbet:'MÜSBƏT'};
+    $('insightsList').innerHTML = list.map(i=>
+      `<div class="insight ${i.category}"><div class="i-title">${cats[i.category]||''} — ${esc(i.title)}</div><div class="i-body">${boldNums(i.body)}</div></div>`
+    ).join('');
+  }
+  function boldNums(s){
+    return esc(s).replace(/((?:\+|−|-)?\d[\d.,]*\s?(?:faiz bəndi|faiz|%|gün))/g,'<b>$1</b>');
+  }
+
+  /* ---------- Footer ---------- */
+  function renderFooter(){
+    const fo=(L.footer)||{}; const pdf=(D.meta&&D.meta.sourcePdf)||'';
+    const pdfLink = pdf
+      ? `<div class="src-pdf"><a href="${esc(pdf)}" target="_blank" rel="noopener">📄 Mənbə sənədi (PDF)</a></div>`
+      : '';
+    $('footer').innerHTML = `${pdfLink}<div>${esc(fo.sources||'')}</div><div class="prep">${esc(fo.prepared||'')}</div>`;
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){
+    const velRows = computeVelocity();
+    renderHeader(); renderKPI(); renderOverall(); renderPackages();
+    renderWorkItems(); renderOther(); renderInfra(); renderWorkforce();
+    renderVelocity(velRows); renderInsights(velRows); renderFooter();
+    let t; window.addEventListener('resize',()=>{clearTimeout(t); t=setTimeout(()=>CHARTS.resizeAll(),150);});
+  }
+  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded', boot);
+})();
+
+</script>
+</body>
+</html>
