@@ -349,6 +349,72 @@ html = html.replace(
 );
 
 // ------------------------------------------------------------------
+// 12) "Görülən işlər" — 2-level grouped navigation (Cəmi + Paket groups,
+//     each with Orta / 2-3-4-5 otaqlı sub-options). Modern block buttons.
+// ------------------------------------------------------------------
+html = html.replace(
+  `.tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px}`,
+  `.tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px}
+.wi-groups{gap:8px; margin-bottom:0}
+.wi-groups .tab{font-size:13px; font-weight:700; padding:9px 17px; border-radius:9px; box-shadow:var(--shadow)}
+.wi-groups .tab.active{background:linear-gradient(90deg,#1F3F66,#2A6FA8); color:#fff; border-color:#1F3F66}
+.wi-subs{gap:6px; margin-top:9px; margin-bottom:14px; padding-left:2px}
+.subtab{font-size:12px; font-weight:600; color:var(--muted); background:#fff; border:1px solid var(--border); border-radius:999px; padding:5px 14px; cursor:pointer; font-family:inherit; transition:all .12s}
+.subtab:hover{border-color:#cfd5e0; color:var(--ink)}
+.subtab.active{background:var(--blue); color:#fff; border-color:var(--blue)}`
+);
+html = html.replace(
+  `    <div class="tabs" id="lotTabs"></div>`,
+  `    <div class="tabs wi-groups" id="lotTabs"></div>
+    <div class="tabs wi-subs" id="lotSubs"></div>`
+);
+html = html.replace(
+  `  function renderWorkItems(){
+    const w=D.workItems; var secWI=document.getElementById('sec-workitems');
+    if(!w || !w.lots || !w.lots.length){ if(secWI) secWI.style.display='none'; return; }
+    if(secWI) secWI.style.display='';
+    $('t-workitems').textContent=(L.sections&&L.sections.s5)||'';
+    const tabs=$('lotTabs'); tabs.innerHTML='';
+    w.lots.forEach(lot=>{
+      const b=document.createElement('button'); b.className='tab'+(lot.id===WI_ACTIVE?' active':'');
+      b.textContent=lot.name; b.onclick=()=>{WI_ACTIVE=lot.id; renderWorkItems();};
+      tabs.appendChild(b);
+    });
+    const lot=w.lots.find(l=>l.id===WI_ACTIVE)||w.lots[0];
+    $('ct-workItems').textContent=\`\${(L.charts&&L.charts.workItems)||'İş Maddələri'} — \${lot.name} (%)\`;
+    CHARTS.groupedBar('ch-workItems', lot.items.map(function(i){return i.name;}), lot.items.map(function(i){return i.plan;}), lot.items.map(function(i){return i.fakt;}), {showLabels:true, rotate:14});
+  }`,
+  `  var WI_GROUP=null, WI_SUB=null;
+  function wiSubLabel(lot){ if(/^p\\d+$/.test(lot.id||'')) return 'Orta'; var m=String(lot.name||'').match(/—\\s*(.+)$/); return m?m[1].trim():(lot.name||''); }
+  function wiGroups(lots){ var groups=[], by={};
+    lots.forEach(function(lot){ var key; if(lot.id==='cemi') key='cemi'; else { var m=String(lot.id||'').match(/^(p\\d+)/); key=m?m[1]:lot.id; }
+      if(!by[key]){ by[key]={key:key,label:'',lots:[]}; groups.push(by[key]); } by[key].lots.push(lot); });
+    groups.forEach(function(g){ if(g.key==='cemi') g.label=g.lots[0].name; else { var orta=g.lots.filter(function(l){return /^p\\d+$/.test(l.id);})[0]||g.lots[0]; g.label=String(orta.name).replace(/\\s*—\\s*orta$/i,''); } });
+    return groups; }
+  function renderWorkItems(){
+    var w=D.workItems; var secWI=document.getElementById('sec-workitems');
+    if(!w || !w.lots || !w.lots.length){ if(secWI) secWI.style.display='none'; return; }
+    if(secWI) secWI.style.display='';
+    $('t-workitems').textContent=(L.sections&&L.sections.s5)||'';
+    var groups=wiGroups(w.lots);
+    if(!WI_GROUP||!groups.some(function(g){return g.key===WI_GROUP;})) WI_GROUP=groups[0].key;
+    var g=groups.filter(function(x){return x.key===WI_GROUP;})[0]||groups[0];
+    var gt=$('lotTabs'); gt.innerHTML='';
+    groups.forEach(function(grp){ var b=document.createElement('button'); b.className='tab'+(grp.key===WI_GROUP?' active':'');
+      b.textContent=grp.label; b.onclick=function(){ WI_GROUP=grp.key; WI_SUB=null; renderWorkItems(); }; gt.appendChild(b); });
+    var st=document.getElementById('lotSubs');
+    if(st){ if(g.lots.length>1){ st.style.display='';
+        if(!WI_SUB||!g.lots.some(function(l){return l.id===WI_SUB;})) WI_SUB=g.lots[0].id;
+        st.innerHTML=''; g.lots.forEach(function(lot){ var b=document.createElement('button'); b.className='subtab'+(lot.id===WI_SUB?' active':'');
+          b.textContent=wiSubLabel(lot); b.onclick=function(){ WI_SUB=lot.id; renderWorkItems(); }; st.appendChild(b); });
+      } else { st.style.display='none'; WI_SUB=g.lots[0].id; } }
+    var lot=g.lots.filter(function(l){return l.id===WI_SUB;})[0]||g.lots[0];
+    $('ct-workItems').textContent=((L.charts&&L.charts.workItems)||'İş Maddələri')+' — '+lot.name+' (%)';
+    CHARTS.groupedBar('ch-workItems', lot.items.map(function(i){return i.name;}), lot.items.map(function(i){return i.plan;}), lot.items.map(function(i){return i.fakt;}), {showLabels:true, rotate:14});
+  }`
+);
+
+// ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
 // ------------------------------------------------------------------
 for (const [marker, name] of [
@@ -368,6 +434,9 @@ for (const [marker, name] of [
   ['id="infraTabs"', 'infrastructure phase tabs'],
   ['ch-velWeekly', 'weekly-change card'],
   ['vaxtında bitirmək', 'tempo help tooltip'],
+  ['function wiGroups', 'work-items grouped nav'],
+  ['id="lotSubs"', 'work-items sub-tabs'],
+  ['.subtab.active', 'sub-tab styling'],
   ['windowWidth:DESK', 'desktop-width PDF'],
 ]) {
   if (!html.includes(marker)) { console.error('ERROR: enhancement missing:', name); process.exit(1); }
