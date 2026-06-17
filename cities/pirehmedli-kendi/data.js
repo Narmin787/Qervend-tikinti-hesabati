@@ -2,7 +2,7 @@
    Hesabat Generatoru ilə yaradılıb (2026-06-17). */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
-  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI",
+  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI demo",
   "village": "Pirəhmədli kəndi",
   "district": "Füzuli rayonu",
   "contractor": "SEA BREEZE MMC",
@@ -18,7 +18,13 @@ window.DASH.meta = {
   "officialPlan": 56.06,
   "primaveraCode": "",
   "note": "",
-  "sourcePdf": "source.pdf"
+  "sourcePdf": "source.pdf",
+  "sources": [
+    {
+      "label": "Mənbə sənədi (PDF)",
+      "file": "source.pdf"
+    }
+  ]
 };
 window.DASH.kpi = [
   {
@@ -43,7 +49,7 @@ window.DASH.kpi = [
   },
   {
     "id": "isciler",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "İŞÇİ SAYI (GÜNDƏLİK)",
     "sub": "Məlumat əlavə edilməyib",
@@ -53,7 +59,7 @@ window.DASH.kpi = [
   },
   {
     "id": "texnika",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "TEXNİKA VAHİDİ",
     "sub": "Məlumat əlavə edilməyib",
