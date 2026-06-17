@@ -148,7 +148,11 @@
     if(ex){ Object.assign(d.meta, prune(ex.meta));
       if(ex.overall&&ex.overall.objects&&ex.overall.objects.length) d.overall=ex.overall;
       if(ex.packages&&ex.packages.items&&ex.packages.items.length) d.packages.items=ex.packages.items;
+      if(ex.otherObjects&&ex.otherObjects.objects&&ex.otherObjects.objects.length){
+        d.otherObjects=d.otherObjects||{objects:[]}; d.otherObjects.objects=ex.otherObjects.objects;
+        if(ex.otherObjects.asOf) d.otherObjects.asOf=ex.otherObjects.asOf; }
       if(ex.velocity&&ex.velocity.rows&&ex.velocity.rows.length) d.velocity.rows=ex.velocity.rows;
+      if(ex.velocity&&ex.velocity.points&&ex.velocity.points.some(p=>p)) d.velocity.points=ex.velocity.points;
       if(ex.infrastructure&&ex.infrastructure.overallFakt!=null){ d.infrastructure.overallFakt=ex.infrastructure.overallFakt; d.infrastructure.overallPlan=ex.infrastructure.overallPlan; } }
     if(pdf){ if(pdf.workItems.lots.length) d.workItems=pdf.workItems;
       if(pdf.infrastructure.items.length) d.infrastructure.items=pdf.infrastructure.items;

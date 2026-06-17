@@ -34,11 +34,28 @@
     if (hi < 0) hi = 2;
     const hdr = (rows[hi] || []).map(clean);
     const find = re => hdr.findIndex(h => re.test(h));
-    const cName = (() => { // 4th column ("Layihə adı" detail) — last header matching "Layihə adı"
-      let idx = -1; hdr.forEach((h,i)=>{ if(/Layih[əe] ad/i.test(h)) idx = i; }); return idx >= 0 ? idx : 3;
-    })();
     const cPlan = find(/Planlan/i), cFakt = find(/Faktiki/i);
     const cStart = find(/Başlama|Baslama/i), cFin = find(/Bitmə|Bitme/i);
+    // Name column(s): "Layihə adı" headers may be MERGED across two columns, so the
+    // browser's reader leaves one of them blank. Pick the text-richest column(s)
+    // left of the dates and read names by coalescing them per row.
+    const nameCols = (() => {
+      let hint = -1; hdr.forEach((h,i)=>{ if(/Layih[əe] ad/i.test(h)) hint = i; });
+      const right = cStart > 0 ? cStart : 6;                 // names sit before "Başlama"
+      const lo = hint >= 0 ? hint : 0;
+      const scored = [];
+      for (let c = lo; c < Math.max(right, lo + 2); c++) {
+        const seen = {}; let n = 0;
+        for (let r = hi + 1; r < rows.length; r++) { const v = clean((rows[r] || [])[c]);
+          if (v && isNaN(+v) && !/^O cümlədən|^O cumleden/i.test(v) && !seen[v]) { seen[v] = 1; n++; } }
+        if (n) scored.push([c, n]);
+      }
+      scored.sort((a,b)=>b[1]-a[1]);                          // richest first
+      const cols = scored.slice(0,2).map(s=>s[0]);
+      return cols.length ? cols : [hint >= 0 ? hint : 3];
+    })();
+    const readName = row => { for (const c of nameCols) { const v = clean(row[c]); if (v) return v; } return ''; };
+    const cName = nameCols[0];
     const cDelays = hdr.map((h,i)=>/Gecikmə|Gecikme/i.test(h)?i:-1).filter(i=>i>=0);
     const cWeekly = find(/Həftəlik|Heftelik/i);
 
@@ -58,7 +75,7 @@
     const pkgRe = /Paket|Mərhələ|Merhele|Phase|Sahə\s*\d|Sahe\s*\d/i;
     const infraRe = /Sahədaxili|Sahedaxili|kommunikasiya|infrastruktur/i;
     for (let r = hi + 1; r < rows.length; r++) {
-      const row = rows[r] || []; let name = clean(row[cName]);
+      const row = rows[r] || []; let name = readName(row);
       if (!name || /^O cümlədən|^O cumleden|Layih[əe] ad|Gecikmə|İrəliləmə|Ireliləme/i.test(name)) continue;
       if (/^FYE\s+Paket/i.test(name)) name = name.replace(/^FYE\s+/i, '');           // "FYE Paket 1" -> "Paket 1"
       else if (/^FYE\s+Sah[əe]/i.test(name)) name = name.replace(/^FYE\s+/i, '');     // "FYE Sahə 1 (60 ev)" -> "Sahə 1 (60 ev)"
