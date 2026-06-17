@@ -56,6 +56,24 @@ iframe{width:100%;height:78vh;border:1px solid var(--border);border-radius:8px;b
 .city-item .cp{font-size:12.5px;font-weight:800;white-space:nowrap}
 .city-item .cp.good{color:var(--good)}.city-item .cp.warn{color:#B8841B}.city-item .cp.risk{color:var(--risk)}
 .city-empty{padding:16px;text-align:center;color:var(--muted);font-size:12.5px}
+.city-item .cd a{color:var(--blue);text-decoration:none}
+.city-item .cd .stale{color:var(--risk);font-weight:600}
+.tagd{display:inline-block;font-size:9.5px;font-weight:700;color:#8a5a00;background:#FFF1D6;border:1px solid #F2D9A0;border-radius:4px;padding:0 4px;vertical-align:middle}
+.note.dirty{color:#8a5a00;font-weight:600}
+table.ed-table{width:100%;border-collapse:collapse;margin:4px 0}
+table.ed-table th{font-size:10.5px;color:var(--muted);text-align:left;font-weight:600;padding:2px 4px}
+table.ed-table td{padding:1px 3px}
+table.ed-table input,table.ed-table select{width:100%;min-width:54px;font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:6px}
+table.ed-table td.derived{font-size:11.5px;color:var(--muted);white-space:nowrap}
+table.ed-table td.dotcell{width:14px;text-align:center}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.dot.good{background:var(--good)}.dot.warn{background:#E5A33B}.dot.risk{background:var(--risk)}
+.subh{font-weight:700;font-size:12px;margin:10px 0 2px;color:var(--ink)}
+.hc{font-size:12px;border-radius:8px;padding:8px 10px;margin:6px 0}
+.hc ul{margin:4px 0 0;padding-left:18px}
+.hc.ok{background:#E8F6F0;color:#0c6b4f}
+.hc.warn{background:#FFF6E5;color:#8a5a00}
+.hc.err{background:#FDECEA;color:#a4271c}
 </style>
 </head>
 <body>
@@ -92,7 +110,8 @@ iframe{width:100%;height:78vh;border:1px solid var(--border);border-radius:8px;b
     </div>
 
     <div class="panel" style="margin-top:14px">
-      <h2>2 · Məlumatı redaktə et</h2>
+      <h2>2 · Məlumatı redaktə et <span class="note dirty" id="dirtyFlag" style="font-weight:400"></span></h2>
+      <div id="healthCheck"></div>
       <div id="editor"></div>
     </div>
   </div>
@@ -112,10 +131,13 @@ iframe{width:100%;height:78vh;border:1px solid var(--border);border-radius:8px;b
       <div class="bar">
         <input id="cityName" placeholder="Şəhər/kənd adı (məs. Qərvənd kəndi)" style="flex:1;min-width:160px">
         <input id="pwd" type="password" placeholder="Deploy parolu" style="width:150px">
-        <button class="btn good" id="deployBtn">🚀 Deploy (GitHub + Vercel)</button>
+      </div>
+      <div class="bar">
+        <button class="btn" id="previewDeployBtn" title="Önizləmə filialına göndər (production toxunulmur)">🔎 Önizləmə deploy</button>
+        <button class="btn good" id="deployBtn">🚀 Deploy (production)</button>
       </div>
       <div class="status" id="deployStatus" style="margin-top:8px"></div>
-      <div class="note">Deploy → GitHub-a göndərir, Vercel 1-5 dəqiqəyə canlı versiyanı yeniləyir.</div>
+      <div class="note"><b>Önizləmə deploy</b> ayrıca filiala göndərir (canlı sayt toxunulmur). <b>Deploy</b> → GitHub-a göndərir, Vercel 1-5 dəqiqəyə canlı versiyanı yeniləyir.</div>
     </div>
   </div>
 </div>
