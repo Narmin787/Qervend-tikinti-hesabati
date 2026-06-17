@@ -54,11 +54,18 @@ body{
   box-shadow:var(--shadow); padding:18px 18px 20px; margin-top:18px;
 }
 .section-title{
-  font-size:15.5px; font-weight:800; letter-spacing:.005em; color:var(--ink);
-  text-transform:none; margin:0 0 14px; cursor:pointer; user-select:none;
-  display:flex; align-items:center; gap:8px;
+  font-size:18px; font-weight:800; letter-spacing:.005em; color:var(--ink);
+  text-transform:none; margin:0 0 16px; cursor:pointer; user-select:none;
+  display:flex; align-items:center; gap:12px;
+  padding:14px 18px; border-radius:12px;
+  background:#F1F4F9; border:1px solid var(--border);
+  transition:background .12s, box-shadow .12s;
 }
-.section-title::before{content:'▾'; font-size:11px; color:var(--muted); transition:transform .15s; flex:0 0 auto}
+.section-title:hover{background:#E7ECF4; box-shadow:0 1px 4px rgba(16,24,40,.08)}
+.section-title::before{content:'▾'; font-size:18px; line-height:1; color:var(--blue);
+  transition:transform .15s; flex:0 0 auto; width:22px; height:22px;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:#fff; border:1px solid var(--border); border-radius:7px}
 .section.collapsed .section-title::before{transform:rotate(-90deg)}
 .section.collapsed .section-title{margin:0}
 .section.collapsed > *:not(.section-title):not(script){display:none !important}
