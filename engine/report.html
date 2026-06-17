@@ -313,6 +313,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
      ./data.js dəyişir (Excel şablonundan avtomatik yaradılır).
      ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>
 <script src="./config.js"></script>
 <script src="./data.js"></script>
 
@@ -978,7 +979,25 @@ table.vel td .pos{color:var(--good); font-weight:600}
       '<span class="et-fig"><b>'+fmt(f)+(f!=null?'%':'')+'</b> icra · plan '+fmt(p)+(p!=null?'%':'')+' · <span class="'+cls+'">'+esc(devStr)+'</span></span>'+
       '<span class="et-fig">Qalan <b>~'+fmt(m.daysRemaining)+'</b> gün · Hədəf '+esc(m.revisedFinish||m.plannedFinish||'—')+'</span>';
     var es=document.getElementById('etStatus'); if(es){ es.innerHTML=s; }
-    var bp=document.getElementById('btnPrint'); if(bp){ bp.addEventListener('click', function(){ window.print(); }); }
+    var bp=document.getElementById('btnPrint');
+    if(bp){ bp.addEventListener('click', function(){
+      var wrap=document.querySelector('.wrap');
+      if(typeof html2pdf==='undefined' || !wrap){ window.print(); return; }
+      var actions=document.querySelector('.et-actions');
+      var label=bp.textContent;
+      bp.disabled=true; bp.textContent='PDF hazırlanır…';
+      if(actions) actions.style.visibility='hidden';
+      var fname=((window.DASH&&window.DASH.meta&&window.DASH.meta.village)||'tikinti')+' hesabati.pdf';
+      var done=function(){ if(actions) actions.style.visibility=''; bp.disabled=false; bp.textContent=label; };
+      window.scrollTo(0,0);
+      html2pdf().set({
+        margin:[5,5,5,5], filename:fname,
+        image:{type:'jpeg', quality:0.95},
+        html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', scrollX:0, scrollY:0, windowWidth:wrap.scrollWidth},
+        jsPDF:{unit:'mm', format:'a4', orientation:'portrait'},
+        pagebreak:{mode:['css','legacy'], avoid:['.section','.chart-card','.kpi','.insight']}
+      }).from(wrap).save().then(done).catch(function(){ done(); window.print(); });
+    }); }
     var bx=document.getElementById('btnXlsx');
     if(bx){ try{ fetch(bx.getAttribute('href'),{method:'HEAD'}).then(function(r){ if(!r.ok){bx.style.display='none';} }).catch(function(){ bx.style.display='none'; }); }catch(e){} }
   });
