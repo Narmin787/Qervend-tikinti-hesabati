@@ -21,7 +21,7 @@ console.log('Buttons on title bar:', btnsInTitle);
 console.log('PDF button          :', !!$('btnPrint'));
 console.log('Excel button + href :', !!$('btnXlsx'), $('btnXlsx') && $('btnXlsx').getAttribute('href'));
 console.log('No red status pill  :', !/status-pill/.test(html));
-console.log('Single-page PDF     :', /pagebreak:\{mode:'avoid-all'\}/.test(html));
+console.log('Per-section PDF     :', /pdf\.addImage/.test(html) && /jspdf\.umd\.min\.js/.test(html));
 console.log('Desktop-width PDF   :', /windowWidth:DESK/.test(html));
 console.log('Responsive CSS      :', /@media \(max-width:820px\)/.test(html));
 console.log('JS errors           :', errors.length?errors:'none');
@@ -31,6 +31,6 @@ await wb.xlsx.readFile('public/qervend/data.xlsx');
 console.log('data.xlsx sheets    :', wb.worksheets.map(w=>w.name).join(', '));
 
 const ok = btnsInTitle && $('btnPrint') && $('btnXlsx') && !/status-pill/.test(html)
-  && /avoid-all/.test(html) && /windowWidth:DESK/.test(html) && !errors.length && wb.worksheets.length>=10;
+  && /pdf\.addImage/.test(html) && /windowWidth:DESK/.test(html) && !errors.length && wb.worksheets.length>=10;
 console.log(ok ? '\nUX SMOKE PASSED' : '\nUX SMOKE FAILED');
 process.exit(ok?0:1);

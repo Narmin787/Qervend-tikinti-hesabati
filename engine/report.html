@@ -314,7 +314,8 @@ table.vel td .pos{color:var(--good); font-weight:600}
      ./data.js dəyişir (Excel şablonundan avtomatik yaradılır).
      ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="./config.js"></script>
 <script src="./data.js"></script>
 
@@ -969,11 +970,12 @@ table.vel td .pos{color:var(--good); font-weight:600}
     var bp=document.getElementById('btnPrint');
     if(bp){ bp.addEventListener('click', function(){
       var wrap=document.querySelector('.wrap');
-      if(typeof html2pdf==='undefined' || !wrap){ window.print(); return; }
+      var jsPDFns=window.jspdf&&window.jspdf.jsPDF;
+      if(typeof html2canvas==='undefined' || !jsPDFns || !wrap){ window.print(); return; }
       var acts=document.querySelector('.et-actions');
       var label=bp.textContent; bp.disabled=true; bp.textContent='PDF hazırlanır…';
       if(acts){ acts.style.visibility='hidden'; }   // keep buttons out of the file
-      // Force desktop layout + resize charts, then capture as one continuous page.
+      // Force desktop layout + resize charts.
       var pw=wrap.style.width, pmw=wrap.style.maxWidth, pm=wrap.style.margin;
       wrap.style.width=DESK+'px'; wrap.style.maxWidth=DESK+'px'; wrap.style.margin='0 auto';
       try{ if(window.CHARTS&&CHARTS.resizeAll) CHARTS.resizeAll(); }catch(e){}
@@ -981,17 +983,29 @@ table.vel td .pos{color:var(--good); font-weight:600}
       var restore=function(){ wrap.style.width=pw; wrap.style.maxWidth=pmw; wrap.style.margin=pm;
         try{ if(window.CHARTS&&CHARTS.resizeAll) CHARTS.resizeAll(); }catch(e){}
         if(acts){ acts.style.visibility=''; } bp.disabled=false; bp.textContent=label; };
+      window.scrollTo(0,0);
+      // Capture EACH block separately (small, safe canvases) and stack them into ONE
+      // continuous page. This avoids the single huge-canvas that some browsers truncate.
       setTimeout(function(){
-        var h=Math.ceil(wrap.scrollHeight);
-        window.scrollTo(0,0);
-        html2pdf().set({
-          margin:0, filename:fname,
-          image:{type:'jpeg', quality:0.96},
-          html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', scrollX:0, scrollY:0, windowWidth:DESK, windowHeight:h, width:DESK},
-          jsPDF:{unit:'px', format:[DESK, h+24], orientation:'portrait', hotfixes:['px_scaling']}, // +24 -> exactly 1 page
-          pagebreak:{mode:'avoid-all'}        // single continuous page — no cuts
-        }).from(wrap).save().then(restore).catch(function(){ restore(); window.print(); });
-      }, 450);   // let the desktop re-layout + chart resize settle
+        var blocks=[].slice.call(wrap.children).filter(function(el){ return el.offsetHeight>2 && getComputedStyle(el).display!=='none'; });
+        var SC=2, GAP=14, PAD=16, idx=0, imgs=[], total=PAD*2;
+        function next(){
+          if(idx>=blocks.length) return build();
+          html2canvas(blocks[idx], {scale:SC, useCORS:true, backgroundColor:'#ffffff', windowWidth:DESK, width:blocks[idx].offsetWidth, height:blocks[idx].offsetHeight})
+            .then(function(cv){ var w=cv.width/SC, h=cv.height/SC; imgs.push({d:cv.toDataURL('image/jpeg',0.95), w:w, h:h});
+              total+=h+(idx<blocks.length-1?GAP:0); idx++; next(); })
+            .catch(function(){ idx++; next(); });
+        }
+        function build(){
+          try{
+            var W=DESK, H=Math.ceil(total);
+            var pdf=new jsPDFns({unit:'px', format:[W,H], orientation:'portrait', hotfixes:['px_scaling']});
+            var y=PAD; for(var i=0;i<imgs.length;i++){ var x=Math.max(0,(W-imgs[i].w)/2); pdf.addImage(imgs[i].d,'JPEG',x,y,imgs[i].w,imgs[i].h); y+=imgs[i].h+GAP; }
+            pdf.save(fname); restore();
+          }catch(e){ restore(); window.print(); }
+        }
+        next();
+      }, 400);   // let the desktop re-layout + chart resize settle
     }); }
     var bx=document.getElementById('btnXlsx');
     if(bx){ try{ fetch(bx.getAttribute('href'),{method:'HEAD'}).then(function(r){ if(!r.ok){bx.style.display='none';} }).catch(function(){ bx.style.display='none'; }); }catch(e){} }
