@@ -11,7 +11,6 @@
     "build": "node scripts/build.mjs",
     "engine": "node scripts/lib/make-engine.mjs",
     "template": "node scripts/make-template.mjs",
-    "seed": "node scripts/data-to-xlsx.mjs",
     "test": "node scripts/lib/roundtrip-test.mjs && node scripts/lib/smoke.mjs && node scripts/lib/smoke-ux.mjs"
   },
   "dependencies": {

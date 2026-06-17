@@ -1,7 +1,7 @@
 // Builds engine/report.html: original skeleton + engine scripts, but with
-// data/config externalized, ECharts from CDN, and executive UX enhancements
-// (status strip + Excel/PDF download + print styles). All enhancements are
-// applied here so report.html stays reproducible.
+// data/config externalized, ECharts from CDN, and UX enhancements (Excel/PDF
+// export bar, colored title, plan-line on trend). All enhancements are applied
+// here so report.html stays reproducible.
 import fs from 'node:fs';
 
 const lines = fs.readFileSync('index.html', 'utf8').split('\n');
@@ -27,30 +27,23 @@ const includes = `
 let html = [skeleton, includes, engine, tail].join('\n');
 
 // ------------------------------------------------------------------
-// 1) Footer source-PDF link CSS  (also holds executive-toolbar CSS)
+// 1) Footer source-PDF link CSS  (also holds export-bar CSS)
 // ------------------------------------------------------------------
 const uxCss = `.foot .prep{margin-top:4px; color:var(--faint)}
 .foot .src-pdf{margin-bottom:8px}
 .foot .src-pdf a{display:inline-block; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--blue); text-decoration:none; font-weight:600}
 .foot .src-pdf a:hover{background:var(--page)}
 
-/* ---------- Executive toolbar (UX) ---------- */
-.exec-toolbar{position:sticky; top:0; z-index:50; display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; justify-content:space-between;
-  background:rgba(255,255,255,.93); -webkit-backdrop-filter:saturate(1.1) blur(6px); backdrop-filter:saturate(1.1) blur(6px);
-  border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:10px 14px; margin-bottom:8px}
-.et-left{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; font-size:12.5px; color:var(--muted)}
-.et-fig b{color:var(--ink); font-weight:800; font-size:14.5px}
-.status-pill{display:inline-flex; align-items:center; font-weight:800; font-size:11px; letter-spacing:.05em; text-transform:uppercase; padding:5px 11px; border-radius:999px; color:#fff}
-.status-pill.good{background:var(--good)} .status-pill.warn{background:var(--warn)} .status-pill.risk{background:var(--risk)}
-.et-left .good{color:var(--good); font-weight:700} .et-left .warn{color:var(--warn); font-weight:700} .et-left .risk{color:var(--risk); font-weight:700}
-.et-actions{display:flex; gap:8px}
+/* ---------- Export bar (sticky PDF/Excel actions) ---------- */
+.exec-toolbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:flex-end; gap:8px;
+  background:rgba(255,255,255,.92); -webkit-backdrop-filter:saturate(1.1) blur(6px); backdrop-filter:saturate(1.1) blur(6px);
+  border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:8px 12px; margin-bottom:10px}
 .et-btn{display:inline-flex; align-items:center; gap:6px; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink); background:var(--card);
   border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 13px; cursor:pointer; text-decoration:none; transition:all .12s}
 .et-btn:hover{border-color:#cfd5e0; box-shadow:var(--shadow)}
 
 @media print{
-  .exec-toolbar{position:static; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; border-color:#ddd}
-  .et-actions{display:none}
+  .exec-toolbar{display:none}
   .tip{display:none !important}
   body{font-size:11.5px; background:#fff}
   .wrap{max-width:none; padding:0}
@@ -59,14 +52,11 @@ const uxCss = `.foot .prep{margin-top:4px; color:var(--faint)}
 html = html.replace('.foot .prep{margin-top:4px; color:var(--faint)}', uxCss);
 
 // ------------------------------------------------------------------
-// 2) Executive toolbar markup (status + Excel/PDF buttons), at top of .wrap
+// 2) Export bar markup (PDF + Excel buttons), at top of .wrap
 // ------------------------------------------------------------------
 const toolbar = `  <div class="exec-toolbar" id="execToolbar">
-    <div class="et-left" id="etStatus"></div>
-    <div class="et-actions">
-      <button class="et-btn" id="btnPrint" type="button" title="PDF kimi yadda saxla / çap et">📄 PDF</button>
-      <a class="et-btn" id="btnXlsx" href="./data.xlsx" download title="Excel məlumatını yüklə">📊 Excel</a>
-    </div>
+    <button class="et-btn" id="btnPrint" type="button" title="Hesabatı PDF kimi yüklə">📄 PDF</button>
+    <a class="et-btn" id="btnXlsx" href="./data.xlsx" download title="Excel məlumatını yüklə">📊 Excel</a>
   </div>
 
   <!-- BÖLMƏ 1 — Başlıq və layihə kimliyi -->`;
@@ -99,51 +89,32 @@ html = html.replace(
 );
 
 // ------------------------------------------------------------------
-// 5) Post-boot enhancement script: fills status strip + wires buttons.
-//     Written with string concatenation (no ${} / backticks) to keep it
-//     out of this file's own template interpolation.
+// 5) Post-boot script: wires the Excel link and the single-page PDF export.
+//     The PDF is rendered as ONE continuous page (a full clone of the report),
+//     so nothing is cut across page boundaries.
 // ------------------------------------------------------------------
 const enhance = `<script>
-/* Executive toolbar — status strip + Excel/PDF actions. Runs after the report boots. */
+/* Export actions — Excel link + client-side single-page PDF. Runs after boot. */
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
-  function esc(s){ s=(s==null?'':String(s)); return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
-  function fmt(n){ return (n==null||(typeof n==='number'&&isNaN(n)))?'—':String(n); }
   ready(function(){
-    var D=window.DASH||{}, m=D.meta||{};
-    var f=(typeof m.officialOverall==='number')?m.officialOverall:null;
-    var p=(typeof m.officialPlan==='number')?m.officialPlan:null;
-    var dev=(f!=null&&p!=null)?(f-p):null;
-    var cls='good', txt='Qrafik üzrə';
-    if(dev!=null){
-      if(dev<=-15){cls='risk'; txt='Ciddi geri qalma';}
-      else if(dev<=-5){cls='warn'; txt='Cədvəldən geri';}
-      else if(dev<0){cls='warn'; txt='Cüzi geri qalma';}
-      else {cls='good'; txt='Qrafik üzrə';}
-    }
-    var devStr=(dev!=null)?((dev>0?'+':'')+dev.toFixed(2)+'%'):'—';
-    var s=
-      '<span class="status-pill '+cls+'">'+esc(txt)+'</span>'+
-      '<span class="et-fig"><b>'+fmt(f)+(f!=null?'%':'')+'</b> icra · plan '+fmt(p)+(p!=null?'%':'')+' · <span class="'+cls+'">'+esc(devStr)+'</span></span>'+
-      '<span class="et-fig">Qalan <b>~'+fmt(m.daysRemaining)+'</b> gün · Hədəf '+esc(m.revisedFinish||m.plannedFinish||'—')+'</span>';
-    var es=document.getElementById('etStatus'); if(es){ es.innerHTML=s; }
     var bp=document.getElementById('btnPrint');
     if(bp){ bp.addEventListener('click', function(){
       var wrap=document.querySelector('.wrap');
       if(typeof html2pdf==='undefined' || !wrap){ window.print(); return; }
-      var actions=document.querySelector('.et-actions');
-      var label=bp.textContent;
-      bp.disabled=true; bp.textContent='PDF hazırlanır…';
-      if(actions) actions.style.visibility='hidden';
-      var fname=((window.DASH&&window.DASH.meta&&window.DASH.meta.village)||'tikinti')+' hesabati.pdf';
-      var done=function(){ if(actions) actions.style.visibility=''; bp.disabled=false; bp.textContent=label; };
+      var tb=document.getElementById('execToolbar');
+      var label=bp.textContent; bp.disabled=true; bp.textContent='PDF hazırlanır…';
+      if(tb){ tb.style.display='none'; }       // keep the buttons out of the file
       window.scrollTo(0,0);
+      var w=Math.ceil(wrap.scrollWidth), h=Math.ceil(wrap.scrollHeight);
+      var fname=((window.DASH&&window.DASH.meta&&window.DASH.meta.village)||'tikinti')+' hesabati.pdf';
+      var done=function(){ if(tb){ tb.style.display=''; } bp.disabled=false; bp.textContent=label; };
       html2pdf().set({
-        margin:[5,5,5,5], filename:fname,
-        image:{type:'jpeg', quality:0.95},
-        html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', scrollX:0, scrollY:0, windowWidth:wrap.scrollWidth},
-        jsPDF:{unit:'mm', format:'a4', orientation:'portrait'},
-        pagebreak:{mode:['css','legacy'], avoid:['.section','.chart-card','.kpi','.insight']}
+        margin:0, filename:fname,
+        image:{type:'jpeg', quality:0.96},
+        html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', scrollX:0, scrollY:0, windowWidth:w, windowHeight:h},
+        jsPDF:{unit:'px', format:[w, h+24], orientation:'portrait', hotfixes:['px_scaling']}, // +24 absorbs sub-pixel rounding -> exactly 1 page
+        pagebreak:{mode:'avoid-all'}        // single continuous page — no cuts
       }).from(wrap).save().then(done).catch(function(){ done(); window.print(); });
     }); }
     var bx=document.getElementById('btnXlsx');
@@ -230,15 +201,15 @@ html = html.replace(
 // ------------------------------------------------------------------
 for (const [marker, name] of [
   ['src-pdf', 'footer PDF CSS'],
-  ['exec-toolbar', 'executive toolbar'],
+  ['exec-toolbar', 'export bar'],
   ['btnXlsx', 'Excel button'],
   ['&#39;', 'esc hardening'],
-  ['etStatus', 'status strip script'],
   ['linear-gradient(90deg,#1F3F66', 'colored title banner'],
   ['var hasPlan=points.some', 'trend plan-dots'],
   ["secOther.style.display='none'", 'hide empty other-objects'],
   ['html2pdf.bundle.min.js', 'html2pdf library'],
   ['PDF hazırlanır', 'PDF download handler'],
+  ["pagebreak:{mode:'avoid-all'}", 'single-page PDF'],
 ]) {
   if (!html.includes(marker)) { console.error('ERROR: enhancement missing:', name); process.exit(1); }
 }
