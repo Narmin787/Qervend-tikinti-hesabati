@@ -55,9 +55,10 @@
           const sheets = wb.SheetNames.map(n=>({name:n, rows:XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:''})}));
           exData = P.parseExcelRows(sheets);
         } else if(lower.endsWith('.pdf')){
-          const buf = await f.arrayBuffer();
-          pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-          pdfData = P.parsePrimaveraText(await pdfText(buf));
+          const bytes = new Uint8Array(await f.arrayBuffer());
+          const parsed = P.parsePrimaveraText(await pdfText(bytes.slice())); // copy: pdf.js may detach
+          // Use the Primavera PDF (the one with a WBS / work items) for detail + as source.pdf.
+          if(parsed.workItems.lots.length || !pdfData){ pdfData = parsed; pdfBase64 = bytesToB64(bytes); }
         }
       }
       data = merge(P.blankData(), exData, pdfData);
@@ -67,6 +68,10 @@
       status('parseStatus','Oxundu — aşağıda yoxlayın və redaktə edin.','ok');
     }catch(e){ status('parseStatus','Xəta: '+e.message,'err'); console.error(e); }
   };
+
+  function bytesToB64(bytes){ var bin='', CH=0x8000;
+    for(var i=0;i<bytes.length;i+=CH) bin+=String.fromCharCode.apply(null, bytes.subarray(i,i+CH));
+    return btoa(bin); }
 
   async function pdfText(buf){
     const pdf = await pdfjsLib.getDocument({data:buf}).promise; let out='';

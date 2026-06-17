@@ -3,6 +3,7 @@
    Exposes window.REPORT_PARSERS = { parseExcelRows, parsePrimaveraText, blankData }. */
 (function () {
   const pct = v => (v == null || v === '' || isNaN(+v)) ? null : Math.round(+v * 10000) / 100; // 0.4496 -> 44.96
+  const round2 = n => Math.round(n * 100) / 100;
   const clean = s => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
   const isNum = v => v != null && v !== '' && !isNaN(+v);
 
@@ -90,19 +91,25 @@
     const fye = node(new RegExp(`${R}\\.3\\.1\\s.*(Yasayis|Yaşayış|Residential)`, 'i'));
     // packets 3.1.1..3.1.N (Merhele)
     const packets = [];
+    const allStages = {};   // stage -> all house-type nodes across packets (for the "Cəmi" row)
     for (let i = 1; i <= 12; i++) {
       const n = node(new RegExp(`${R}\\.3\\.1\\.${i}\\s.*(Merhele|Mərhələ|Phase)`, 'i'));
       if (!n) break;
-      const nm = (n.line.match(/Merhele\s*\d+\s*\(([^)]*ev)\)/i) || [])[1] || `Paket ${i}`;
       const ev = evCount(n.line);
-      const rooms = [];
-      for (let j = 1; j <= 6; j++) {
-        const rn = node(new RegExp(`${R}\\.3\\.1\\.${i}\\.${j}\\s.*Otaqli`, 'i'));
-        if (!rn) break;
-        const dm = (rn.line.match(/(\d+)\s*Otaqli/i) || [])[1];
-        rooms.push({ name: dm ? `${dm} otaqlı evlər` : `Tip ${j}`, fakt: rn.fakt, plan: rn.plan });
+      // Work stages, averaged across the (up to 4) house types of this packet.
+      const stages = [];
+      const stageNames = ['Qaba işlər','Dam örtüyü','Daxili bəzək','MEP (mex/elektrik/santexnika)','Xarici bəzək (fasad)','Təsərrüfat tikililəri'];
+      for (let st = 1; st <= 6; st++) {
+        const vals = [];
+        for (let room = 1; room <= 4; room++) {
+          const sn = node(new RegExp(`${R}\\.3\\.1\\.${i}\\.${room}\\.${st}\\s`, 'i'));
+          if (sn) { vals.push(sn); allStages[st] = (allStages[st]||[]).concat([sn]); }
+        }
+        if (vals.length) stages.push({ name: stageNames[st-1],
+          fakt: round2(vals.reduce((s,v)=>s+v.fakt,0)/vals.length),
+          plan: round2(vals.reduce((s,v)=>s+v.plan,0)/vals.length) });
       }
-      packets.push({ name:`Paket ${i} (${ev||'?'} ev)`, ev, fakt:n.fakt, plan:n.plan, rooms });
+      packets.push({ name:`Paket ${i} (${ev||'?'} ev)`, ev, fakt:n.fakt, plan:n.plan, stages });
     }
     // infrastructure 3.3 phases
     const infra = node(new RegExp(`${R}\\.3\\.3\\s`, 'i'));
@@ -113,13 +120,16 @@
       phases.push({ name:`Mərhələ ${i}`, fakt:ph.fakt, plan:ph.plan });
     }
 
-    // Build workItems: a "Cəmi" overview + a lot per packet (room types)
+    // Build workItems: "Cəmi" (all house types averaged) + a lot per packet (work stages)
     const lots = [];
     if (packets.length) {
+      const stageNames = ['Qaba işlər','Dam örtüyü','Daxili bəzək','MEP (mex/elektrik/santexnika)','Xarici bəzək (fasad)','Təsərrüfat tikililəri'];
+      const cemi = [];
+      for (let st = 1; st <= 6; st++) { const v = allStages[st]; if (v && v.length)
+        cemi.push({ name: stageNames[st-1], fakt: round2(v.reduce((s,x)=>s+x.fakt,0)/v.length), plan: round2(v.reduce((s,x)=>s+x.plan,0)/v.length) }); }
       lots.push({ id:'cemi', name:`Cəmi (${packets.reduce((s,p)=>s+(p.ev||0),0)} ev)`,
-        ev: packets.reduce((s,p)=>s+(p.ev||0),0),
-        items: packets.map(p => ({ name:p.name, fakt:p.fakt, plan:p.plan })) });
-      packets.forEach((p,k) => lots.push({ id:'p'+(k+1), name:p.name, ev:p.ev, items:p.rooms }));
+        ev: packets.reduce((s,p)=>s+(p.ev||0),0), items: cemi });
+      packets.forEach((p,k) => lots.push({ id:'p'+(k+1), name:p.name, ev:p.ev, items:p.stages }));
     }
     out.workItems.lots = lots;
     out.packages.items = packets.map(p => ({ name:p.name, ev:p.ev, plan:p.plan, fakt:p.fakt }));
