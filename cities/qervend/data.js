@@ -9,10 +9,10 @@ window.DASH.meta = {
   "reportDate": "16.06.2026",
   "cutoffDate": "11.06.2026",
   "startDate": "06.10.2025",
-  "plannedFinish": "05.11.2026",
+  "plannedFinish": "30.11.2026",
   "revisedFinish": "30.11.2026",
-  "baselineDays": 395,
-  "extraDays": 25,
+  "baselineDays": 415,
+  "extraDays": 0,
   "daysRemaining": 172,
   "officialOverall": 31.52,
   "officialPlan": 54.86,
@@ -135,9 +135,14 @@ window.DASH.packages = {
   ],
   "trend": [
     {
-      "date": "21.05.2026",
-      "fakt": 26.05,
-      "plan": 45.66
+      "date": "28.05.2026",
+      "fakt": 30.17,
+      "plan": 49.64
+    },
+    {
+      "date": "04.06.2026",
+      "fakt": 31.03,
+      "plan": 51.74
     },
     {
       "date": "11.06.2026",
@@ -145,7 +150,7 @@ window.DASH.packages = {
       "plan": 54.86
     }
   ],
-  "trendNote": "Ümumi icra: faktiki (qırmızı) və plan (mavi nöqtəli). Mənbə: həftəlik gecikmə hesabatı (21.05.2026 və 11.06.2026 kəsimləri). Aralıq həftələr üçün yalnız gecikmə faizi mövcuddur."
+  "trendNote": "Yalnız ÜMUMİ icra. Qırmızı = faktiki, mavi nöqtəli = plan. Mənbə: həftəlik hesabatlar (28.05, 04.06, 11.06). Plan 49.64% → 54.86% qalxdığı, faktiki isə 30.17% → 31.52% qaldığı üçün plandan geriləmə həftədən-həftəyə artır."
 };
 window.DASH.workItems = {
   "lots": [
@@ -155,24 +160,34 @@ window.DASH.workItems = {
       "ev": 851,
       "items": [
         {
-          "name": "Paket 1 (150 ev)",
-          "fakt": 52.92,
-          "plan": 70.76
+          "name": "Qaba işlər",
+          "fakt": 84.26,
+          "plan": 89.8
         },
         {
-          "name": "Paket 2 (200 ev)",
-          "fakt": 42.49,
-          "plan": 62.04
+          "name": "Dam örtüyü",
+          "fakt": 6.69,
+          "plan": 21.79
         },
         {
-          "name": "Paket 3 (205 ev)",
-          "fakt": 33.07,
-          "plan": 44.69
+          "name": "Daxili bəzək",
+          "fakt": 5.87,
+          "plan": 21.96
         },
         {
-          "name": "Paket 4 (296 ev)",
-          "fakt": 35.18,
-          "plan": 45.56
+          "name": "MEP (mex/elektrik/santexnika)",
+          "fakt": 7.71,
+          "plan": 32.95
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 0,
+          "plan": 6.43
+        },
+        {
+          "name": "Təsərrüfat tikililəri",
+          "fakt": 0,
+          "plan": 59.46
         }
       ]
     },
@@ -182,24 +197,34 @@ window.DASH.workItems = {
       "ev": 150,
       "items": [
         {
-          "name": "2 otaqlı evlər",
-          "fakt": 56.16,
-          "plan": 77.93
+          "name": "Qaba işlər",
+          "fakt": 95.56,
+          "plan": 98.55
         },
         {
-          "name": "3 otaqlı evlər",
-          "fakt": 57.16,
-          "plan": 76.73
+          "name": "Dam örtüyü",
+          "fakt": 26.77,
+          "plan": 33.66
         },
         {
-          "name": "4 otaqlı evlər",
-          "fakt": 45.12,
-          "plan": 59.19
+          "name": "Daxili bəzək",
+          "fakt": 8.1,
+          "plan": 43.18
         },
         {
-          "name": "5 otaqlı evlər",
-          "fakt": 48.51,
-          "plan": 61.99
+          "name": "MEP (mex/elektrik/santexnika)",
+          "fakt": 14.86,
+          "plan": 52.78
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 0,
+          "plan": 9.44
+        },
+        {
+          "name": "Təsərrüfat tikililəri",
+          "fakt": 0,
+          "plan": 59.72
         }
       ]
     },
@@ -209,24 +234,34 @@ window.DASH.workItems = {
       "ev": 200,
       "items": [
         {
-          "name": "2 otaqlı evlər",
-          "fakt": 45.97,
-          "plan": 71.42
+          "name": "Qaba işlər",
+          "fakt": 88.59,
+          "plan": 91.66
         },
         {
-          "name": "3 otaqlı evlər",
-          "fakt": 46.51,
-          "plan": 67
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 40.54
         },
         {
-          "name": "4 otaqlı evlər",
-          "fakt": 29.85,
-          "plan": 56.93
+          "name": "Daxili bəzək",
+          "fakt": 7.74,
+          "plan": 24.27
         },
         {
-          "name": "5 otaqlı evlər",
-          "fakt": 36.67,
-          "plan": 40.97
+          "name": "MEP (mex/elektrik/santexnika)",
+          "fakt": 7.96,
+          "plan": 42.09
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 0,
+          "plan": 15.5
+        },
+        {
+          "name": "Təsərrüfat tikililəri",
+          "fakt": 0,
+          "plan": 66.28
         }
       ]
     },
@@ -236,24 +271,34 @@ window.DASH.workItems = {
       "ev": 205,
       "items": [
         {
-          "name": "2 otaqlı evlər",
-          "fakt": 38.47,
-          "plan": 50.76
+          "name": "Qaba işlər",
+          "fakt": 74.53,
+          "plan": 84.77
         },
         {
-          "name": "3 otaqlı evlər",
-          "fakt": 30.44,
-          "plan": 37.75
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
         },
         {
-          "name": "4 otaqlı evlər",
-          "fakt": 31.26,
-          "plan": 46.49
+          "name": "Daxili bəzək",
+          "fakt": 4.31,
+          "plan": 8.7
         },
         {
-          "name": "5 otaqlı evlər",
-          "fakt": 31.08,
-          "plan": 42.3
+          "name": "MEP (mex/elektrik/santexnika)",
+          "fakt": 7.42,
+          "plan": 22.88
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat tikililəri",
+          "fakt": 0,
+          "plan": 55.93
         }
       ]
     },
@@ -263,24 +308,34 @@ window.DASH.workItems = {
       "ev": 296,
       "items": [
         {
-          "name": "2 otaqlı evlər",
-          "fakt": 25.89,
-          "plan": 54.98
+          "name": "Qaba işlər",
+          "fakt": 78.36,
+          "plan": 84.21
         },
         {
-          "name": "3 otaqlı evlər",
-          "fakt": 46.98,
-          "plan": 41.2
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 12.97
         },
         {
-          "name": "4 otaqlı evlər",
-          "fakt": 34.24,
-          "plan": 48.88
+          "name": "Daxili bəzək",
+          "fakt": 3.33,
+          "plan": 11.69
         },
         {
-          "name": "5 otaqlı evlər",
-          "fakt": 31.17,
-          "plan": 33.77
+          "name": "MEP (mex/elektrik/santexnika)",
+          "fakt": 0.61,
+          "plan": 14.05
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 0,
+          "plan": 0.78
+        },
+        {
+          "name": "Təsərrüfat tikililəri",
+          "fakt": 0,
+          "plan": 55.93
         }
       ]
     }

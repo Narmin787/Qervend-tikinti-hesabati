@@ -17,8 +17,8 @@ const data = {
     projectTitle: 'QƏRVƏND KƏNDİ — TİKİNTİ GEDİŞATI HESABATI',
     village: 'Qərvənd kəndi', district: 'Ağdam rayonu', contractor: 'İMA Energy MMC',
     reportDate: '16.06.2026', cutoffDate: '11.06.2026',
-    startDate: '06.10.2025', plannedFinish: '05.11.2026', revisedFinish: '30.11.2026',
-    baselineDays: 395, extraDays: 25, daysRemaining: 172,
+    startDate: '06.10.2025', plannedFinish: '30.11.2026', revisedFinish: '30.11.2026', // [P] BL Finish 30-Nov-26
+    baselineDays: 415, extraDays: 0, daysRemaining: 172, // [P] BL Project Duration 415 gün
     officialOverall: 31.52, officialPlan: 54.86, // [P] QRVND_Upd 31.52% / 54.86%
     primaveraCode: 'QRVND_Upd', note: '', sourcePdf: 'source.pdf',
   },
@@ -48,45 +48,59 @@ const data = {
       { name:'Paket 3 (205)', ev:205, plan:44.69, fakt:33.07 },
       { name:'Paket 4 (296)', ev:296, plan:45.56, fakt:35.18 },
     ],
-    // [E] Real ümumi faktiki/plan kəsimləri: Sheet1 (21.05) və yeni (11.06).
+    // [E] YALNIZ ÜMUMİ icra, üç həftəlik hesabat: 28.05, 04.06, 11.06.
+    //     plan/fakt həmin tarixli hesabatların "Ümumi" sətrindən.
     trend: [
-      { date:'21.05.2026', fakt:26.05, plan:45.66 },
+      { date:'28.05.2026', fakt:30.17, plan:49.64 },
+      { date:'04.06.2026', fakt:31.03, plan:51.74 },
       { date:'11.06.2026', fakt:31.52, plan:54.86 },
     ],
-    trendNote: 'Ümumi icra: faktiki (qırmızı) və plan (mavi nöqtəli). Mənbə: həftəlik gecikmə hesabatı (21.05.2026 və 11.06.2026 kəsimləri). Aralıq həftələr üçün yalnız gecikmə faizi mövcuddur.',
+    trendNote: 'Yalnız ÜMUMİ icra. Qırmızı = faktiki, mavi nöqtəli = plan. Mənbə: həftəlik hesabatlar (28.05, 04.06, 11.06). Plan 49.64% → 54.86% qalxdığı, faktiki isə 30.17% → 31.52% qaldığı üçün plandan geriləmə həftədən-həftəyə artır.',
   },
 
-  // [P] Hər paket üçün ev tipləri (real WBS qovşaqları: Performance%/Schedule%).
+  // [P] Görülən işlər — iş mərhələləri üzrə. Hər paketin faizi həmin paketin
+  //     4 ev tipinin (2/3/4/5 otaqlı) eyni mərhələ faizlərinin ORTALAMASIDIR
+  //     (Primavera Performance%/Schedule%). "Cəmi" 16 ev-tipi qovşağının ortalaması.
   workItems: { lots: [
     { id:'cemi', name:'Cəmi (851 ev)', ev:851, items:[
-      { name:'Paket 1 (150 ev)', fakt:52.92, plan:70.76 },
-      { name:'Paket 2 (200 ev)', fakt:42.49, plan:62.04 },
-      { name:'Paket 3 (205 ev)', fakt:33.07, plan:44.69 },
-      { name:'Paket 4 (296 ev)', fakt:35.18, plan:45.56 },
+      { name:'Qaba işlər',            fakt:84.26, plan:89.80 },
+      { name:'Dam örtüyü',            fakt:6.69,  plan:21.79 },
+      { name:'Daxili bəzək',          fakt:5.87,  plan:21.96 },
+      { name:'MEP (mex/elektrik/santexnika)', fakt:7.71, plan:32.95 },
+      { name:'Xarici bəzək (fasad)',  fakt:0.00,  plan:6.43 },
+      { name:'Təsərrüfat tikililəri', fakt:0.00,  plan:59.46 },
     ]},
     { id:'p1', name:'Paket 1 (150 ev)', ev:150, items:[
-      { name:'2 otaqlı evlər', fakt:56.16, plan:77.93 },
-      { name:'3 otaqlı evlər', fakt:57.16, plan:76.73 },
-      { name:'4 otaqlı evlər', fakt:45.12, plan:59.19 },
-      { name:'5 otaqlı evlər', fakt:48.51, plan:61.99 },
+      { name:'Qaba işlər',            fakt:95.56, plan:98.55 },
+      { name:'Dam örtüyü',            fakt:26.77, plan:33.66 },
+      { name:'Daxili bəzək',          fakt:8.10,  plan:43.18 },
+      { name:'MEP (mex/elektrik/santexnika)', fakt:14.86, plan:52.78 },
+      { name:'Xarici bəzək (fasad)',  fakt:0.00,  plan:9.44 },
+      { name:'Təsərrüfat tikililəri', fakt:0.00,  plan:59.72 },
     ]},
     { id:'p2', name:'Paket 2 (200 ev)', ev:200, items:[
-      { name:'2 otaqlı evlər', fakt:45.97, plan:71.42 },
-      { name:'3 otaqlı evlər', fakt:46.51, plan:67.00 },
-      { name:'4 otaqlı evlər', fakt:29.85, plan:56.93 },
-      { name:'5 otaqlı evlər', fakt:36.67, plan:40.97 },
+      { name:'Qaba işlər',            fakt:88.59, plan:91.66 },
+      { name:'Dam örtüyü',            fakt:0.00,  plan:40.54 },
+      { name:'Daxili bəzək',          fakt:7.74,  plan:24.27 },
+      { name:'MEP (mex/elektrik/santexnika)', fakt:7.96, plan:42.09 },
+      { name:'Xarici bəzək (fasad)',  fakt:0.00,  plan:15.50 },
+      { name:'Təsərrüfat tikililəri', fakt:0.00,  plan:66.28 },
     ]},
     { id:'p3', name:'Paket 3 (205 ev)', ev:205, items:[
-      { name:'2 otaqlı evlər', fakt:38.47, plan:50.76 },
-      { name:'3 otaqlı evlər', fakt:30.44, plan:37.75 },
-      { name:'4 otaqlı evlər', fakt:31.26, plan:46.49 },
-      { name:'5 otaqlı evlər', fakt:31.08, plan:42.30 },
+      { name:'Qaba işlər',            fakt:74.53, plan:84.77 },
+      { name:'Dam örtüyü',            fakt:0.00,  plan:0.00 },
+      { name:'Daxili bəzək',          fakt:4.31,  plan:8.70 },
+      { name:'MEP (mex/elektrik/santexnika)', fakt:7.42, plan:22.88 },
+      { name:'Xarici bəzək (fasad)',  fakt:0.00,  plan:0.00 },
+      { name:'Təsərrüfat tikililəri', fakt:0.00,  plan:55.93 },
     ]},
     { id:'p4', name:'Paket 4 (296 ev)', ev:296, items:[
-      { name:'2 otaqlı evlər', fakt:25.89, plan:54.98 },
-      { name:'3 otaqlı evlər', fakt:46.98, plan:41.20 },
-      { name:'4 otaqlı evlər', fakt:34.24, plan:48.88 },
-      { name:'5 otaqlı evlər', fakt:31.17, plan:33.77 },
+      { name:'Qaba işlər',            fakt:78.36, plan:84.21 },
+      { name:'Dam örtüyü',            fakt:0.00,  plan:12.97 },
+      { name:'Daxili bəzək',          fakt:3.33,  plan:11.69 },
+      { name:'MEP (mex/elektrik/santexnika)', fakt:0.61, plan:14.05 },
+      { name:'Xarici bəzək (fasad)',  fakt:0.00,  plan:0.78 },
+      { name:'Təsərrüfat tikililəri', fakt:0.00,  plan:55.93 },
     ]},
   ]},
 

@@ -34,33 +34,44 @@ const uxCss = `.foot .prep{margin-top:4px; color:var(--faint)}
 .foot .src-pdf a{display:inline-block; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--blue); text-decoration:none; font-weight:600}
 .foot .src-pdf a:hover{background:var(--page)}
 
-/* ---------- Export bar (sticky PDF/Excel actions) ---------- */
-.exec-toolbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:flex-end; gap:8px;
-  background:rgba(255,255,255,.92); -webkit-backdrop-filter:saturate(1.1) blur(6px); backdrop-filter:saturate(1.1) blur(6px);
-  border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:8px 12px; margin-bottom:10px}
-.et-btn{display:inline-flex; align-items:center; gap:6px; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink); background:var(--card);
-  border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 13px; cursor:pointer; text-decoration:none; transition:all .12s}
-.et-btn:hover{border-color:#cfd5e0; box-shadow:var(--shadow)}
+/* ---------- Title-bar export actions (PDF/Excel on the report-name line) ---------- */
+.et-actions{display:flex; gap:8px; flex:0 0 auto}
+.et-btn{display:inline-flex; align-items:center; gap:6px; font-family:inherit; font-size:12px; font-weight:700; color:#fff;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.55); border-radius:var(--radius-sm);
+  padding:7px 12px; cursor:pointer; text-decoration:none; transition:all .12s; white-space:nowrap}
+.et-btn:hover{background:rgba(255,255,255,.30)}
 
 @media print{
-  .exec-toolbar{display:none}
+  .et-actions{display:none}
   .tip{display:none !important}
   body{font-size:11.5px; background:#fff}
   .wrap{max-width:none; padding:0}
   .section,.chart-card,.kpi{break-inside:avoid}
-}`;
+}
+
+/* ---------- Responsive (mobile): stack grids, keep desktop look elsewhere ---------- */
+@media (max-width:820px){
+  .wrap{padding:16px 12px 40px}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-5050,.grid-6535{grid-template-columns:1fr}
+  .report-title{flex-wrap:wrap; font-size:15px; padding:12px 14px}
+  .et-actions{margin-left:auto}
+}
+@media (max-width:440px){ .kpi-row{grid-template-columns:1fr} }`;
 html = html.replace('.foot .prep{margin-top:4px; color:var(--faint)}', uxCss);
 
 // ------------------------------------------------------------------
-// 2) Export bar markup (PDF + Excel buttons), at top of .wrap
+// 2) Move the PDF + Excel buttons ONTO the report-title line (compact)
 // ------------------------------------------------------------------
-const toolbar = `  <div class="exec-toolbar" id="execToolbar">
-    <button class="et-btn" id="btnPrint" type="button" title="Hesabatı PDF kimi yüklə">📄 PDF</button>
-    <a class="et-btn" id="btnXlsx" href="./data.xlsx" download title="Excel məlumatını yüklə">📊 Excel</a>
-  </div>
-
-  <!-- BÖLMƏ 1 — Başlıq və layihə kimliyi -->`;
-html = html.replace('  <!-- BÖLMƏ 1 — Başlıq və layihə kimliyi -->', toolbar);
+html = html.replace(
+  `    <h1 class="report-title" id="reportTitle">—</h1>`,
+  `    <div class="report-title"><span id="reportTitle">—</span>
+      <span class="et-actions">
+        <button class="et-btn" id="btnPrint" type="button" title="Hesabatı PDF kimi yüklə">📄 PDF</button>
+        <a class="et-btn" id="btnXlsx" href="./data.xlsx" download title="Excel məlumatını yüklə">📊 Excel</a>
+      </span>
+    </div>`
+);
 
 // ------------------------------------------------------------------
 // 3) Harden esc() to also escape quotes (XSS-safe attributes)
@@ -98,24 +109,33 @@ const enhance = `<script>
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
   ready(function(){
+    var DESK=1180;   // always render the PDF at desktop width (looks like the web, mobile included)
     var bp=document.getElementById('btnPrint');
     if(bp){ bp.addEventListener('click', function(){
       var wrap=document.querySelector('.wrap');
       if(typeof html2pdf==='undefined' || !wrap){ window.print(); return; }
-      var tb=document.getElementById('execToolbar');
+      var acts=document.querySelector('.et-actions');
       var label=bp.textContent; bp.disabled=true; bp.textContent='PDF hazırlanır…';
-      if(tb){ tb.style.display='none'; }       // keep the buttons out of the file
-      window.scrollTo(0,0);
-      var w=Math.ceil(wrap.scrollWidth), h=Math.ceil(wrap.scrollHeight);
+      if(acts){ acts.style.visibility='hidden'; }   // keep buttons out of the file
+      // Force desktop layout + resize charts, then capture as one continuous page.
+      var pw=wrap.style.width, pmw=wrap.style.maxWidth, pm=wrap.style.margin;
+      wrap.style.width=DESK+'px'; wrap.style.maxWidth=DESK+'px'; wrap.style.margin='0 auto';
+      try{ if(window.CHARTS&&CHARTS.resizeAll) CHARTS.resizeAll(); }catch(e){}
       var fname=((window.DASH&&window.DASH.meta&&window.DASH.meta.village)||'tikinti')+' hesabati.pdf';
-      var done=function(){ if(tb){ tb.style.display=''; } bp.disabled=false; bp.textContent=label; };
-      html2pdf().set({
-        margin:0, filename:fname,
-        image:{type:'jpeg', quality:0.96},
-        html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', scrollX:0, scrollY:0, windowWidth:w, windowHeight:h},
-        jsPDF:{unit:'px', format:[w, h+24], orientation:'portrait', hotfixes:['px_scaling']}, // +24 absorbs sub-pixel rounding -> exactly 1 page
-        pagebreak:{mode:'avoid-all'}        // single continuous page — no cuts
-      }).from(wrap).save().then(done).catch(function(){ done(); window.print(); });
+      var restore=function(){ wrap.style.width=pw; wrap.style.maxWidth=pmw; wrap.style.margin=pm;
+        try{ if(window.CHARTS&&CHARTS.resizeAll) CHARTS.resizeAll(); }catch(e){}
+        if(acts){ acts.style.visibility=''; } bp.disabled=false; bp.textContent=label; };
+      setTimeout(function(){
+        var h=Math.ceil(wrap.scrollHeight);
+        window.scrollTo(0,0);
+        html2pdf().set({
+          margin:0, filename:fname,
+          image:{type:'jpeg', quality:0.96},
+          html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', scrollX:0, scrollY:0, windowWidth:DESK, windowHeight:h, width:DESK},
+          jsPDF:{unit:'px', format:[DESK, h+24], orientation:'portrait', hotfixes:['px_scaling']}, // +24 -> exactly 1 page
+          pagebreak:{mode:'avoid-all'}        // single continuous page — no cuts
+        }).from(wrap).save().then(restore).catch(function(){ restore(); window.print(); });
+      }, 450);   // let the desktop re-layout + chart resize settle
     }); }
     var bx=document.getElementById('btnXlsx');
     if(bx){ try{ fetch(bx.getAttribute('href'),{method:'HEAD'}).then(function(r){ if(!r.ok){bx.style.display='none';} }).catch(function(){ bx.style.display='none'; }); }catch(e){} }
@@ -136,9 +156,11 @@ html = html.replace(
   `.report-title{
   font-size:19px; font-weight:800; letter-spacing:.04em; color:#fff;
   text-transform:uppercase; margin:0 0 12px;
-  background:linear-gradient(90deg,#1F3F66,#2A6FA8); padding:14px 18px;
+  background:linear-gradient(90deg,#1F3F66,#2A6FA8); padding:13px 16px;
   border-radius:var(--radius); box-shadow:var(--shadow);
-}`
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+}
+.report-title>span:first-child{line-height:1.25}`
 );
 
 // ------------------------------------------------------------------
@@ -221,11 +243,19 @@ html = html.replace(
 );
 
 // ------------------------------------------------------------------
+// 11) Header: show "415 gün" (no "+ 0") when there is no extension
+// ------------------------------------------------------------------
+html = html.replace(
+  "if(m.baselineDays) items.push(`<span class=\"mi\">${m.baselineDays} + ${m.extraDays} gün</span>`);",
+  "if(m.baselineDays) items.push(`<span class=\"mi\">${m.baselineDays}${m.extraDays?(' + '+m.extraDays):''} gün</span>`);"
+);
+
+// ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
 // ------------------------------------------------------------------
 for (const [marker, name] of [
   ['src-pdf', 'footer PDF CSS'],
-  ['exec-toolbar', 'export bar'],
+  ['class="et-actions"', 'title-bar buttons'],
   ['btnXlsx', 'Excel button'],
   ['&#39;', 'esc hardening'],
   ['linear-gradient(90deg,#1F3F66', 'colored title banner'],
@@ -235,6 +265,7 @@ for (const [marker, name] of [
   ['html2pdf.bundle.min.js', 'html2pdf library'],
   ['PDF hazırlanır', 'PDF download handler'],
   ["pagebreak:{mode:'avoid-all'}", 'single-page PDF'],
+  ['windowWidth:DESK', 'desktop-width PDF'],
 ]) {
   if (!html.includes(marker)) { console.error('ERROR: enhancement missing:', name); process.exit(1); }
 }

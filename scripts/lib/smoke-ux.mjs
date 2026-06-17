@@ -15,19 +15,22 @@ for (const m of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if(m[1].trim()) 
 window.document.dispatchEvent(new window.Event('DOMContentLoaded'));
 
 const $ = id => window.document.getElementById(id);
-console.log('Export bar present  :', !!$('execToolbar'));
+const btnsInTitle = !!(window.document.querySelector('.report-title .et-actions #btnPrint')
+  && window.document.querySelector('.report-title .et-actions #btnXlsx'));
+console.log('Buttons on title bar:', btnsInTitle);
 console.log('PDF button          :', !!$('btnPrint'));
 console.log('Excel button + href :', !!$('btnXlsx'), $('btnXlsx') && $('btnXlsx').getAttribute('href'));
 console.log('No red status pill  :', !/status-pill/.test(html));
 console.log('Single-page PDF     :', /pagebreak:\{mode:'avoid-all'\}/.test(html));
-console.log('Print CSS present   :', /@media print/.test(html));
+console.log('Desktop-width PDF   :', /windowWidth:DESK/.test(html));
+console.log('Responsive CSS      :', /@media \(max-width:820px\)/.test(html));
 console.log('JS errors           :', errors.length?errors:'none');
 
 const wb = new ExcelJS.Workbook();
 await wb.xlsx.readFile('public/qervend/data.xlsx');
 console.log('data.xlsx sheets    :', wb.worksheets.map(w=>w.name).join(', '));
 
-const ok = $('execToolbar') && $('btnPrint') && $('btnXlsx') && !/status-pill/.test(html)
-  && /avoid-all/.test(html) && !errors.length && wb.worksheets.length>=10;
+const ok = btnsInTitle && $('btnPrint') && $('btnXlsx') && !/status-pill/.test(html)
+  && /avoid-all/.test(html) && /windowWidth:DESK/.test(html) && !errors.length && wb.worksheets.length>=10;
 console.log(ok ? '\nUX SMOKE PASSED' : '\nUX SMOKE FAILED');
 process.exit(ok?0:1);
