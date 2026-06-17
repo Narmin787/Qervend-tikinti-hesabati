@@ -18,7 +18,25 @@ window.DASH.meta = {
   "officialPlan": 54.86,
   "primaveraCode": "QRVND_Upd",
   "note": "",
-  "sourcePdf": "source.pdf"
+  "sourcePdf": "source.pdf",
+  "sources": [
+    {
+      "label": "Qervend Primavera 11.06.2026",
+      "file": "sources/Qervend-Primavera-11.06.2026.pdf"
+    },
+    {
+      "label": "Qervend gecikme hesabati 11.06.2026",
+      "file": "sources/Qervend-gecikme-hesabati-11.06.2026.xlsx"
+    },
+    {
+      "label": "Qervend hesabat icmal 04.06.2026",
+      "file": "sources/Qervend-hesabat-icmal-04.06.2026.pdf"
+    },
+    {
+      "label": "Qervend hesabat icmal 28.05.2026",
+      "file": "sources/Qervend-hesabat-icmal-28.05.2026.pdf"
+    }
+  ]
 };
 window.DASH.kpi = [
   {

@@ -31,7 +31,8 @@ let html = [skeleton, includes, engine, tail].join('\n');
 // 1) Footer source-PDF link CSS  (also holds export-bar CSS)
 // ------------------------------------------------------------------
 const uxCss = `.foot .prep{margin-top:4px; color:var(--faint)}
-.foot .src-pdf{margin-bottom:8px}
+.foot .src-pdf{margin-bottom:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.foot .src-pdf .src-title{width:100%; font-weight:700; color:var(--ink); margin-bottom:2px}
 .foot .src-pdf a{display:inline-block; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--blue); text-decoration:none; font-weight:600}
 .foot .src-pdf a:hover{background:var(--page)}
 
@@ -91,12 +92,15 @@ html = html.replace(
     $('footer').innerHTML = \`<div>\${esc(fo.sources||'')}</div><div class="prep">\${esc(fo.prepared||'')}</div>\`;
   }`,
   `  function renderFooter(){
-    const fo=(L.footer)||{}; let pdf=(D.meta&&D.meta.sourcePdf)||'';
-    if(pdf && !/^https?:\\/\\//i.test(pdf) && !/^[\\w./-]+$/.test(pdf)) pdf=''; // allow http(s) or relative paths only
-    const pdfLink = pdf
-      ? \`<div class="src-pdf"><a href="\${esc(pdf)}" target="_blank" rel="noopener">📄 Mənbə sənədi (PDF)</a></div>\`
-      : '';
-    $('footer').innerHTML = \`\${pdfLink}<div>\${esc(fo.sources||'')}</div><div class="prep">\${esc(fo.prepared||'')}</div>\`;
+    var fo=(L.footer)||{}, m=D.meta||{};
+    var src = Array.isArray(m.sources) ? m.sources.slice() : [];
+    if(!src.length && m.sourcePdf) src=[{label:'Mənbə sənədi (PDF)', file:m.sourcePdf}];
+    var ok=function(u){ return /^https?:\\/\\//i.test(u) || /^[\\w./ -]+$/.test(u); };
+    var icon=function(u){ return /\\.(xlsx|xls|csv)$/i.test(u)?'📊':(/\\.pdf$/i.test(u)?'📄':'📎'); };
+    var links=src.map(function(s){ var u=String(s.file||''); if(!ok(u)) return '';
+      return '<a href="'+esc(encodeURI(u))+'" target="_blank" rel="noopener" download>'+icon(u)+' '+esc(s.label||u)+'</a>'; }).filter(Boolean).join('');
+    var block = links ? ('<div class="src-pdf"><span class="src-title">Mənbə sənədləri:</span>'+links+'</div>') : '';
+    $('footer').innerHTML = block + '<div>'+esc(fo.sources||'')+'</div><div class="prep">'+esc(fo.prepared||'')+'</div>';
   }`
 );
 

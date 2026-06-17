@@ -59,6 +59,21 @@ for (const city of cityDirs) {
 
   const outDir = path.join(OUT, city);
   fs.mkdirSync(outDir, { recursive: true });
+
+  // Source documents: copy cities/<city>/sources/* -> public/<city>/sources/ and list them.
+  const srcDir = path.join(dir, 'sources');
+  const sources = [];
+  if (fs.existsSync(srcDir)) {
+    const outSrc = path.join(outDir, 'sources');
+    fs.mkdirSync(outSrc, { recursive: true });
+    for (const f of fs.readdirSync(srcDir).filter(f => !f.startsWith('.')).sort()) {
+      fs.copyFileSync(path.join(srcDir, f), path.join(outSrc, f));
+      sources.push({ label: f.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '), file: 'sources/' + f });
+    }
+  }
+  if (fs.existsSync(pdf)) sources.push({ label: 'Mənbə sənədi (PDF)', file: 'source.pdf' });
+  if (sources.length) data.meta.sources = sources;
+
   fs.writeFileSync(path.join(outDir, 'index.html'), engineHtml);
   fs.writeFileSync(path.join(outDir, 'config.js'), configJs);
   fs.writeFileSync(path.join(outDir, 'data.js'), dataToJs(data, data.meta.village || city));
