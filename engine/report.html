@@ -779,7 +779,9 @@ table.vel td .pos{color:var(--good); font-weight:600}
 
   /* ---------- Section 4: packages ---------- */
   function renderPackages(){
-    const p=D.packages; if(!p) return;
+    const p=D.packages; var secPk=document.getElementById('sec-packages');
+    if(!p || !p.items || !p.items.length){ if(secPk) secPk.style.display='none'; return; }
+    if(secPk) secPk.style.display='';
     $('t-packages').textContent=(L.sections&&L.sections.s4)||'';
     $('ct-pkgBar').textContent=(L.charts&&L.charts.pkgBar)||'';
     $('ct-pkgTrend').textContent=(L.charts&&L.charts.pkgTrend)||'';
@@ -796,7 +798,9 @@ table.vel td .pos{color:var(--good); font-weight:600}
   /* ---------- Section 5: work items + tabs ---------- */
   let WI_ACTIVE='cemi';
   function renderWorkItems(){
-    const w=D.workItems; if(!w) return;
+    const w=D.workItems; var secWI=document.getElementById('sec-workitems');
+    if(!w || !w.lots || !w.lots.length){ if(secWI) secWI.style.display='none'; return; }
+    if(secWI) secWI.style.display='';
     $('t-workitems').textContent=(L.sections&&L.sections.s5)||'';
     const tabs=$('lotTabs'); tabs.innerHTML='';
     w.lots.forEach(lot=>{

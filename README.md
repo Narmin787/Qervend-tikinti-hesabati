@@ -98,6 +98,35 @@ index.html     — şablonun mənbəyi (make-engine.mjs bundan report.html qurur
 | `npm run template` | `template/data-template.xlsx` yaradır |
 | `npm test` | Excel↔data round-trip + render smoke testləri |
 
+## Hesabat Generatoru (gizli builder app)
+
+Gizli ünvanda işləyən, brauzerdə çalışan generator (heç bir AI yoxdur):
+
+**`/narminreportwebapp`** (məs. `https://qervend-tikinti-hesabati.vercel.app/narminreportwebapp`)
+
+- **Yeni** hesabat yarat və ya **mövcudu** seçib yenilə.
+- Xam **Excel + Primavera PDF** yüklə → avtomatik oxunur (deterministik).
+- Hər detalı (rəqəm, ad, qeyd, KPI) **redaktə et**, yanında **canlı önizləmə**.
+- **⬇ source.xlsx / data.js** yüklə (tam offline) **və ya 🚀 Deploy** —
+  GitHub-a göndərir, Vercel 1-5 dəqiqəyə canlı versiyanı yeniləyir.
+
+Mənbə faylları `webapp/`-də; `npm run build` onları `public/narminreportwebapp/`-ə
+köçürür. Səhifəyə görünən keçid yoxdur (yalnız ünvanı bilən açır).
+
+### Deploy düyməsi üçün Vercel parametrləri (bir dəfəlik)
+
+Deploy düyməsi `api/deploy.js` serverless funksiyasını çağırır. Vercel
+layihəsinin **Settings → Environment Variables** bölməsində təyin edin:
+
+| Dəyişən | İzah |
+|--------|------|
+| `GITHUB_TOKEN` | Bu repo üçün **Contents: read/write** icazəli fine-grained token |
+| `DEPLOY_PASSWORD` | Gizli parol — appdə bu parolu daxil etməsən push olmur |
+| `GITHUB_OWNER` / `GITHUB_REPO` / `GITHUB_BRANCH` | (istəyə bağlı; default Narmin787 / Qervend-tikinti-hesabati / main) |
+
+Bu dəyişənlər təyin edilməyənə qədər **yükləmə/redaktə/önizləmə işləyir**,
+yalnız Deploy düyməsi gözləyir.
+
 ## Keyfiyyət
 
 - **Excel ↔ data çevrilməsi itkisizdir** (`scripts/lib/roundtrip-test.mjs`).

@@ -197,6 +197,30 @@ html = html.replace(
 );
 
 // ------------------------------------------------------------------
+// 9) Hide the "Görülən işlər" section when there are no lots (robustness)
+// ------------------------------------------------------------------
+html = html.replace(
+  `  function renderWorkItems(){
+    const w=D.workItems; if(!w) return;`,
+  `  function renderWorkItems(){
+    const w=D.workItems; var secWI=document.getElementById('sec-workitems');
+    if(!w || !w.lots || !w.lots.length){ if(secWI) secWI.style.display='none'; return; }
+    if(secWI) secWI.style.display='';`
+);
+
+// ------------------------------------------------------------------
+// 10) Hide the "Paketlər" section when there are no packets (robustness)
+// ------------------------------------------------------------------
+html = html.replace(
+  `  function renderPackages(){
+    const p=D.packages; if(!p) return;`,
+  `  function renderPackages(){
+    const p=D.packages; var secPk=document.getElementById('sec-packages');
+    if(!p || !p.items || !p.items.length){ if(secPk) secPk.style.display='none'; return; }
+    if(secPk) secPk.style.display='';`
+);
+
+// ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
 // ------------------------------------------------------------------
 for (const [marker, name] of [
@@ -207,6 +231,7 @@ for (const [marker, name] of [
   ['linear-gradient(90deg,#1F3F66', 'colored title banner'],
   ['var hasPlan=points.some', 'trend plan-dots'],
   ["secOther.style.display='none'", 'hide empty other-objects'],
+  ["secWI.style.display='none'", 'hide empty work-items'],
   ['html2pdf.bundle.min.js', 'html2pdf library'],
   ['PDF hazırlanır', 'PDF download handler'],
   ["pagebreak:{mode:'avoid-all'}", 'single-page PDF'],

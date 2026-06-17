@@ -72,6 +72,19 @@ for (const city of cityDirs) {
   console.log('built', city, '->', `public/${city}/`);
 }
 
+// ---- Builder app (hidden route /narminreportwebapp) ----
+const WEBAPP = path.join(ROOT, 'webapp');
+if (fs.existsSync(WEBAPP)) {
+  const appOut = path.join(OUT, 'narminreportwebapp');
+  fs.mkdirSync(appOut, { recursive: true });
+  for (const f of fs.readdirSync(WEBAPP)) fs.copyFileSync(path.join(WEBAPP, f), path.join(appOut, f));
+  fs.copyFileSync(path.join(ROOT, 'engine/report.html'), path.join(appOut, 'report-template.html'));
+  fs.copyFileSync(path.join(ROOT, 'engine/config.js'), path.join(appOut, 'config.js'));
+  fs.writeFileSync(path.join(appOut, 'cities.json'),
+    JSON.stringify(built.map(b => ({ slug: b.city, village: b.meta.village || b.city }))));
+  console.log('built builder app -> public/narminreportwebapp/');
+}
+
 // Landing page — executive overview with status badges, "most behind" first.
 function esc(s){ return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function status(m){
