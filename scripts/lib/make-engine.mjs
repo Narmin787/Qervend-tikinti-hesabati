@@ -265,6 +265,86 @@ html = html.replace(
 );
 
 // ------------------------------------------------------------------
+// 11) Detailed dashboards: room-level work items (plan+fakt), per-phase
+//     infrastructure tabs, tempo "?" help, and a weekly delay-change chart.
+// ------------------------------------------------------------------
+// Work items: grouped plan + fakt bars per stage (plan now visible).
+html = html.replace(
+  `    CHARTS.completionBars('ch-workItems', lot.items, {small:true});`,
+  `    CHARTS.groupedBar('ch-workItems', lot.items.map(function(i){return i.name;}), lot.items.map(function(i){return i.plan;}), lot.items.map(function(i){return i.fakt;}), {showLabels:true, rotate:14});`
+);
+// Infrastructure: phase tabs.
+html = html.replace(
+  `    <div class="chart-card"><div class="chart-title" id="ct-infra"></div><div class="chart" id="ch-infra" style="height:360px"></div></div>`,
+  `    <div class="tabs" id="infraTabs"></div>
+    <div class="chart-card"><div class="chart-title" id="ct-infra"></div><div class="chart" id="ch-infra" style="height:380px"></div></div>`
+);
+html = html.replace(
+  `  function renderInfra(){
+    const inf=D.infrastructure; if(!inf) return;
+    $('t-infra').textContent=(L.sections&&L.sections.s7)||'';
+    $('ct-infra').textContent=(L.charts&&L.charts.infra)||'';
+    const items=inf.items.slice().sort((a,b)=>b.fakt-a.fakt);
+    CHARTS.completionBars('ch-infra', items, {});
+    $('note-infra').innerHTML = \`<div class="note note-amber"><span class="lead">04.06 → 11.06 dəyişiklik:</span> \${esc(inf.weeklyNote)}</div>\`;
+  }`,
+  `  var INFRA_ACTIVE=null;
+  function renderInfra(){
+    var inf=D.infrastructure; if(!inf) return;
+    $('t-infra').textContent=(L.sections&&L.sections.s7)||'';
+    var lots=(inf.lots&&inf.lots.length)?inf.lots:[{id:'_',name:'Mərhələ üzrə',items:inf.items||[]}];
+    if(!INFRA_ACTIVE||!lots.some(function(l){return l.id===INFRA_ACTIVE;})) INFRA_ACTIVE=lots[0].id;
+    var tabs=$('infraTabs'); if(tabs){ tabs.innerHTML=''; lots.forEach(function(lot){
+      var b=document.createElement('button'); b.className='tab'+(lot.id===INFRA_ACTIVE?' active':'');
+      b.textContent=lot.name; b.onclick=function(){INFRA_ACTIVE=lot.id; renderInfra();}; tabs.appendChild(b); }); }
+    var lot=lots[0]; for(var i=0;i<lots.length;i++){ if(lots[i].id===INFRA_ACTIVE) lot=lots[i]; }
+    $('ct-infra').textContent=((L.charts&&L.charts.infra)||'İcra')+' — '+lot.name+' (Plan vs Fakt %)';
+    CHARTS.groupedBar('ch-infra', lot.items.map(function(i){return i.name;}), lot.items.map(function(i){return i.plan;}), lot.items.map(function(i){return i.fakt;}), {rotate:26});
+    $('note-infra').innerHTML='<div class="note note-amber"><span class="lead">04.06 → 11.06 dəyişiklik:</span> '+esc(inf.weeklyNote)+'</div>';
+  }`
+);
+// Velocity: weekly-change chart card after compliance.
+html = html.replace(
+  `    <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velCompliance"></div><div class="chart" id="ch-velCompliance" style="height:320px"></div></div>`,
+  `    <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velCompliance"></div><div class="chart" id="ch-velCompliance" style="height:320px"></div></div>
+    <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velWeekly"></div><div class="chart" id="ch-velWeekly" style="height:300px"></div></div>`
+);
+// Tempo "?" help tooltip.
+html = html.replace(
+  `    $('ct-velTempo').textContent=(L.charts&&L.charts.velTempo)||'';`,
+  `    $('ct-velTempo').innerHTML=esc((L.charts&&L.charts.velTempo)||'')+' <span class="tip" title="Tələb = (100 − faktiki%) ÷ qalan həftə sayı → vaxtında bitirmək üçün həftədə lazım olan faiz.&#10;Faktiki = (bu həftə faktiki − əvvəlki faktiki) ÷ keçən həftələr → real həftəlik templ.&#10;Planla müqayisə nə qədər geridəyik deyir; tempo isə bu templə vaxtında çatırıqmı sualına cavab verir. Tələb faktiki templdən böyükdürsə, geriləmə daha da artacaq.">?</span>';`
+);
+// Render the weekly-change chart.
+html = html.replace(
+  `    CHARTS.complianceBars('ch-velCompliance', velRows);`,
+  `    CHARTS.complianceBars('ch-velCompliance', velRows);
+    $('ct-velWeekly').textContent='Həftəlik dəyişiklik (04.06 → 11.06) — gecikmənin artması (qırmızı) / azalması (yaşıl)';
+    CHARTS.weeklyBars('ch-velWeekly', velRows);`
+);
+// weeklyBars chart fn + register in the CHARTS api.
+html = html.replace(
+  `  window.CHARTS = {
+    groupedBar:groupedBar, deviationBar:deviationBar, trendLine:trendLine,`,
+  `  function weeklyBars(id, rows){
+    var ch=mk(id); if(!ch) return;
+    var cats=rows.map(function(r){return r.short||r.obyekt;});
+    var vals=rows.map(function(r){ var d=r.dev3||[]; return d.length>=2 ? +(d[d.length-2]-d[d.length-1]).toFixed(2) : 0; });
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, formatter:function(ps){var v=ps[0].value; return ps[0].name+'<br/>'+(v>0?'Gecikmə <b>'+v+'%</b> artdı':(v<0?'Gecikmə <b>'+(-v)+'%</b> azaldı':'Dəyişiklik yoxdur'));}},tooltipBase),
+      grid:{left:8,right:66,top:10,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'value', axisLabel:{formatter:'{value}%',color:C.muted,fontFamily:FONT,fontSize:11}},axisCommon),
+      yAxis:Object.assign({type:'category', data:cats, inverse:true},axisCommon,{splitLine:{show:false},axisLabel:{color:C.muted,fontFamily:FONT,fontSize:10.5}}),
+      series:[{type:'bar', barMaxWidth:14, data:vals.map(function(v){return {value:v, itemStyle:{color: v>0?C.risk:(v<0?C.good:'#9AA1AB'), borderRadius:3}};}),
+        label:{show:true, position:'right', formatter:function(p){return (p.value>0?'+':'')+p.value+'%';}, color:C.muted, fontFamily:FONT, fontSize:10}}]
+    });
+  }
+
+  window.CHARTS = {
+    groupedBar:groupedBar, deviationBar:deviationBar, trendLine:trendLine, weeklyBars:weeklyBars,`
+);
+
+// ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
 // ------------------------------------------------------------------
 for (const [marker, name] of [
@@ -280,6 +360,10 @@ for (const [marker, name] of [
   ['html2canvas@1.4.1', 'html2canvas library'],
   ['PDF hazırlanır', 'PDF download handler'],
   ['pdf.addImage', 'per-section PDF builder'],
+  ['weeklyBars:weeklyBars', 'weekly-change chart'],
+  ['id="infraTabs"', 'infrastructure phase tabs'],
+  ['ch-velWeekly', 'weekly-change card'],
+  ['vaxtında bitirmək', 'tempo help tooltip'],
   ['windowWidth:DESK', 'desktop-width PDF'],
 ]) {
   if (!html.includes(marker)) { console.error('ERROR: enhancement missing:', name); process.exit(1); }

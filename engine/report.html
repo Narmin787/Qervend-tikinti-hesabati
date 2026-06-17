@@ -274,7 +274,8 @@ table.vel td .pos{color:var(--good); font-weight:600}
   <!-- BÖLMƏ 7 — Kommunikasiya və infrastruktur -->
   <section class="section" id="sec-infra">
     <h2 class="section-title" id="t-infra"></h2>
-    <div class="chart-card"><div class="chart-title" id="ct-infra"></div><div class="chart" id="ch-infra" style="height:360px"></div></div>
+    <div class="tabs" id="infraTabs"></div>
+    <div class="chart-card"><div class="chart-title" id="ct-infra"></div><div class="chart" id="ch-infra" style="height:380px"></div></div>
     <div id="note-infra"></div>
   </section>
 
@@ -292,6 +293,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
       <div class="chart-card"><div class="chart-title" id="ct-velTempo"></div><div class="chart" id="ch-velTempo" style="height:300px"></div></div>
     </div>
     <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velCompliance"></div><div class="chart" id="ch-velCompliance" style="height:320px"></div></div>
+    <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velWeekly"></div><div class="chart" id="ch-velWeekly" style="height:300px"></div></div>
     <div class="tbl-wrap" id="velTable"></div>
     <div id="note-velQeyd"></div>
     <div id="note-velNetice"></div>
@@ -542,8 +544,23 @@ table.vel td .pos{color:var(--good); font-weight:600}
     registry.forEach(function(c){ try{ c.resize(); }catch(e){} });
   }
 
+  function weeklyBars(id, rows){
+    var ch=mk(id); if(!ch) return;
+    var cats=rows.map(function(r){return r.short||r.obyekt;});
+    var vals=rows.map(function(r){ var d=r.dev3||[]; return d.length>=2 ? +(d[d.length-2]-d[d.length-1]).toFixed(2) : 0; });
+    ch.setOption({
+      animationDuration:ANIM, textStyle:{fontFamily:FONT},
+      tooltip:Object.assign({trigger:'axis', axisPointer:{type:'shadow'}, formatter:function(ps){var v=ps[0].value; return ps[0].name+'<br/>'+(v>0?'Gecikmə <b>'+v+'%</b> artdı':(v<0?'Gecikmə <b>'+(-v)+'%</b> azaldı':'Dəyişiklik yoxdur'));}},tooltipBase),
+      grid:{left:8,right:66,top:10,bottom:8,containLabel:true},
+      xAxis:Object.assign({type:'value', axisLabel:{formatter:'{value}%',color:C.muted,fontFamily:FONT,fontSize:11}},axisCommon),
+      yAxis:Object.assign({type:'category', data:cats, inverse:true},axisCommon,{splitLine:{show:false},axisLabel:{color:C.muted,fontFamily:FONT,fontSize:10.5}}),
+      series:[{type:'bar', barMaxWidth:14, data:vals.map(function(v){return {value:v, itemStyle:{color: v>0?C.risk:(v<0?C.good:'#9AA1AB'), borderRadius:3}};}),
+        label:{show:true, position:'right', formatter:function(p){return (p.value>0?'+':'')+p.value+'%';}, color:C.muted, fontFamily:FONT, fontSize:10}}]
+    });
+  }
+
   window.CHARTS = {
-    groupedBar:groupedBar, deviationBar:deviationBar, trendLine:trendLine,
+    groupedBar:groupedBar, deviationBar:deviationBar, trendLine:trendLine, weeklyBars:weeklyBars,
     completionBars:completionBars, gapBars:gapBars, stackedDaily:stackedDaily,
     totalLine:totalLine, dev3:dev3, tempoBars:tempoBars, complianceBars:complianceBars,
     resizeAll:resizeAll, completionColor:completionColor, complianceColor:complianceColor
@@ -822,7 +839,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
     });
     const lot=w.lots.find(l=>l.id===WI_ACTIVE)||w.lots[0];
     $('ct-workItems').textContent=`${(L.charts&&L.charts.workItems)||'İş Maddələri'} — ${lot.name} (%)`;
-    CHARTS.completionBars('ch-workItems', lot.items, {small:true});
+    CHARTS.groupedBar('ch-workItems', lot.items.map(function(i){return i.name;}), lot.items.map(function(i){return i.plan;}), lot.items.map(function(i){return i.fakt;}), {showLabels:true, rotate:14});
   }
 
   /* ---------- Section 6: other objects ---------- */
@@ -839,13 +856,19 @@ table.vel td .pos{color:var(--good); font-weight:600}
   }
 
   /* ---------- Section 7: infrastructure ---------- */
+  var INFRA_ACTIVE=null;
   function renderInfra(){
-    const inf=D.infrastructure; if(!inf) return;
+    var inf=D.infrastructure; if(!inf) return;
     $('t-infra').textContent=(L.sections&&L.sections.s7)||'';
-    $('ct-infra').textContent=(L.charts&&L.charts.infra)||'';
-    const items=inf.items.slice().sort((a,b)=>b.fakt-a.fakt);
-    CHARTS.completionBars('ch-infra', items, {});
-    $('note-infra').innerHTML = `<div class="note note-amber"><span class="lead">04.06 → 11.06 dəyişiklik:</span> ${esc(inf.weeklyNote)}</div>`;
+    var lots=(inf.lots&&inf.lots.length)?inf.lots:[{id:'_',name:'Mərhələ üzrə',items:inf.items||[]}];
+    if(!INFRA_ACTIVE||!lots.some(function(l){return l.id===INFRA_ACTIVE;})) INFRA_ACTIVE=lots[0].id;
+    var tabs=$('infraTabs'); if(tabs){ tabs.innerHTML=''; lots.forEach(function(lot){
+      var b=document.createElement('button'); b.className='tab'+(lot.id===INFRA_ACTIVE?' active':'');
+      b.textContent=lot.name; b.onclick=function(){INFRA_ACTIVE=lot.id; renderInfra();}; tabs.appendChild(b); }); }
+    var lot=lots[0]; for(var i=0;i<lots.length;i++){ if(lots[i].id===INFRA_ACTIVE) lot=lots[i]; }
+    $('ct-infra').textContent=((L.charts&&L.charts.infra)||'İcra')+' — '+lot.name+' (Plan vs Fakt %)';
+    CHARTS.groupedBar('ch-infra', lot.items.map(function(i){return i.name;}), lot.items.map(function(i){return i.plan;}), lot.items.map(function(i){return i.fakt;}), {rotate:26});
+    $('note-infra').innerHTML='<div class="note note-amber"><span class="lead">04.06 → 11.06 dəyişiklik:</span> '+esc(inf.weeklyNote)+'</div>';
   }
 
   /* ---------- Section 8: workforce + machinery ---------- */
@@ -881,11 +904,13 @@ table.vel td .pos{color:var(--good); font-weight:600}
     const V=D.velocity; if(!V) return;
     $('t-velocity').textContent=(L.sections&&L.sections.s9)||'';
     $('ct-velDev').textContent=(L.charts&&L.charts.velDev)||'';
-    $('ct-velTempo').textContent=(L.charts&&L.charts.velTempo)||'';
+    $('ct-velTempo').innerHTML=esc((L.charts&&L.charts.velTempo)||'')+' <span class="tip" title="Tələb = (100 − faktiki%) ÷ qalan həftə sayı → vaxtında bitirmək üçün həftədə lazım olan faiz.&#10;Faktiki = (bu həftə faktiki − əvvəlki faktiki) ÷ keçən həftələr → real həftəlik templ.&#10;Planla müqayisə nə qədər geridəyik deyir; tempo isə bu templə vaxtında çatırıqmı sualına cavab verir. Tələb faktiki templdən böyükdürsə, geriləmə daha da artacaq.">?</span>';
     $('ct-velCompliance').textContent=(L.charts&&L.charts.velCompliance)||'';
     CHARTS.dev3('ch-velDev', velRows, V.points);
     CHARTS.tempoBars('ch-velTempo', velRows);
     CHARTS.complianceBars('ch-velCompliance', velRows);
+    $('ct-velWeekly').textContent='Həftəlik dəyişiklik (04.06 → 11.06) — gecikmənin artması (qırmızı) / azalması (yaşıl)';
+    CHARTS.weeklyBars('ch-velWeekly', velRows);
     // table
     const H=(L.table&&L.table.headers)||[]; const tips=(L.table&&L.table.tips)||[];
     let html='<table class="vel"><thead><tr>';

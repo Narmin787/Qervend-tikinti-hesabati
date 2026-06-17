@@ -33,6 +33,9 @@
 
     add('Other', tbl(['name','plan','fakt','status'], (data.otherObjects&&data.otherObjects.objects)||[]));
     add('Infrastructure', tbl(['name','plan','fakt'], (data.infrastructure&&data.infrastructure.items)||[]));
+    const infRows=[]; ((data.infrastructure&&data.infrastructure.lots)||[]).forEach(lot=>(lot.items||[]).forEach(it=>
+      infRows.push({lot_id:lot.id,lot_name:lot.name,item:it.name,plan:it.plan,fakt:it.fakt})));
+    add('InfraItems', tbl(['lot_id','lot_name','item','plan','fakt'], infRows));
 
     const vel=data.velocity||{};
     add('Velocity', tbl(['obyekt','plan','fakt','finish','priorFakt','dev1','dev2','dev3'],

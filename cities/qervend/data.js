@@ -175,17 +175,17 @@ window.DASH.workItems = {
           "plan": 21.96
         },
         {
-          "name": "MEP (mex/elektrik/santexnika)",
+          "name": "MEP",
           "fakt": 7.71,
           "plan": 32.95
         },
         {
-          "name": "Xarici bəzək (fasad)",
+          "name": "Xarici bəzək",
           "fakt": 0,
           "plan": 6.43
         },
         {
-          "name": "Təsərrüfat tikililəri",
+          "name": "Təsərrüfat",
           "fakt": 0,
           "plan": 59.46
         }
@@ -193,7 +193,7 @@ window.DASH.workItems = {
     },
     {
       "id": "p1",
-      "name": "Paket 1 (150 ev)",
+      "name": "Paket 1 (150 ev) — orta",
       "ev": 150,
       "items": [
         {
@@ -212,25 +212,173 @@ window.DASH.workItems = {
           "plan": 43.18
         },
         {
-          "name": "MEP (mex/elektrik/santexnika)",
+          "name": "MEP",
           "fakt": 14.86,
           "plan": 52.78
         },
         {
-          "name": "Xarici bəzək (fasad)",
+          "name": "Xarici bəzək",
           "fakt": 0,
           "plan": 9.44
         },
         {
-          "name": "Təsərrüfat tikililəri",
+          "name": "Təsərrüfat",
           "fakt": 0,
           "plan": 59.72
         }
       ]
     },
     {
+      "id": "p1r1",
+      "name": "Paket 1 — 2 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 94.7,
+          "plan": 100
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 8.29,
+          "plan": 83.87
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 6.74,
+          "plan": 67.94
+        },
+        {
+          "name": "MEP",
+          "fakt": 5.61,
+          "plan": 50.57
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 34.23
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 9.01
+        }
+      ]
+    },
+    {
+      "id": "p1r2",
+      "name": "Paket 1 — 3 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 97.33,
+          "plan": 99.12
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 11.56,
+          "plan": 30.55
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 10.35,
+          "plan": 60.88
+        },
+        {
+          "name": "MEP",
+          "fakt": 19.04,
+          "plan": 68.06
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 1.11
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 76.62
+        }
+      ]
+    },
+    {
+      "id": "p1r3",
+      "name": "Paket 1 — 4 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 94.47,
+          "plan": 96.65
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 9.51,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 8.41,
+          "plan": 20.41
+        },
+        {
+          "name": "MEP",
+          "fakt": 13.97,
+          "plan": 43.91
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 76.62
+        }
+      ]
+    },
+    {
+      "id": "p1r4",
+      "name": "Paket 1 — 5 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 95.74,
+          "plan": 98.43
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 77.71,
+          "plan": 20.24
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 6.88,
+          "plan": 23.5
+        },
+        {
+          "name": "MEP",
+          "fakt": 20.8,
+          "plan": 48.58
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 2.44
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 76.62
+        }
+      ]
+    },
+    {
       "id": "p2",
-      "name": "Paket 2 (200 ev)",
+      "name": "Paket 2 (200 ev) — orta",
       "ev": 200,
       "items": [
         {
@@ -249,25 +397,173 @@ window.DASH.workItems = {
           "plan": 24.27
         },
         {
-          "name": "MEP (mex/elektrik/santexnika)",
+          "name": "MEP",
           "fakt": 7.96,
           "plan": 42.09
         },
         {
-          "name": "Xarici bəzək (fasad)",
+          "name": "Xarici bəzək",
           "fakt": 0,
           "plan": 15.5
         },
         {
-          "name": "Təsərrüfat tikililəri",
+          "name": "Təsərrüfat",
           "fakt": 0,
           "plan": 66.28
         }
       ]
     },
     {
+      "id": "p2r1",
+      "name": "Paket 2 — 2 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 94.09,
+          "plan": 100
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 100
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 7.92,
+          "plan": 36.63
+        },
+        {
+          "name": "MEP",
+          "fakt": 3.34,
+          "plan": 51.75
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 14.8
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 76.62
+        }
+      ]
+    },
+    {
+      "id": "p2r2",
+      "name": "Paket 2 — 3 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 92.72,
+          "plan": 97.81
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 62.15
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 11.13,
+          "plan": 34.16
+        },
+        {
+          "name": "MEP",
+          "fakt": 18.13,
+          "plan": 46.28
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 35.63
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 76.62
+        }
+      ]
+    },
+    {
+      "id": "p2r3",
+      "name": "Paket 2 — 4 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 90.36,
+          "plan": 89.33
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 9.72,
+          "plan": 26.29
+        },
+        {
+          "name": "MEP",
+          "fakt": 3.75,
+          "plan": 70.33
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 11.57
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p2r4",
+      "name": "Paket 2 — 5 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 77.2,
+          "plan": 79.5
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 2.19,
+          "plan": 0
+        },
+        {
+          "name": "MEP",
+          "fakt": 6.61,
+          "plan": 0
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
       "id": "p3",
-      "name": "Paket 3 (205 ev)",
+      "name": "Paket 3 (205 ev) — orta",
       "ev": 205,
       "items": [
         {
@@ -286,17 +582,165 @@ window.DASH.workItems = {
           "plan": 8.7
         },
         {
-          "name": "MEP (mex/elektrik/santexnika)",
+          "name": "MEP",
           "fakt": 7.42,
           "plan": 22.88
         },
         {
-          "name": "Xarici bəzək (fasad)",
+          "name": "Xarici bəzək",
           "fakt": 0,
           "plan": 0
         },
         {
-          "name": "Təsərrüfat tikililəri",
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p3r1",
+      "name": "Paket 3 — 2 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 78.95,
+          "plan": 89.54
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 2.78,
+          "plan": 8.68
+        },
+        {
+          "name": "MEP",
+          "fakt": 2.18,
+          "plan": 23.96
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p3r2",
+      "name": "Paket 3 — 3 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 78.78,
+          "plan": 80.91
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 7.97,
+          "plan": 8.78
+        },
+        {
+          "name": "MEP",
+          "fakt": 14.65,
+          "plan": 27.33
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p3r3",
+      "name": "Paket 3 — 4 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 73.01,
+          "plan": 90.05
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 4.44,
+          "plan": 9.02
+        },
+        {
+          "name": "MEP",
+          "fakt": 3.85,
+          "plan": 26.55
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p3r4",
+      "name": "Paket 3 — 5 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 67.4,
+          "plan": 78.56
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 2.04,
+          "plan": 8.3
+        },
+        {
+          "name": "MEP",
+          "fakt": 8.98,
+          "plan": 13.66
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
           "fakt": 0,
           "plan": 55.93
         }
@@ -304,7 +748,7 @@ window.DASH.workItems = {
     },
     {
       "id": "p4",
-      "name": "Paket 4 (296 ev)",
+      "name": "Paket 4 (296 ev) — orta",
       "ev": 296,
       "items": [
         {
@@ -323,17 +767,165 @@ window.DASH.workItems = {
           "plan": 11.69
         },
         {
-          "name": "MEP (mex/elektrik/santexnika)",
+          "name": "MEP",
           "fakt": 0.61,
           "plan": 14.05
         },
         {
-          "name": "Xarici bəzək (fasad)",
+          "name": "Xarici bəzək",
           "fakt": 0,
           "plan": 0.78
         },
         {
-          "name": "Təsərrüfat tikililəri",
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p4r1",
+      "name": "Paket 4 — 2 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 72.55,
+          "plan": 98.97
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 51.88
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 3,
+          "plan": 34.2
+        },
+        {
+          "name": "MEP",
+          "fakt": 0,
+          "plan": 33.63
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 3.13
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p4r2",
+      "name": "Paket 4 — 3 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 79.42,
+          "plan": 66.93
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 2.92,
+          "plan": 0
+        },
+        {
+          "name": "MEP",
+          "fakt": 2.43,
+          "plan": 0
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p4r3",
+      "name": "Paket 4 — 4 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 81.03,
+          "plan": 93.01
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 5.04,
+          "plan": 12.28
+        },
+        {
+          "name": "MEP",
+          "fakt": 0,
+          "plan": 22.58
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
+          "fakt": 0,
+          "plan": 55.93
+        }
+      ]
+    },
+    {
+      "id": "p4r4",
+      "name": "Paket 4 — 5 otaqlı",
+      "ev": null,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 80.45,
+          "plan": 77.93
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 2.38,
+          "plan": 0.28
+        },
+        {
+          "name": "MEP",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Xarici bəzək",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Təsərrüfat",
           "fakt": 0,
           "plan": 55.93
         }
@@ -372,7 +964,219 @@ window.DASH.infrastructure = {
       "plan": 69.53
     }
   ],
-  "weeklyNote": "Sahədaxili kommunikasiya üzrə ümumi icra 11.06 tarixinə 12.31% təşkil edir və plandan 40.93% geri qalır. Hər mərhələ daxilində yollar, kanalizasiya, su, qaz, elektrik (35/0.4 kV) və rabitə şəbəkələri ayrıca izlənilir; yalnız yollar və kanalizasiya üzrə məhdud irəliləyiş var, qalan şəbəkələr faktiki olaraq başlanmamışdır."
+  "weeklyNote": "Sahədaxili kommunikasiya üzrə ümumi icra 12.31%, plandan 40.93% geri. Hər mərhələ daxilində yollar, kanalizasiya, su, qaz, elektrik və rabitə ayrıca izlənilir.",
+  "lots": [
+    {
+      "id": "umumi",
+      "name": "Mərhələ üzrə",
+      "items": [
+        {
+          "name": "Mərhələ 1",
+          "fakt": 12.59,
+          "plan": 44.64
+        },
+        {
+          "name": "Mərhələ 2",
+          "fakt": 13.34,
+          "plan": 41.2
+        },
+        {
+          "name": "Mərhələ 3",
+          "fakt": 12.44,
+          "plan": 52.54
+        },
+        {
+          "name": "Mərhələ 4",
+          "fakt": 11.21,
+          "plan": 69.53
+        }
+      ]
+    },
+    {
+      "id": "m1",
+      "name": "Mərhələ 1",
+      "items": [
+        {
+          "name": "Xarici su kanalizasiyası",
+          "fakt": 19.37,
+          "plan": 40
+        },
+        {
+          "name": "Xarici su şəbəkəsi",
+          "fakt": 0,
+          "plan": 16.94
+        },
+        {
+          "name": "Qaz təchizatı",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "35 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "0.4 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Rabitə şəbəkəsi",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "PTM və KTM",
+          "fakt": 0,
+          "plan": 6.03
+        },
+        {
+          "name": "Yollar və səkilər",
+          "fakt": 19.24,
+          "plan": 78.04
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "name": "Mərhələ 2",
+      "items": [
+        {
+          "name": "Xarici su kanalizasiyası",
+          "fakt": 14.73,
+          "plan": 59.43
+        },
+        {
+          "name": "Xarici su şəbəkəsi",
+          "fakt": 0,
+          "plan": 16.64
+        },
+        {
+          "name": "Qaz təchizatı",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "35 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "0.4 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Rabitə şəbəkəsi",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "PTM və KTM",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Yollar və səkilər",
+          "fakt": 25.49,
+          "plan": 54.51
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "name": "Mərhələ 3",
+      "items": [
+        {
+          "name": "Xarici su kanalizasiyası",
+          "fakt": 19.32,
+          "plan": 57.09
+        },
+        {
+          "name": "Xarici su şəbəkəsi",
+          "fakt": 0,
+          "plan": 32.36
+        },
+        {
+          "name": "Qaz təchizatı",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "35 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "0.4 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Rabitə şəbəkəsi",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "PTM və KTM",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Yollar və səkilər",
+          "fakt": 16.85,
+          "plan": 82.34
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "name": "Mərhələ 4",
+      "items": [
+        {
+          "name": "Xarici su kanalizasiyası",
+          "fakt": 17.28,
+          "plan": 86.93
+        },
+        {
+          "name": "Xarici su şəbəkəsi",
+          "fakt": 0,
+          "plan": 67.66
+        },
+        {
+          "name": "Qaz təchizatı",
+          "fakt": 0,
+          "plan": 8.77
+        },
+        {
+          "name": "35 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "0.4 kV kabel xətti",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Rabitə şəbəkəsi",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "PTM və KTM",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Yollar və səkilər",
+          "fakt": 15.16,
+          "plan": 89.13
+        }
+      ]
+    }
+  ]
 };
 window.DASH.workforce = {
   "available": false,

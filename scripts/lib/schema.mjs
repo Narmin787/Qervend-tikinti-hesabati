@@ -94,6 +94,12 @@ export function dataToWorkbook(d) {
 
   addTable(wb, 'Other', ['name', 'plan', 'fakt', 'status'], (d.otherObjects?.objects) || []);
   addTable(wb, 'Infrastructure', ['name', 'plan', 'fakt'], (d.infrastructure?.items) || []);
+  // Infrastructure detail: per-phase components (lots) -> flat rows
+  const infRows = [];
+  for (const lot of (d.infrastructure?.lots) || [])
+    for (const it of lot.items || [])
+      infRows.push({ lot_id: lot.id, lot_name: lot.name, item: it.name, plan: it.plan, fakt: it.fakt });
+  addTable(wb, 'InfraItems', ['lot_id', 'lot_name', 'item', 'plan', 'fakt'], infRows);
 
   const vel = d.velocity || {};
   addTable(wb, 'Velocity', ['obyekt', 'plan', 'fakt', 'finish', 'priorFakt', 'dev1', 'dev2', 'dev3'],
@@ -177,6 +183,14 @@ export async function workbookToData(bufferOrPath) {
     items: readTable(ws('Infrastructure')).map(r => ({ name: str(r.name), fakt: num(r.fakt), plan: num(r.plan) })),
     weeklyNote: str(N.infraWeeklyNote),
   };
+  // Infrastructure detail: regroup InfraItems rows by phase (only if present)
+  const infLotsMap = new Map();
+  for (const r of readTable(ws('InfraItems'))) {
+    const id = str(r.lot_id);
+    if (!infLotsMap.has(id)) infLotsMap.set(id, { id, name: str(r.lot_name), items: [] });
+    infLotsMap.get(id).items.push({ name: str(r.item), fakt: num(r.fakt), plan: num(r.plan) });
+  }
+  if (infLotsMap.size) infrastructure.lots = [...infLotsMap.values()];
 
   const wfDaily = readTable(ws('WorkforceDaily')).map(r => ({ date: str(r.date), sahe: num(r.sahe), texniki: num(r.texniki), idari: num(r.idari) }));
   const wfMach = readTable(ws('WorkforceMachinery')).map(r => ({ name: str(r.name), count: num(r.count) }));
