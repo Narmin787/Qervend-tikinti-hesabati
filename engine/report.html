@@ -709,6 +709,9 @@ table.vel td .pos{color:var(--good); font-weight:600}
     if(cfg && Array.isArray(cfg.pinned)){
       cfg.pinned.forEach(p=>{ if(p && p.category && p.title && p.body) add(p.category,p.title,p.body); });
     }
+    if(ctx && Array.isArray(ctx.pinned)){
+      ctx.pinned.forEach(p=>{ if(p && p.category && p.title && p.body) add(p.category,p.title,p.body); });
+    }
 
     // Sıralama: kritik, diqqet, analiz, musbet
     const order={kritik:0,diqqet:1,analiz:2,musbet:3};
@@ -969,7 +972,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
     const wiTotal=(D.workItems&&D.workItems.lots&&D.workItems.lots[0])?D.workItems.lots[0].items:null;
     const list = INSIGHTS.generate({
       overall:D.overall, packages:D.packages, infrastructure:D.infrastructure,
-      otherObjects:D.otherObjects, workforce:D.workforce, velRows, cfg:D.insightsConfig,
+      otherObjects:D.otherObjects, workforce:D.workforce, velRows, cfg:D.insightsConfig, pinned:D.insightsPinned,
       workItemsTotal:wiTotal
     });
     var L2 = list.filter(function(i){ return !/işçi heyəti|texnika|gündəlik məlumat|gündəlik hesabat|daxil edilməyib/i.test((i.title||'')+' '+(i.body||'')); });

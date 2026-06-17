@@ -45,6 +45,7 @@
     const wf=data.workforce||{};
     add('WorkforceDaily', tbl(['date','sahe','texniki','idari'], wf.daily||[]));
     add('WorkforceMachinery', tbl(['name','count'], wf.machinery||[]));
+    add('Pinned', tbl(['category','title','body'], data.insightsPinned||[]));
 
     const o=data.otherObjects||{}, inf=data.infrastructure||{};
     add('Notes', [['Sahə','Dəyər'], ...[
@@ -63,7 +64,7 @@
   root.dataToXlsxBase64 = data => getXLSX().write(build(data), { type:'base64', bookType:'xlsx' });
 
   root.dataToJs = function (data, label) {
-    const keys = ['meta','kpi','overall','packages','workItems','otherObjects','infrastructure','workforce','velocity'];
+    const keys = ['meta','kpi','overall','packages','workItems','otherObjects','infrastructure','workforce','velocity','insightsPinned'];
     let out = `/* data.js — ${label||(data.meta&&data.meta.village)||''}\n   Hesabat Generatoru ilə yaradılıb (${new Date().toISOString().slice(0,10)}). */\n`;
     out += `window.DASH = window.DASH || {};\n`;
     for (const k of keys) if (data[k] !== undefined) out += `window.DASH.${k} = ${JSON.stringify(data[k], null, 2)};\n`;

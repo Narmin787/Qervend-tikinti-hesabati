@@ -322,6 +322,7 @@
     ed.appendChild(section('Digər obyektlər (məktəb, bağça və s.)', otherEditor()));
     ed.appendChild(section('Həftəlik sürət', velocityEditor()));
     ed.appendChild(section('İşçi heyəti və texnika', workforceEditor()));
+    ed.appendChild(section('Əl ilə şərhlər (Təkliflər/risklər)', pinnedEditor()));
     renderHealth();
   }
   function wrapNote(node, obj, key, label){ const w=document.createElement('div'); w.appendChild(node);
@@ -387,6 +388,18 @@
     const note=document.createElement('div'); note.className='note';
     note.textContent='Gündəlik sətir əlavə etdikdə “Avtomatik sahələri yenilə” düyməsi İşçi/Texnika KPI-larını və cəm qrafikini dolduracaq.';
     w.appendChild(note); return w;
+  }
+
+  function pinnedEditor(){
+    data.insightsPinned=data.insightsPinned||[];
+    const w=document.createElement('div');
+    const note=document.createElement('div'); note.className='note';
+    note.innerHTML='Bu şərhlər avtomatik analizə əlavə olunur. Kateqoriya: <b>kritik / diqqet</b> → “Problemlər” bloku, <b>musbet</b> → “İrəliləyiş” bloku.';
+    w.appendChild(note);
+    w.appendChild(tableEditor(data.insightsPinned,[
+      {key:'category',label:'Kateqoriya',type:'select',options:['kritik','diqqet','musbet']},
+      {key:'title',label:'Başlıq'},{key:'body',label:'Mətn'}]));
+    return w;
   }
 
   // ---------- edit hook: autosave + debounced live preview + health ----------

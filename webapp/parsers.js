@@ -17,6 +17,7 @@
       infrastructure:{asOf:'', overallFakt:null, overallPlan:null, items:[], weeklyNote:''},
       workforce:{available:false, period:'', daily:[], totalSeries:[], machinery:[], emptyNote:'', alert:''},
       velocity:{cutoff:'', priorDate:'', priorWeeks:3, points:[], rows:[]},
+      insightsPinned:[],
     };
   }
 

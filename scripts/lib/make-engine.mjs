@@ -505,6 +505,23 @@ html = html.replace(
       insBlock('Tikinti gedişatında müəyyən olunan problemlər', L2.filter(function(i){return i.category==='kritik'||i.category==='diqqet';}), 'kritik')+
       insBlock('İcra gedişatındakı irəliləyiş', L2.filter(function(i){return i.category==='musbet';}), 'musbet');`
 );
+// Per-city manual insights: feed data.insightsPinned into the generator…
+html = html.replace(
+  `      otherObjects:D.otherObjects, workforce:D.workforce, velRows, cfg:D.insightsConfig,`,
+  `      otherObjects:D.otherObjects, workforce:D.workforce, velRows, cfg:D.insightsConfig, pinned:D.insightsPinned,`
+);
+// …and emit them alongside the shared config pinned list.
+html = html.replace(
+  `    if(cfg && Array.isArray(cfg.pinned)){
+      cfg.pinned.forEach(p=>{ if(p && p.category && p.title && p.body) add(p.category,p.title,p.body); });
+    }`,
+  `    if(cfg && Array.isArray(cfg.pinned)){
+      cfg.pinned.forEach(p=>{ if(p && p.category && p.title && p.body) add(p.category,p.title,p.body); });
+    }
+    if(ctx && Array.isArray(ctx.pinned)){
+      ctx.pinned.forEach(p=>{ if(p && p.category && p.title && p.body) add(p.category,p.title,p.body); });
+    }`
+);
 
 // ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
@@ -534,6 +551,7 @@ for (const [marker, name] of [
   ["classList.toggle('collapsed')", 'collapsible-section toggle'],
   ['function insBlock', 'regrouped insights bullets'],
   ['Mənbə kimi istifadə olunan sənədlər', 'sources footer label'],
+  ['ctx.pinned.forEach', 'per-city manual insights'],
   ['Tikinti gedişatında müəyyən olunan problemlər', 'insights problem block'],
   ['cari iş templi ilə layihənin', 'single velocity note'],
 ]) {

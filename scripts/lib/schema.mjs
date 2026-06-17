@@ -110,6 +110,9 @@ export function dataToWorkbook(d) {
   addTable(wb, 'WorkforceDaily', ['date', 'sahe', 'texniki', 'idari'], wf.daily || []);
   addTable(wb, 'WorkforceMachinery', ['name', 'count'], wf.machinery || []);
 
+  // Manual (pinned) insights, written by the builder app — kept per city.
+  addTable(wb, 'Pinned', ['category', 'title', 'body'], d.insightsPinned || []);
+
   const o = d.otherObjects || {}, inf = d.infrastructure || {};
   addKV(wb, 'Notes', [
     ['packagesTrendNote', d.packages?.trendNote],
@@ -209,5 +212,11 @@ export async function workbookToData(bufferOrPath) {
     })),
   };
 
-  return { meta, kpi, overall, packages, workItems, otherObjects, infrastructure, workforce, velocity };
+  const insightsPinned = readTable(ws('Pinned'))
+    .map(r => ({ category: str(r.category), title: str(r.title), body: str(r.body) }))
+    .filter(p => p.category && p.title && p.body);
+
+  const out = { meta, kpi, overall, packages, workItems, otherObjects, infrastructure, workforce, velocity };
+  if (insightsPinned.length) out.insightsPinned = insightsPinned;
+  return out;
 }
