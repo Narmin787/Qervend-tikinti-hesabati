@@ -83,7 +83,7 @@ export function dataToWorkbook(d) {
   addTable(wb, 'Overall', ['name', 'plan', 'fakt'], (d.overall?.objects) || []);
 
   addTable(wb, 'Packages', ['name', 'ev', 'plan', 'fakt'], (d.packages?.items) || []);
-  addTable(wb, 'PackagesTrend', ['date', 'fakt'], (d.packages?.trend) || []);
+  addTable(wb, 'PackagesTrend', ['date', 'fakt', 'plan'], (d.packages?.trend) || []);
 
   // WorkItems: flatten lots -> rows
   const wiRows = [];
@@ -150,7 +150,11 @@ export async function workbookToData(bufferOrPath) {
 
   const packages = {
     items: readTable(ws('Packages')).map(r => ({ name: str(r.name), ev: num(r.ev), plan: num(r.plan), fakt: num(r.fakt) })),
-    trend: readTable(ws('PackagesTrend')).map(r => ({ date: str(r.date), fakt: num(r.fakt) })),
+    trend: readTable(ws('PackagesTrend')).map(r => {
+      const t = { date: str(r.date), fakt: num(r.fakt) };
+      if (num(r.plan) != null) t.plan = num(r.plan); // optional planned line (blue dots)
+      return t;
+    }),
     trendNote: str(N.packagesTrendNote),
   };
 

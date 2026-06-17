@@ -90,7 +90,7 @@ function status(m){
 const ordered = [...built].sort((a, b) => (status(a.meta).dev ?? 1e9) - (status(b.meta).dev ?? 1e9));
 const cards = ordered.map(b => {
   const m = b.meta, s = status(m);
-  const devStr = s.dev != null ? `${s.dev > 0 ? '+' : ''}${s.dev.toFixed(2)} f.b.` : '—';
+  const devStr = s.dev != null ? `${s.dev > 0 ? '+' : ''}${s.dev.toFixed(2)}%` : '—';
   return `    <a class="card ${s.cls}" href="./${esc(b.city)}/">
       <div class="row"><div class="t">${esc(m.village || b.city)}</div><span class="badge ${s.cls}">${esc(s.txt)}</span></div>
       <div class="d">${esc(m.district || '')}</div>
