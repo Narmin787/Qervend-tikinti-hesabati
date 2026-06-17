@@ -8,12 +8,13 @@
   let pdfBase64 = null;
   let curSlug = 'new';      // which draft key we are editing
   let dirty = false;
+  let updatingExisting = false;   // true when the import matched (or we loaded) an existing city
   if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
   // ---------- mode ----------
   $('mNew').onclick = () => setMode('new');
   $('mUpd').onclick = () => setMode('upd');
-  function setMode(m){ mode = m; $('mNew').classList.toggle('on',m==='new'); $('mUpd').classList.toggle('on',m==='upd');
+  function setMode(m){ mode = m; if(m==='new') updatingExisting=false; $('mNew').classList.toggle('on',m==='new'); $('mUpd').classList.toggle('on',m==='upd');
     $('updPick').style.display = m==='upd' ? '' : 'none';
     $('inputPanel').querySelector('.drop').style.display = m==='upd' ? 'none' : '';
     if(m==='upd') loadCityList(); else { curSlug='new'; } }
@@ -49,8 +50,15 @@
       [...$('cityList').querySelectorAll('.city-item')].forEach(x=>x.classList.remove('sel')); el.classList.add('sel');
       loadCityData(el.getAttribute('data-slug')); }; });
   }
+  // Fetch + parse an existing city's data.js into a plain object (no UI side-effects).
+  async function fetchCityData(slug){
+    try{ const js = await fetch('../'+slug+'/data.js?cb='+Date.now()).then(r=>r.text());
+      const sb = { window:{DASH:{}} }; (new Function('window', js))(sb.window);
+      return Object.assign(P.blankData(), sb.window.DASH);
+    }catch(e){ return null; }
+  }
   async function loadCityData(slug){
-    status('parseStatus','“'+slug+'” yüklənir…'); curSlug=slug;
+    status('parseStatus','“'+slug+'” yüklənir…'); curSlug=slug; updatingExisting=true;
     try{
       const draft=loadDraft(slug);
       if(draft && confirm('Bu şəhər üçün yadda saxlanmamış qaralama tapıldı. Onu bərpa edək? (Ləğv = canlı versiyanı yüklə)')){
@@ -90,7 +98,7 @@
     clearTimeout(autoParseT); autoParseT=setTimeout(()=>{ if(pickedFiles.length) runParse(); }, 800);
   }
 
-  $('blankBtn').onclick = () => { data = P.blankData(); curSlug='new'; dirty=false; renderEditor(); refresh(); status('parseStatus','Boş şablon.','ok'); };
+  $('blankBtn').onclick = () => { data = P.blankData(); curSlug='new'; dirty=false; updatingExisting=false; renderEditor(); refresh(); status('parseStatus','Boş şablon.','ok'); };
 
   // ---------- parse ----------
   $('parseBtn').onclick = runParse;
@@ -110,19 +118,34 @@
           if(parsed.workItems.lots.length || !pdfData){ pdfData = parsed; pdfBase64 = bytesToB64(bytes); }
         }
       }
-      // When updating an existing city, merge new numbers onto the loaded data (keep manual edits where the import is blank).
-      const base = (mode==='upd' && data && data.meta) ? data : P.blankData();
+      // Identify the city from the imported file and decide new-vs-update.
+      const parsedVillage = (exData && exData.meta && exData.meta.village) || (data.meta && data.meta.village) || '';
+      const slug = slugify(parsedVillage || $('cityName').value);
+      const existing = slug && findCity(slug);
+      let base;
+      if(existing){                                   // recognised an existing city -> update it
+        status('parseStatus','“'+(existing.village||slug)+'” tanındı — mövcud məlumat yüklənir…');
+        base = await fetchCityData(existing.slug) || P.blankData();
+        curSlug = existing.slug; updatingExisting = true;
+      } else if(mode==='upd' && data && data.meta && curSlug!=='new'){
+        base = data; updatingExisting = true;          // keep editing the already-loaded city
+      } else {
+        base = P.blankData(); curSlug='new'; updatingExisting = false;
+      }
       data = merge(base, exData, pdfData);
       if(pdfBase64) data.meta.sourcePdf = 'source.pdf';
       defaults(data);
-      // Auto-fill the city name from the parsed village + check for duplicates.
-      if(mode==='new' && data.meta.village && !$('cityName').value.trim()) $('cityName').value=data.meta.village;
+      // Auto-fill the city name from the parsed village.
+      if(data.meta.village) $('cityName').value=data.meta.village;
       const dup=checkDuplicate();
       dirty=true; saveDraft(); renderEditor(); refresh();
       const filled=[]; if(data.packages.items.length) filled.push(data.packages.items.length+' paket');
       if(data.otherObjects.objects.length) filled.push(data.otherObjects.objects.length+' digər obyekt');
       if(data.velocity.rows.length) filled.push(data.velocity.rows.length+' sürət sətri');
-      status('parseStatus','Oxundu'+(filled.length?(' — '+filled.join(', ')+' dolduruldu'):'')+(dup?' · ⚠ eyni adda hesabat var':'')+'.','ok');
+      const head = updatingExisting
+        ? '✓ Mövcud şəhər tanındı və yeniləndi: “'+(data.meta.village||slug)+'”'
+        : '✓ Yeni şəhər: “'+(data.meta.village||slug)+'”';
+      status('parseStatus', head + (filled.length?(' — '+filled.join(', ')):'') + '. Yoxlayın, sonra Deploy ilə təsdiqləyin.','ok');
     }catch(e){ status('parseStatus','Xəta: '+e.message,'err'); console.error(e); }
   };
 
@@ -148,6 +171,7 @@
     if(ex){ Object.assign(d.meta, prune(ex.meta));
       if(ex.overall&&ex.overall.objects&&ex.overall.objects.length) d.overall=ex.overall;
       if(ex.packages&&ex.packages.items&&ex.packages.items.length) d.packages.items=ex.packages.items;
+      if(ex.packages&&ex.packages.trend&&ex.packages.trend.length){ d.packages.trend=ex.packages.trend; if(ex.packages.trendNote) d.packages.trendNote=ex.packages.trendNote; }
       if(ex.otherObjects&&ex.otherObjects.objects&&ex.otherObjects.objects.length){
         d.otherObjects=d.otherObjects||{objects:[]}; d.otherObjects.objects=ex.otherObjects.objects;
         if(ex.otherObjects.asOf) d.otherObjects.asOf=ex.otherObjects.asOf; }
@@ -451,7 +475,13 @@
   function checkDuplicate(){
     const el=$('dupWarn'); if(!el) return false;
     const slug=slugify($('cityName').value); const ex=slug&&findCity(slug);
+    if(ex && updatingExisting){
+      el.className='hc ok';
+      el.innerHTML='✓ Mövcud şəhər <b>/'+slug+'/</b> ('+escH(ex.village||slug)+') yenilənir. Deploy mövcud hesabatı yeni məlumatla əvəz edəcək.';
+      el.style.display=''; return true;
+    }
     if(ex && mode==='new'){
+      el.className='hc warn';
       el.innerHTML='⚠ Bu adda hesabat artıq mövcuddur: <b>/'+slug+'/</b> ('+escH(ex.village||slug)+'). '+
         'Yeni yaratsanız onun <b>üzərinə yazılacaq</b>. Mövcudu düzəltmək üçün yuxarıdan <b>“✎ Mövcudu yenilə”</b> seçin, yaxud adı dəyişin.';
       el.style.display=''; return true;
@@ -471,8 +501,9 @@
     if(!cityName){ status('deployStatus','Şəhər adı daxil edin.','err'); return; }
     if(!password){ status('deployStatus','Parol daxil edin.','err'); return; }
     if(!data.meta.village) data.meta.village=cityName;
-    // Guard against silently overwriting an existing report when creating a new one.
-    if(mode==='new' && !previewMode){ const ex=findCity(slugify(cityName));
+    // Guard against silently overwriting an existing report when creating a NEW one
+    // (skipped when we intentionally recognised/loaded the city to update it).
+    if(mode==='new' && !previewMode && !updatingExisting){ const ex=findCity(slugify(cityName));
       if(ex && !confirm('“'+(ex.village||cityName)+'” adlı hesabat artıq var (/'+slugify(cityName)+'/). Onun üzərinə yazılsın?')){ status('deployStatus','Dayandırıldı — fərqli ad seçin və ya “Mövcudu yenilə” rejimindən redaktə edin.','err'); return; } }
     const {errs}=renderHealth();
     if(errs.length && !previewMode){ if(!confirm(errs.length+' xəta var. Yenə də canlıya göndərək?')) { status('deployStatus','Deploy dayandırıldı — xətaları düzəldin.','err'); return; } }
@@ -489,7 +520,7 @@
         if(j.previewUrl && j.previewUrl!==j.url) links.push({u:j.previewUrl, t:'🔗 Vercel önizləməsi'});
         statusLinks('deployStatus','✅ '+(j.message||'Göndərildi.'), links, 'ok');
         if(!previewMode){ dirty=false; clearDraft(curSlug); $('dirtyFlag').textContent=''; }
-        if(mode==='upd' && !previewMode) setTimeout(loadCityList, 1500); }
+        if((mode==='upd'||updatingExisting) && !previewMode) setTimeout(loadCityList, 1500); }
       else if(/not configured/i.test(j.error||'')) status('deployStatus','⚙️ Deploy hələ qurulmayıb: Vercel-də GITHUB_TOKEN və DEPLOY_PASSWORD əlavə edin.','err');
       else status('deployStatus','❌ '+(j.error||res.status),'err');
     }catch(e){ status('deployStatus','❌ '+e.message,'err'); }
