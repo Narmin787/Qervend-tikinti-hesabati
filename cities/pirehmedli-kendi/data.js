@@ -1,5 +1,5 @@
 /* data.js — Pirəhmədli kəndi
-   Hesabat Generatoru ilə yaradılıb (2026-06-17). */
+   Avtomatik yaradılıb (2026-06-17). Əl ilə redaktə etmək əvəzinə Excel şablonundan istifadə edin. */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
   "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI",
@@ -18,7 +18,13 @@ window.DASH.meta = {
   "officialPlan": 56.06,
   "primaveraCode": "",
   "note": "",
-  "sourcePdf": "source.pdf"
+  "sourcePdf": "source.pdf",
+  "sources": [
+    {
+      "label": "Mənbə sənədi (PDF)",
+      "file": "source.pdf"
+    }
+  ]
 };
 window.DASH.kpi = [
   {
@@ -43,7 +49,7 @@ window.DASH.kpi = [
   },
   {
     "id": "isciler",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "İŞÇİ SAYI (GÜNDƏLİK)",
     "sub": "Məlumat əlavə edilməyib",
@@ -53,7 +59,7 @@ window.DASH.kpi = [
   },
   {
     "id": "texnika",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "TEXNİKA VAHİDİ",
     "sub": "Məlumat əlavə edilməyib",
@@ -263,4 +269,3 @@ window.DASH.velocity = {
     }
   ]
 };
-window.DASH.insightsPinned = [];
