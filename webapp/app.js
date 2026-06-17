@@ -82,14 +82,19 @@
   drop.ondragleave = () => drop.classList.remove('drag');
   drop.ondrop = e => { e.preventDefault(); drop.classList.remove('drag'); addFiles(e.dataTransfer.files); };
   fileInput.onchange = () => addFiles(fileInput.files);
+  let autoParseT=null;
   function addFiles(fl){ for(const f of fl) pickedFiles.push(f);
     $('fileList').innerHTML = pickedFiles.map(f=>`• ${f.name} <span class="note">(${(f.size/1024|0)} KB)</span>`).join('<br>');
-    $('parseBtn').disabled = pickedFiles.length===0; }
+    $('parseBtn').disabled = pickedFiles.length===0;
+    // Auto-read on import — wait briefly so both Excel + PDF can be added first.
+    clearTimeout(autoParseT); autoParseT=setTimeout(()=>{ if(pickedFiles.length) runParse(); }, 800);
+  }
 
   $('blankBtn').onclick = () => { data = P.blankData(); curSlug='new'; dirty=false; renderEditor(); refresh(); status('parseStatus','Boş şablon.','ok'); };
 
   // ---------- parse ----------
-  $('parseBtn').onclick = async () => {
+  $('parseBtn').onclick = runParse;
+  async function runParse(){
     status('parseStatus','Oxunur…');
     try{
       let exData=null, pdfData=null;
@@ -110,8 +115,14 @@
       data = merge(base, exData, pdfData);
       if(pdfBase64) data.meta.sourcePdf = 'source.pdf';
       defaults(data);
+      // Auto-fill the city name from the parsed village + check for duplicates.
+      if(mode==='new' && data.meta.village && !$('cityName').value.trim()) $('cityName').value=data.meta.village;
+      const dup=checkDuplicate();
       dirty=true; saveDraft(); renderEditor(); refresh();
-      status('parseStatus','Oxundu — aşağıda yoxlayın və redaktə edin.','ok');
+      const filled=[]; if(data.packages.items.length) filled.push(data.packages.items.length+' paket');
+      if(data.otherObjects.objects.length) filled.push(data.otherObjects.objects.length+' digər obyekt');
+      if(data.velocity.rows.length) filled.push(data.velocity.rows.length+' sürət sətri');
+      status('parseStatus','Oxundu'+(filled.length?(' — '+filled.join(', ')+' dolduruldu'):'')+(dup?' · ⚠ eyni adda hesabat var':'')+'.','ok');
     }catch(e){ status('parseStatus','Xəta: '+e.message,'err'); console.error(e); }
   };
 
@@ -426,6 +437,25 @@
   function dlB64(b64,name){ const bin=atob(b64); const arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([arr])); a.download=name; a.click(); }
 
+  // ---------- duplicate-name guard ----------
+  function slugify(s){ return String(s||'').toLowerCase()
+    .replace(/ə/g,'e').replace(/ç/g,'c').replace(/ğ/g,'g').replace(/ı/g,'i')
+    .replace(/ö/g,'o').replace(/ş/g,'s').replace(/ü/g,'u')
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40); }
+  function findCity(slug){ return ALL_CITIES.find(c=>c.slug===slug); }
+  function checkDuplicate(){
+    const el=$('dupWarn'); if(!el) return false;
+    const slug=slugify($('cityName').value); const ex=slug&&findCity(slug);
+    if(ex && mode==='new'){
+      el.innerHTML='⚠ Bu adda hesabat artıq mövcuddur: <b>/'+slug+'/</b> ('+escH(ex.village||slug)+'). '+
+        'Yeni yaratsanız onun <b>üzərinə yazılacaq</b>. Mövcudu düzəltmək üçün yuxarıdan <b>“✎ Mövcudu yenilə”</b> seçin, yaxud adı dəyişin.';
+      el.style.display=''; return true;
+    }
+    el.style.display='none'; return false;
+  }
+  $('cityName').oninput=checkDuplicate;
+
   // ---------- deploy ----------
   // remember password for the session only
   try{ const pw=sessionStorage.getItem('qrv-pw'); if(pw) $('pwd').value=pw; }catch(e){}
@@ -436,6 +466,9 @@
     if(!cityName){ status('deployStatus','Şəhər adı daxil edin.','err'); return; }
     if(!password){ status('deployStatus','Parol daxil edin.','err'); return; }
     if(!data.meta.village) data.meta.village=cityName;
+    // Guard against silently overwriting an existing report when creating a new one.
+    if(mode==='new' && !previewMode){ const ex=findCity(slugify(cityName));
+      if(ex && !confirm('“'+(ex.village||cityName)+'” adlı hesabat artıq var (/'+slugify(cityName)+'/). Onun üzərinə yazılsın?')){ status('deployStatus','Dayandırıldı — fərqli ad seçin və ya “Mövcudu yenilə” rejimindən redaktə edin.','err'); return; } }
     const {errs}=renderHealth();
     if(errs.length && !previewMode){ if(!confirm(errs.length+' xəta var. Yenə də canlıya göndərək?')) { status('deployStatus','Deploy dayandırıldı — xətaları düzəldin.','err'); return; } }
     if(!previewMode && !confirm('“'+cityName+'” canlı sayta (production) göndərilsin?')) return;
@@ -460,5 +493,6 @@
   function status(id,msg,cls){ const el=$(id); el.textContent=msg; el.className='status '+(cls||''); }
 
   // init
+  fetch('./cities.json?cb='+Date.now()).then(r=>r.json()).then(a=>{ ALL_CITIES=a||[]; checkDuplicate(); }).catch(()=>{});
   renderEditor(); refresh();
 })();

@@ -51,31 +51,41 @@
     for (const row of rows.slice(0, 3)) for (const c of (row || [])) { const d = excelDate(c);
       if (/^\d{2}\.\d{2}\.\d{4}$/.test(d)) { out.meta.cutoffDate = d; out.meta.reportDate = d; break; } }
 
-    const objects = [], packets = [], vrows = [];
+    const objects = [], packets = [], others = [], vrows = [];
+    // Civic / non-residential buildings -> "Digər obyektlər".
+    const civicRe = /Məktəb|Mekteb|Bağça|Bagca|Tibb|Xəstəxana|Xestexana|Poliklinika|Ambulator|İnzibati|Inzibati|İdarə|Məscid|Mescid|Klub|Mədəniyyət|Medeniyyet|İdman|Idman|qəbiristan|qebiristan/i;
+    // Residential sub-areas / packets -> "Paketlər".
+    const pkgRe = /Paket|Mərhələ|Merhele|Phase|Sahə\s*\d|Sahe\s*\d/i;
+    const infraRe = /Sahədaxili|Sahedaxili|kommunikasiya|infrastruktur/i;
     for (let r = hi + 1; r < rows.length; r++) {
       const row = rows[r] || []; let name = clean(row[cName]);
       if (!name || /^O cümlədən|^O cumleden|Layih[əe] ad|Gecikmə|İrəliləmə|Ireliləme/i.test(name)) continue;
       if (/^FYE\s+Paket/i.test(name)) name = name.replace(/^FYE\s+/i, '');           // "FYE Paket 1" -> "Paket 1"
-      else if (/^FYE\b/i.test(name)) name = name.replace(/^FYE/i, 'Fərdi evlər');      // "FYE (851)" -> "Fərdi evlər (851)"
+      else if (/^FYE\s+Sah[əe]/i.test(name)) name = name.replace(/^FYE\s+/i, '');     // "FYE Sahə 1 (60 ev)" -> "Sahə 1 (60 ev)"
+      else if (/^FYE\b/i.test(name)) name = name.replace(/^FYE/i, 'Fərdi evlər');      // "FYE (146 ev)" -> "Fərdi evlər (146 ev)"
       const plan = pct(row[cPlan]), fakt = pct(row[cFakt]);
       if (plan == null && fakt == null) continue;
       const delays = cDelays.map(c => pct(row[c])).filter(v => v != null);
       const finish = excelDate(row[cFin]);
       const rec = { name, plan, fakt, finish, delays, weekly: clean(row[cWeekly]) };
       if (/^Ümumi|^Umumi/i.test(name)) { out.meta.officialOverall = fakt; out.meta.officialPlan = plan; out.meta.revisedFinish = finish; out.meta.plannedFinish = finish; out.meta.startDate = excelDate(row[cStart]); }
-      else if (/FYE|Fərdi|Ferdi/i.test(name)) objects.push(rec);
-      else if (/Paket|Merhele|Mərhələ/i.test(name)) { objects.push(rec); packets.push(rec); }
-      else if (/Sahədaxili|Sahedaxili|kommunikasiya/i.test(name)) { objects.push(rec); out.infrastructure.overallFakt = fakt; out.infrastructure.overallPlan = plan; }
-      else objects.push(rec);
+      else if (infraRe.test(name)) { objects.push(rec); out.infrastructure.overallFakt = fakt; out.infrastructure.overallPlan = plan; }
+      else if (civicRe.test(name)) { objects.push(rec); others.push(rec); }
+      else if (pkgRe.test(name)) { objects.push(rec); packets.push(rec); }
+      else objects.push(rec);   // residential total (FYE/Fərdi) and anything else
       vrows.push(rec);
     }
     out.overall.objects = objects.map(o => ({ name:o.name, plan:o.plan, fakt:o.fakt }));
     out.packages.items = packets.map(p => ({ name:p.name, ev:evCount(p.name), plan:p.plan, fakt:p.fakt }));
+    out.otherObjects.objects = others.map(o => ({ name:o.name, plan:o.plan, fakt:o.fakt, status:'' }));
+    if (others.length) out.otherObjects.asOf = out.meta.cutoffDate || '';
     out.velocity.rows = vrows.map(v => ({
       obyekt:v.name, plan:v.plan, fakt:v.fakt, finish:v.finish, priorFakt:null,
       dev3: v.delays.slice(-3),
     }));
-    out.velocity.points = ['Keçən ay','','11.06'];
+    // Velocity x-axis labels from the delay-column dates ("Əvvəlki ay", "04.06", "11.06").
+    out.velocity.points = cDelays.map(i => { const m = (hdr[i] || '').match(/(\d{2})\.(\d{2})\.\d{4}/); return m ? (m[1] + '.' + m[2]) : 'Əvvəlki ay'; }).slice(-3);
+    while (out.velocity.points.length < 3) out.velocity.points.unshift('');
     return out;
   }
 
