@@ -953,8 +953,6 @@ table.vel td .pos{color:var(--good); font-weight:600}
         `<td>${f2(r.plan)}</td>`+
         `<td>${f2(r.fakt)}</td>`+
         `<td><span class="${r.ferq>=0?'pos':'neg'}">${pctSign(r.ferq)}</span></td>`+
-        `<td><span class="${r.ferq>=0?'pos':'neg'}">${f2(r.teleb)}</span></td>`+
-        `<td>${f2(r.faktiki)}</td>`+
         `<td>${Math.round(r.uygunluq)}%</td>`+
         `<td><span class="trend-cell"><span class="dot ${r.dot}"></span>${esc(r.trendLabel)}</span></td>`+
       '</tr>';
@@ -980,8 +978,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
       return '<div class="insight '+cls+'"><div class="i-title">'+title+'</div><ul class="i-list">'+items.map(function(i){return '<li>'+boldNums(i.body)+'</li>';}).join('')+'</ul></div>'; }
     $('insightsList').innerHTML =
       insBlock('Tikinti gedişatında müəyyən olunan problemlər', L2.filter(function(i){return i.category==='kritik'||i.category==='diqqet';}), 'kritik')+
-      insBlock('İcra gedişatındakı irəliləyiş', L2.filter(function(i){return i.category==='musbet';}), 'musbet')+
-      insBlock('Analiz', L2.filter(function(i){return i.category==='analiz';}), 'analiz');
+      insBlock('İcra gedişatındakı irəliləyiş', L2.filter(function(i){return i.category==='musbet';}), 'musbet');
   }
   function boldNums(s){
     return esc(s).replace(/((?:\+|−|-)?\d[\d.,]*\s?(?:faiz bəndi|faiz|%|gün))/g,'<b>$1</b>');
@@ -996,7 +993,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
     var icon=function(u){ return /\.(xlsx|xls|csv)$/i.test(u)?'📊':(/\.pdf$/i.test(u)?'📄':'📎'); };
     var links=src.map(function(s){ var u=String(s.file||''); if(!ok(u)) return '';
       return '<a href="'+esc(encodeURI(u))+'" target="_blank" rel="noopener" download>'+icon(u)+' '+esc(s.label||u)+'</a>'; }).filter(Boolean).join('');
-    var block = links ? ('<div class="src-pdf"><span class="src-title">Mənbə sənədləri:</span>'+links+'</div>') : '';
+    var block = links ? ('<div class="src-pdf"><span class="src-title">Mənbə kimi istifadə olunan sənədlər:</span>'+links+'</div>') : '';
     $('footer').innerHTML = block + '<div>'+esc(fo.sources||'')+'</div><div class="prep">'+esc(fo.prepared||'')+'</div>';
   }
 

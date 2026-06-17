@@ -99,7 +99,7 @@ html = html.replace(
     var icon=function(u){ return /\\.(xlsx|xls|csv)$/i.test(u)?'📊':(/\\.pdf$/i.test(u)?'📄':'📎'); };
     var links=src.map(function(s){ var u=String(s.file||''); if(!ok(u)) return '';
       return '<a href="'+esc(encodeURI(u))+'" target="_blank" rel="noopener" download>'+icon(u)+' '+esc(s.label||u)+'</a>'; }).filter(Boolean).join('');
-    var block = links ? ('<div class="src-pdf"><span class="src-title">Mənbə sənədləri:</span>'+links+'</div>') : '';
+    var block = links ? ('<div class="src-pdf"><span class="src-title">Mənbə kimi istifadə olunan sənədlər:</span>'+links+'</div>') : '';
     $('footer').innerHTML = block + '<div>'+esc(fo.sources||'')+'</div><div class="prep">'+esc(fo.prepared||'')+'</div>';
   }`
 );
@@ -483,6 +483,14 @@ html = html.replace(
   `    $('note-velQeyd').innerHTML='<div class="note note-blue"><span class="lead">Qeyd:</span> Bu bölmə hər obyekt üzrə gecikmənin həftədən-həftəyə dəyişməsini və cari iş templi ilə layihənin vaxtında tamamlanma ehtimalını əks etdirir.</div>';
     $('note-velNetice').innerHTML='';`
 );
+// Velocity table: drop the "Tələb" and "Faktiki" (%/həftə) columns — keep
+// Obyekt / Plan / Fakt / Gecikmə / Plana uyğunluq / Sürət (matches config headers).
+html = html.replace(
+  `        \`<td><span class="\${r.ferq>=0?'pos':'neg'}">\${f2(r.teleb)}</span></td>\`+
+        \`<td>\${f2(r.faktiki)}</td>\`+
+`,
+  ''
+);
 // Insights: regroup into concise bullet blocks (problems / progress / short analiz).
 html = html.replace(
   `    const cats={kritik:'KRİTİK',diqqet:'DİQQƏT',analiz:'ANALİZ',musbet:'MÜSBƏT'};
@@ -495,8 +503,7 @@ html = html.replace(
       return '<div class="insight '+cls+'"><div class="i-title">'+title+'</div><ul class="i-list">'+items.map(function(i){return '<li>'+boldNums(i.body)+'</li>';}).join('')+'</ul></div>'; }
     $('insightsList').innerHTML =
       insBlock('Tikinti gedişatında müəyyən olunan problemlər', L2.filter(function(i){return i.category==='kritik'||i.category==='diqqet';}), 'kritik')+
-      insBlock('İcra gedişatındakı irəliləyiş', L2.filter(function(i){return i.category==='musbet';}), 'musbet')+
-      insBlock('Analiz', L2.filter(function(i){return i.category==='analiz';}), 'analiz');`
+      insBlock('İcra gedişatındakı irəliləyiş', L2.filter(function(i){return i.category==='musbet';}), 'musbet');`
 );
 
 // ------------------------------------------------------------------
@@ -526,6 +533,7 @@ for (const [marker, name] of [
   ['.section.collapsed > *', 'collapsible-section CSS'],
   ["classList.toggle('collapsed')", 'collapsible-section toggle'],
   ['function insBlock', 'regrouped insights bullets'],
+  ['Mənbə kimi istifadə olunan sənədlər', 'sources footer label'],
   ['Tikinti gedişatında müəyyən olunan problemlər', 'insights problem block'],
   ['cari iş templi ilə layihənin', 'single velocity note'],
 ]) {

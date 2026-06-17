@@ -107,19 +107,15 @@ window.DASH.labels = {
       "Obyekt",
       "Plan %",
       "Fakt %",
-      "Fərq",
-      "Tələb (%/hft)",
-      "Faktiki (%/hft)",
-      "Uyğunluq",
-      "Trend"
+      "Gecikmə",
+      "Plana uyğunluq",
+      "Sürət"
     ],
     "tips": [
       "",
-      "Cədvəl kəsim tarixinə plan üzrə tamamlanma",
-      "Faktiki tamamlanma",
-      "Fakt mənfi Plan",
-      "Bitməyə qədər həftəlik tələb olunan tempo: (100−Fakt)/qalan həftə",
-      "Son ölçülən dövrdə real həftəlik tempo",
+      "planlaşdırılan həcm",
+      "faktiki həcm",
+      "Plan-Faktiki",
       "Faktiki tempo bölünür tələb olunan tempoya",
       "Kənarlaşma istiqaməti və uyğunluq əsasında"
     ]
