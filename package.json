@@ -11,7 +11,7 @@
     "build": "node scripts/build.mjs",
     "engine": "node scripts/lib/make-engine.mjs",
     "template": "node scripts/make-template.mjs",
-    "test": "node scripts/lib/roundtrip-test.mjs && node scripts/lib/smoke.mjs && node scripts/lib/smoke-ux.mjs"
+    "test": "node scripts/lib/parser-test.mjs && node scripts/lib/roundtrip-test.mjs && node scripts/lib/smoke.mjs && node scripts/lib/smoke-ux.mjs"
   },
   "dependencies": {
     "exceljs": "^4.4.0"

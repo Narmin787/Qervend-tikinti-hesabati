@@ -21,6 +21,47 @@
     };
   }
 
+  const dmy = s => { const m = String(s||'').match(/(\d{2})\.(\d{2})\.(\d{4})/); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; };
+
+  // Text-richest name column(s), handling merged "Layihə adı" headers.
+  function pickNameCols(rows, hi, hdr, cStart) {
+    let hint = -1; hdr.forEach((h,i)=>{ if(/Layih[əe] ad/i.test(h)) hint = i; });
+    const right = cStart > 0 ? cStart : 6, lo = hint >= 0 ? hint : 0, scored = [];
+    for (let c = lo; c < Math.max(right, lo + 2); c++) {
+      const seen = {}; let n = 0;
+      for (let r = hi + 1; r < rows.length; r++) { const v = clean((rows[r] || [])[c]);
+        // ignore the location-fragment column ("… rayonu / … kəndi") so the real
+        // project-name column always outranks it, even when only a few rows exist.
+        if (v && isNaN(+v) && !/^O cümlədən|^O cumleden/i.test(v) && !/rayon|kənd|kend/i.test(v) && !seen[v]) { seen[v] = 1; n++; } }
+      if (n) scored.push([c, n]);
+    }
+    scored.sort((a,b)=>b[1]-a[1]);
+    const cols = scored.slice(0,2).map(s=>s[0]);
+    return cols.length ? cols : [hint >= 0 ? hint : 3];
+  }
+
+  // One (date, overall-fakt) snapshot from a sheet — for the week-over-week trend.
+  function sheetOverallPoint(sheet) {
+    const rows = sheet.rows || [];
+    let date = '';
+    for (const row of rows.slice(0, 3)) for (const c of (row || [])) { const d = excelDate(c);
+      if (/^\d{2}\.\d{2}\.\d{4}$/.test(d)) { date = d; break; } }
+    let hi = rows.findIndex(r => r && r.some(c => /Faktiki/i.test(clean(c))) && r.some(c => /Planlan/i.test(clean(c))));
+    if (hi < 0 || !date) return null;
+    const hdr = (rows[hi] || []).map(clean);
+    const cFakt = hdr.findIndex(h => /Faktiki/i.test(h));
+    const cStart = hdr.findIndex(h => /Başlama|Baslama/i.test(h));
+    const nameCols = pickNameCols(rows, hi, hdr, cStart);
+    const readName = row => { for (const c of nameCols) { const v = clean(row[c]); if (v) return v; } return ''; };
+    let umumi = null, fye = null;
+    for (let r = hi + 1; r < rows.length; r++) { const nm = readName(rows[r] || []); const f = pct((rows[r] || [])[cFakt]);
+      if (f == null) continue;
+      if (/^Ümumi|^Umumi/i.test(nm)) umumi = f;
+      else if (fye == null && /^FYE\b|Fərdi|Ferdi/i.test(nm)) fye = f;
+    }
+    return (umumi != null || fye != null) ? { date, umumi, fye } : null;
+  }
+
   // ---- Excel (array-of-rows per sheet) ----
   // sheets: [{name, rows:[[...],[...]]}]  rows are raw cell values.
   function parseExcelRows(sheets) {
@@ -39,21 +80,7 @@
     // Name column(s): "Layihə adı" headers may be MERGED across two columns, so the
     // browser's reader leaves one of them blank. Pick the text-richest column(s)
     // left of the dates and read names by coalescing them per row.
-    const nameCols = (() => {
-      let hint = -1; hdr.forEach((h,i)=>{ if(/Layih[əe] ad/i.test(h)) hint = i; });
-      const right = cStart > 0 ? cStart : 6;                 // names sit before "Başlama"
-      const lo = hint >= 0 ? hint : 0;
-      const scored = [];
-      for (let c = lo; c < Math.max(right, lo + 2); c++) {
-        const seen = {}; let n = 0;
-        for (let r = hi + 1; r < rows.length; r++) { const v = clean((rows[r] || [])[c]);
-          if (v && isNaN(+v) && !/^O cümlədən|^O cumleden/i.test(v) && !seen[v]) { seen[v] = 1; n++; } }
-        if (n) scored.push([c, n]);
-      }
-      scored.sort((a,b)=>b[1]-a[1]);                          // richest first
-      const cols = scored.slice(0,2).map(s=>s[0]);
-      return cols.length ? cols : [hint >= 0 ? hint : 3];
-    })();
+    const nameCols = pickNameCols(rows, hi, hdr, cStart);
     const readName = row => { for (const c of nameCols) { const v = clean(row[c]); if (v) return v; } return ''; };
     const cName = nameCols[0];
     const cDelays = hdr.map((h,i)=>/Gecikmə|Gecikme/i.test(h)?i:-1).filter(i=>i>=0);
@@ -103,6 +130,18 @@
     // Velocity x-axis labels from the delay-column dates ("Əvvəlki ay", "04.06", "11.06").
     out.velocity.points = cDelays.map(i => { const m = (hdr[i] || '').match(/(\d{2})\.(\d{2})\.\d{4}/); return m ? (m[1] + '.' + m[2]) : 'Əvvəlki ay'; }).slice(-3);
     while (out.velocity.points.length < 3) out.velocity.points.unshift('');
+
+    // Trend: fakt across ALL sheets (chronological snapshots) — real data only, ONE
+    // consistent metric. Prefer "Ümumi"; if fewer than 2 sheets have it, fall back to
+    // the residential (FYE) total so the line isn't a mix of different measures.
+    const pts = sheets.map(sheetOverallPoint).filter(Boolean);
+    const build = key => { const m = {}; pts.forEach(p => { if (p[key] != null) m[p.date] = p[key]; });
+      return Object.keys(m).map(d => ({ date: d, fakt: m[d] })).sort((a, b) => (dmy(a.date) || 0) - (dmy(b.date) || 0)); };
+    const umumiTrend = build('umumi'), fyeTrend = build('fye');
+    if (umumiTrend.length >= 2) { out.packages.trend = umumiTrend;
+      out.packages.trendNote = 'Ümumi icra (faktiki %) — hesabat vərəqlərinin tarixləri üzrə.'; }
+    else if (fyeTrend.length >= 2) { out.packages.trend = fyeTrend;
+      out.packages.trendNote = 'Fərdi evlər üzrə faktiki icra (%) — hesabat vərəqlərinin tarixləri üzrə.'; }
     return out;
   }
 

@@ -59,6 +59,29 @@ async function putFile(path, base64Content, message, branch) {
   return res.json();
 }
 
+// Best-effort: ask the Vercel API for the latest deployment of a branch and
+// return its public URL. No-op (returns null) unless VERCEL_TOKEN is configured.
+async function vercelPreviewUrl(branch) {
+  const tok = process.env.VERCEL_TOKEN;
+  const proj = process.env.VERCEL_PROJECT_ID || 'qervend-tikinti-hesabati';
+  if (!tok) return null;
+  try {
+    const team = process.env.VERCEL_TEAM_ID ? `&teamId=${process.env.VERCEL_TEAM_ID}` : '';
+    // give Vercel a moment to register the branch push, then poll a few times
+    for (let i = 0; i < 6; i++) {
+      const r = await fetch(`https://api.vercel.com/v6/deployments?projectId=${proj}&limit=5${team}`,
+        { headers: { Authorization: `Bearer ${tok}` } });
+      if (r.ok) {
+        const ds = (await r.json()).deployments || [];
+        const hit = ds.find(d => d.meta && d.meta.githubCommitRef === branch);
+        if (hit && hit.url) return `https://${hit.url}`;
+      }
+      await new Promise(s => setTimeout(s, 2500));
+    }
+  } catch (_) { /* fall back to GitHub link */ }
+  return null;
+}
+
 async function notify(text) {
   const url = process.env.NOTIFY_WEBHOOK;
   if (!url) return;
@@ -92,12 +115,16 @@ export default async function handler(req, res) {
     if (pdfBase64) await putFile(`cities/${slug}/source.pdf`, pdfBase64, msg, branch);
 
     if (preview) {
-      const compare = `https://github.com/${OWNER}/${REPO}/tree/${branch}`;
-      await notify(`🔎 Preview report: ${cityName} → branch ${branch}`);
+      const github = `https://github.com/${OWNER}/${REPO}/tree/${branch}`;
+      const previewUrl = await vercelPreviewUrl(branch);   // real URL if VERCEL_TOKEN is set
+      await notify(`🔎 Preview report: ${cityName} → ${previewUrl || github}`);
       return res.status(200).json({
         ok: true, slug, branch,
-        url: compare,
-        message: `Önizləmə “${branch}” filialına göndərildi. Vercel filial üçün preview deploy yaradacaq; hazır olduqda production-a “Deploy” edin.`,
+        url: previewUrl || github,
+        previewUrl: previewUrl || undefined,
+        message: previewUrl
+          ? `Önizləmə hazırdır (filial: ${branch}).`
+          : `Önizləmə “${branch}” filialına göndərildi. Vercel preview deploy yaradır; bir-iki dəqiqəyə hazır olacaq.`,
       });
     }
 

@@ -484,7 +484,10 @@
         pdfBase64: pdfBase64 || undefined };
       const res=await fetch('/api/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const j=await res.json().catch(()=>({error:'HTTP '+res.status}));
-      if(res.ok && j.ok){ status('deployStatus','✅ '+j.message+' → '+j.url,'ok');
+      if(res.ok && j.ok){
+        const links=[]; if(j.url) links.push({u:j.url, t: previewMode?'🔗 Önizləməni aç':'🔗 Hesabatı aç'});
+        if(j.previewUrl && j.previewUrl!==j.url) links.push({u:j.previewUrl, t:'🔗 Vercel önizləməsi'});
+        statusLinks('deployStatus','✅ '+(j.message||'Göndərildi.'), links, 'ok');
         if(!previewMode){ dirty=false; clearDraft(curSlug); $('dirtyFlag').textContent=''; }
         if(mode==='upd' && !previewMode) setTimeout(loadCityList, 1500); }
       else if(/not configured/i.test(j.error||'')) status('deployStatus','⚙️ Deploy hələ qurulmayıb: Vercel-də GITHUB_TOKEN və DEPLOY_PASSWORD əlavə edin.','err');
@@ -495,6 +498,8 @@
   $('previewDeployBtn').onclick = ()=>doDeploy(true);
 
   function status(id,msg,cls){ const el=$(id); el.textContent=msg; el.className='status '+(cls||''); }
+  function statusLinks(id,msg,links,cls){ const el=$(id); el.className='status '+(cls||'');
+    el.innerHTML=escH(msg)+(links||[]).map(function(l){ return ' <a class="golink" href="'+escH(l.u)+'" target="_blank" rel="noopener">'+escH(l.t)+'</a>'; }).join(''); }
 
   // init
   fetch('./cities.json?cb='+Date.now()).then(r=>r.json()).then(a=>{ ALL_CITIES=a||[]; checkDuplicate(); }).catch(()=>{});
