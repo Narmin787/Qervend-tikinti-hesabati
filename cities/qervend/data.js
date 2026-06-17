@@ -18,7 +18,7 @@ window.DASH.meta = {
   "officialPlan": 54.86,
   "primaveraCode": "QRVND_Upd",
   "note": "",
-  "sourcePdf": ""
+  "sourcePdf": "source.pdf"
 };
 window.DASH.kpi = [
   {
@@ -91,7 +91,7 @@ window.DASH.overall = {
     },
     {
       "name": "Paket 3 (205)",
-      "plan": 44.96,
+      "plan": 44.69,
       "fakt": 33.07
     },
     {
@@ -100,39 +100,9 @@ window.DASH.overall = {
       "fakt": 35.18
     },
     {
-      "name": "Sahədaxili komm.",
+      "name": "Sahədaxili kommunikasiya",
       "plan": 53.24,
       "fakt": 12.31
-    },
-    {
-      "name": "Məktəb (840)",
-      "plan": 14.75,
-      "fakt": 0.8
-    },
-    {
-      "name": "Bağça (120)",
-      "plan": 17.35,
-      "fakt": 1.36
-    },
-    {
-      "name": "Bağça (100)",
-      "plan": 10.82,
-      "fakt": 0.92
-    },
-    {
-      "name": "İnzibati bina",
-      "plan": 11.85,
-      "fakt": 0.55
-    },
-    {
-      "name": "Tibb məntəqəsi",
-      "plan": 10.14,
-      "fakt": 0.88
-    },
-    {
-      "name": "Qəbiristanlıq",
-      "plan": 4.48,
-      "fakt": 0
     }
   ]
 };
@@ -153,7 +123,7 @@ window.DASH.packages = {
     {
       "name": "Paket 3 (205)",
       "ev": 205,
-      "plan": 44.96,
+      "plan": 44.69,
       "fakt": 33.07
     },
     {
@@ -166,18 +136,16 @@ window.DASH.packages = {
   "trend": [
     {
       "date": "21.05.2026",
-      "fakt": 26.05
-    },
-    {
-      "date": "04.06.2026",
-      "fakt": 31.08
+      "fakt": 26.05,
+      "plan": 45.66
     },
     {
       "date": "11.06.2026",
-      "fakt": 31.52
+      "fakt": 31.52,
+      "plan": 54.86
     }
   ],
-  "trendNote": "Ümumi icra (fakt %). 04.06 dəyəri kənarlaşma və plan interpolyasiyasından çıxarılmışdır."
+  "trendNote": "Ümumi icra: faktiki (qırmızı) və plan (mavi nöqtəli). Mənbə: həftəlik gecikmə hesabatı (21.05.2026 və 11.06.2026 kəsimləri). Aralıq həftələr üçün yalnız gecikmə faizi mövcuddur."
 };
 window.DASH.workItems = {
   "lots": [
@@ -187,478 +155,141 @@ window.DASH.workItems = {
       "ev": 851,
       "items": [
         {
-          "name": "Qaba işlər — aşağı səviyyə",
-          "fakt": 92.2,
-          "plan": 98.1
+          "name": "Paket 1 (150 ev)",
+          "fakt": 52.92,
+          "plan": 70.76
         },
         {
-          "name": "Qaba işlər — yuxarı səviyyə",
-          "fakt": 53.2,
-          "plan": 57
+          "name": "Paket 2 (200 ev)",
+          "fakt": 42.49,
+          "plan": 62.04
         },
         {
-          "name": "Dam örtüyü",
-          "fakt": 4.7,
-          "plan": 20
+          "name": "Paket 3 (205 ev)",
+          "fakt": 33.07,
+          "plan": 44.69
         },
         {
-          "name": "Hörgü",
-          "fakt": 28.4,
-          "plan": 40.6
-        },
-        {
-          "name": "Divar bəzəyi",
-          "fakt": 0,
-          "plan": 8.4
-        },
-        {
-          "name": "Tavan bəzəyi",
-          "fakt": 0,
-          "plan": 10.3
-        },
-        {
-          "name": "Döşəmə bəzəyi",
-          "fakt": 0,
-          "plan": 11.2
-        },
-        {
-          "name": "Pəncərə və qapılar",
-          "fakt": 7.9,
-          "plan": 52.2
-        },
-        {
-          "name": "Mebellənmə və tamamlama",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Elektrik təchizatı",
-          "fakt": 13.6,
-          "plan": 30.8
-        },
-        {
-          "name": "Su və kanalizasiya",
-          "fakt": 8,
-          "plan": 48
-        },
-        {
-          "name": "Ventilyasiya",
-          "fakt": 0,
-          "plan": 24.4
-        },
-        {
-          "name": "Günəş panelləri",
-          "fakt": 0,
-          "plan": 0.4
-        },
-        {
-          "name": "Qaz təchizatı",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Xarici bəzək (fasad)",
-          "fakt": 0,
-          "plan": 5.6
-        },
-        {
-          "name": "Təsərrüfat tikililəri",
-          "fakt": 0,
-          "plan": 59
+          "name": "Paket 4 (296 ev)",
+          "fakt": 35.18,
+          "plan": 45.56
         }
       ]
     },
     {
-      "id": "lot1",
-      "name": "Lot 1 (150 ev)",
+      "id": "p1",
+      "name": "Paket 1 (150 ev)",
       "ev": 150,
       "items": [
         {
-          "name": "Qaba işlər — aşağı səviyyə",
-          "fakt": 98.3,
-          "plan": 100
+          "name": "2 otaqlı evlər",
+          "fakt": 56.16,
+          "plan": 77.93
         },
         {
-          "name": "Qaba işlər — yuxarı səviyyə",
-          "fakt": 86.1,
-          "plan": 91.7
+          "name": "3 otaqlı evlər",
+          "fakt": 57.16,
+          "plan": 76.73
         },
         {
-          "name": "Dam örtüyü",
-          "fakt": 26.8,
-          "plan": 33.7
+          "name": "4 otaqlı evlər",
+          "fakt": 45.12,
+          "plan": 59.19
         },
         {
-          "name": "Hörgü",
-          "fakt": 45.8,
-          "plan": 76.2
-        },
-        {
-          "name": "Divar bəzəyi",
-          "fakt": 0,
-          "plan": 26.6
-        },
-        {
-          "name": "Tavan bəzəyi",
-          "fakt": 0,
-          "plan": 29.3
-        },
-        {
-          "name": "Döşəmə bəzəyi",
-          "fakt": 0,
-          "plan": 36.4
-        },
-        {
-          "name": "Pəncərə və qapılar",
-          "fakt": 11.7,
-          "plan": 82.6
-        },
-        {
-          "name": "Mebellənmə və tamamlama",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Elektrik təchizatı",
-          "fakt": 32.6,
-          "plan": 62.6
-        },
-        {
-          "name": "Su və kanalizasiya",
-          "fakt": 21.2,
-          "plan": 89.1
-        },
-        {
-          "name": "Ventilyasiya",
-          "fakt": 0,
-          "plan": 42
-        },
-        {
-          "name": "Günəş panelləri",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Qaz təchizatı",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Xarici bəzək (fasad)",
-          "fakt": 0,
-          "plan": 9.4
-        },
-        {
-          "name": "Təsərrüfat tikililəri",
-          "fakt": 0,
-          "plan": 59.7
+          "name": "5 otaqlı evlər",
+          "fakt": 48.51,
+          "plan": 61.99
         }
       ]
     },
     {
-      "id": "lot2",
-      "name": "Lot 2 (200 ev)",
+      "id": "p2",
+      "name": "Paket 2 (200 ev)",
       "ev": 200,
       "items": [
         {
-          "name": "Qaba işlər — aşağı səviyyə",
-          "fakt": 93.8,
-          "plan": 98.9
+          "name": "2 otaqlı evlər",
+          "fakt": 45.97,
+          "plan": 71.42
         },
         {
-          "name": "Qaba işlər — yuxarı səviyyə",
-          "fakt": 68.5,
-          "plan": 65
+          "name": "3 otaqlı evlər",
+          "fakt": 46.51,
+          "plan": 67
         },
         {
-          "name": "Dam örtüyü",
-          "fakt": 0,
-          "plan": 40.5
+          "name": "4 otaqlı evlər",
+          "fakt": 29.85,
+          "plan": 56.93
         },
         {
-          "name": "Hörgü",
-          "fakt": 37.1,
-          "plan": 53.1
-        },
-        {
-          "name": "Divar bəzəyi",
-          "fakt": 0,
-          "plan": 10.2
-        },
-        {
-          "name": "Tavan bəzəyi",
-          "fakt": 0,
-          "plan": 13.6
-        },
-        {
-          "name": "Döşəmə bəzəyi",
-          "fakt": 0,
-          "plan": 13.5
-        },
-        {
-          "name": "Pəncərə və qapılar",
-          "fakt": 12.6,
-          "plan": 51.7
-        },
-        {
-          "name": "Mebellənmə və tamamlama",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Elektrik təchizatı",
-          "fakt": 15.7,
-          "plan": 42.9
-        },
-        {
-          "name": "Su və kanalizasiya",
-          "fakt": 8.9,
-          "plan": 63.7
-        },
-        {
-          "name": "Ventilyasiya",
-          "fakt": 0,
-          "plan": 40.9
-        },
-        {
-          "name": "Günəş panelləri",
-          "fakt": 0,
-          "plan": 1.8
-        },
-        {
-          "name": "Qaz təchizatı",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Xarici bəzək (fasad)",
-          "fakt": 0,
-          "plan": 15.5
-        },
-        {
-          "name": "Təsərrüfat tikililəri",
-          "fakt": 0,
-          "plan": 66.3
+          "name": "5 otaqlı evlər",
+          "fakt": 36.67,
+          "plan": 40.97
         }
       ]
     },
     {
-      "id": "lot3",
-      "name": "Lot 3 (205 ev)",
+      "id": "p3",
+      "name": "Paket 3 (205 ev)",
       "ev": 205,
       "items": [
         {
-          "name": "Qaba işlər — aşağı səviyyə",
-          "fakt": 90.9,
-          "plan": 100
+          "name": "2 otaqlı evlər",
+          "fakt": 38.47,
+          "plan": 50.76
         },
         {
-          "name": "Qaba işlər — yuxarı səviyyə",
-          "fakt": 28.8,
-          "plan": 44.3
+          "name": "3 otaqlı evlər",
+          "fakt": 30.44,
+          "plan": 37.75
         },
         {
-          "name": "Dam örtüyü",
-          "fakt": 0,
-          "plan": 0
+          "name": "4 otaqlı evlər",
+          "fakt": 31.26,
+          "plan": 46.49
         },
         {
-          "name": "Hörgü",
-          "fakt": 18.7,
-          "plan": 27.5
-        },
-        {
-          "name": "Divar bəzəyi",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Tavan bəzəyi",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Döşəmə bəzəyi",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Pəncərə və qapılar",
-          "fakt": 11.9,
-          "plan": 43.1
-        },
-        {
-          "name": "Mebellənmə və tamamlama",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Elektrik təchizatı",
-          "fakt": 15.5,
-          "plan": 18.6
-        },
-        {
-          "name": "Su və kanalizasiya",
-          "fakt": 7.8,
-          "plan": 40
-        },
-        {
-          "name": "Ventilyasiya",
-          "fakt": 0,
-          "plan": 18.6
-        },
-        {
-          "name": "Günəş panelləri",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Qaz təchizatı",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Xarici bəzək (fasad)",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Təsərrüfat tikililəri",
-          "fakt": 0,
-          "plan": 55.9
+          "name": "5 otaqlı evlər",
+          "fakt": 31.08,
+          "plan": 42.3
         }
       ]
     },
     {
-      "id": "lot4",
-      "name": "Lot 4 (296 ev)",
+      "id": "p4",
+      "name": "Paket 4 (296 ev)",
       "ev": 296,
       "items": [
         {
-          "name": "Qaba işlər — aşağı səviyyə",
-          "fakt": 88.8,
-          "plan": 95.2
+          "name": "2 otaqlı evlər",
+          "fakt": 25.89,
+          "plan": 54.98
         },
         {
-          "name": "Qaba işlər — yuxarı səviyyə",
-          "fakt": 43.2,
-          "plan": 42.8
+          "name": "3 otaqlı evlər",
+          "fakt": 46.98,
+          "plan": 41.2
         },
         {
-          "name": "Dam örtüyü",
-          "fakt": 0,
-          "plan": 13
+          "name": "4 otaqlı evlər",
+          "fakt": 34.24,
+          "plan": 48.88
         },
         {
-          "name": "Hörgü",
-          "fakt": 20.4,
-          "plan": 23.2
-        },
-        {
-          "name": "Divar bəzəyi",
-          "fakt": 0,
-          "plan": 3.8
-        },
-        {
-          "name": "Tavan bəzəyi",
-          "fakt": 0,
-          "plan": 5.6
-        },
-        {
-          "name": "Döşəmə bəzəyi",
-          "fakt": 0,
-          "plan": 4.7
-        },
-        {
-          "name": "Pəncərə və qapılar",
-          "fakt": 0,
-          "plan": 43.3
-        },
-        {
-          "name": "Mebellənmə və tamamlama",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Elektrik təchizatı",
-          "fakt": 1.1,
-          "plan": 15
-        },
-        {
-          "name": "Su və kanalizasiya",
-          "fakt": 0.8,
-          "plan": 22
-        },
-        {
-          "name": "Ventilyasiya",
-          "fakt": 0,
-          "plan": 8.4
-        },
-        {
-          "name": "Günəş panelləri",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Qaz təchizatı",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
-          "name": "Xarici bəzək (fasad)",
-          "fakt": 0,
-          "plan": 0.8
-        },
-        {
-          "name": "Təsərrüfat tikililəri",
-          "fakt": 0,
-          "plan": 55.9
+          "name": "5 otaqlı evlər",
+          "fakt": 31.17,
+          "plan": 33.77
         }
       ]
     }
   ]
 };
 window.DASH.otherObjects = {
-  "asOf": "23.04.2026",
-  "contractNote": "Bu obyektlər üzrə tikinti müqaviləsi hələ bağlanmamışdır. Göstərilən rəqəmlər ən son mövcud qiymətləndirməyə əsaslanır və icra faktiki olaraq başlanğıc səviyyəsindədir.",
-  "objects": [
-    {
-      "name": "Məktəb (840 yer)",
-      "plan": 14.75,
-      "fakt": 0.8,
-      "status": "Müqavilə yoxdur"
-    },
-    {
-      "name": "Bağça (120 yer)",
-      "plan": 17.35,
-      "fakt": 1.36,
-      "status": "Müqavilə yoxdur"
-    },
-    {
-      "name": "Bağça (100 yer)",
-      "plan": 10.82,
-      "fakt": 0.92,
-      "status": "Müqavilə yoxdur"
-    },
-    {
-      "name": "İnzibati bina",
-      "plan": 11.85,
-      "fakt": 0.55,
-      "status": "Müqavilə yoxdur"
-    },
-    {
-      "name": "Tibb məntəqəsi",
-      "plan": 10.14,
-      "fakt": 0.88,
-      "status": "Müqavilə yoxdur"
-    },
-    {
-      "name": "Qəbiristanlıq",
-      "plan": 4.48,
-      "fakt": 0,
-      "status": "Müqavilə yoxdur"
-    }
-  ]
+  "asOf": "",
+  "contractNote": "",
+  "objects": []
 };
 window.DASH.infrastructure = {
   "asOf": "11.06.2026",
@@ -666,47 +297,27 @@ window.DASH.infrastructure = {
   "overallPlan": 53.24,
   "items": [
     {
-      "name": "Yollar və səkilər",
-      "fakt": 19.18,
-      "plan": 76
+      "name": "Mərhələ 1",
+      "fakt": 12.59,
+      "plan": 44.64
     },
     {
-      "name": "Xarici su kanalizasiyası",
-      "fakt": 17.68,
-      "plan": 60.86
+      "name": "Mərhələ 2",
+      "fakt": 13.34,
+      "plan": 41.2
     },
     {
-      "name": "Xarici su şəbəkəsi",
-      "fakt": 0,
-      "plan": 33.4
+      "name": "Mərhələ 3",
+      "fakt": 12.44,
+      "plan": 52.54
     },
     {
-      "name": "Qaz təchizatı",
-      "fakt": 0,
-      "plan": 2.19
-    },
-    {
-      "name": "PTM və KTM",
-      "fakt": 0,
-      "plan": 1.51
-    },
-    {
-      "name": "35 kV kabel xətti",
-      "fakt": 0,
-      "plan": 0
-    },
-    {
-      "name": "0.4 kV kabel xətti",
-      "fakt": 0,
-      "plan": 0
-    },
-    {
-      "name": "Rabitə şəbəkəsi",
-      "fakt": 0,
-      "plan": 0
+      "name": "Mərhələ 4",
+      "fakt": 11.21,
+      "plan": 69.53
     }
   ],
-  "weeklyNote": "Sahədaxili kommunikasiya üzrə ümumi icra 11.06 tarixinə 12.31% təşkil edir və plandan 40.93% geri qalır. Son üç həftədə yalnız yollar və kanalizasiya xətti üzrə məhdud irəliləyiş qeydə alınmışdır. Su şəbəkəsi, qaz, elektrik və rabitə şəbəkələri faktiki olaraq başlanılmamış vəziyyətdə qalır."
+  "weeklyNote": "Sahədaxili kommunikasiya üzrə ümumi icra 11.06 tarixinə 12.31% təşkil edir və plandan 40.93% geri qalır. Hər mərhələ daxilində yollar, kanalizasiya, su, qaz, elektrik (35/0.4 kV) və rabitə şəbəkələri ayrıca izlənilir; yalnız yollar və kanalizasiya üzrə məhdud irəliləyiş var, qalan şəbəkələr faktiki olaraq başlanmamışdır."
 };
 window.DASH.workforce = {
   "available": false,
@@ -714,7 +325,7 @@ window.DASH.workforce = {
   "daily": [],
   "totalSeries": [],
   "machinery": [],
-  "emptyNote": "İşçi heyəti və texnika üzrə gündəlik hesabat hələ bu hesabata əlavə edilməmişdir. Məlumat hazır olduqda bu bölmə avtomatik olaraq qrafikləri göstərəcək. Doldurmaq üçün data/08_workforce_machinery.js faylında available dəyərini true edin, daily massivinə hər gün üçün {date, sahe, texniki, idari} yazın, machinery massivinə isə {name, count} dəyərlərini əlavə edin.",
+  "emptyNote": "İşçi heyəti və texnika üzrə gündəlik hesabat hələ bu hesabata əlavə edilməyib. Məlumat Excel-ə əlavə edilib göndərildikdə bu bölmə avtomatik olaraq qrafikləri göstərəcək.",
   "alert": ""
 };
 window.DASH.velocity = {
@@ -777,7 +388,7 @@ window.DASH.velocity = {
     },
     {
       "obyekt": "Paket 3 (205 ev)",
-      "plan": 44.96,
+      "plan": 44.69,
       "fakt": 33.07,
       "finish": "2026-11-15",
       "priorFakt": 25.81,

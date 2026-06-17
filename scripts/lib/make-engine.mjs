@@ -195,6 +195,18 @@ html = html.replace(
 );
 
 // ------------------------------------------------------------------
+// 8) Hide the "Digər obyektlər" section entirely when it has no objects
+// ------------------------------------------------------------------
+html = html.replace(
+  `  function renderOther(){
+    const o=D.otherObjects; if(!o) return;`,
+  `  function renderOther(){
+    const o=D.otherObjects; var secOther=document.getElementById('sec-other');
+    if(!o || !o.objects || !o.objects.length){ if(secOther) secOther.style.display='none'; return; }
+    if(secOther) secOther.style.display='';`
+);
+
+// ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
 // ------------------------------------------------------------------
 for (const [marker, name] of [
@@ -205,6 +217,7 @@ for (const [marker, name] of [
   ['etStatus', 'status strip script'],
   ['linear-gradient(90deg,#1F3F66', 'colored title banner'],
   ['var hasPlan=points.some', 'trend plan-dots'],
+  ["secOther.style.display='none'", 'hide empty other-objects'],
 ]) {
   if (!html.includes(marker)) { console.error('ERROR: enhancement missing:', name); process.exit(1); }
 }

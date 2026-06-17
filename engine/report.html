@@ -820,7 +820,9 @@ table.vel td .pos{color:var(--good); font-weight:600}
 
   /* ---------- Section 6: other objects ---------- */
   function renderOther(){
-    const o=D.otherObjects; if(!o) return;
+    const o=D.otherObjects; var secOther=document.getElementById('sec-other');
+    if(!o || !o.objects || !o.objects.length){ if(secOther) secOther.style.display='none'; return; }
+    if(secOther) secOther.style.display='';
     $('t-other').textContent=(L.sections&&L.sections.s6)||'';
     $('ct-otherBar').textContent=(L.charts&&L.charts.otherBar)||'';
     $('ct-otherGap').textContent=(L.charts&&L.charts.otherGap)||'';
