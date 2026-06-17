@@ -45,6 +45,16 @@ iframe{width:100%;height:78vh;border:1px solid var(--border);border-radius:8px;b
 .swatch input[type=color]{width:34px;height:26px;padding:0;border:1px solid var(--border)}
 .err{color:var(--risk);font-weight:600}
 .ok{color:var(--good);font-weight:600}
+.city-list{max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px;background:#fff}
+.city-item{padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.city-item:last-child{border-bottom:none}
+.city-item:hover{background:#f2f8fe}
+.city-item.sel{background:#e9f3fc}
+.city-item .cv{font-weight:700;font-size:13.5px}
+.city-item .cd{font-size:11.5px;color:var(--muted);margin-top:1px}
+.city-item .cp{font-size:12.5px;font-weight:800;white-space:nowrap}
+.city-item .cp.good{color:var(--good)}.city-item .cp.warn{color:#B8841B}.city-item .cp.risk{color:var(--risk)}
+.city-empty{padding:16px;text-align:center;color:var(--muted);font-size:12.5px}
 </style>
 </head>
 <body>
@@ -63,8 +73,12 @@ iframe{width:100%;height:78vh;border:1px solid var(--border);border-radius:8px;b
       <h2>1 · Xam fayllar</h2>
       <p class="note" style="margin-top:-4px">Excel (gecikmə hesabatı) + Primavera PDF atın → <b>Fayllardan oxu</b>. Məlumat avtomatik dolacaq; aşağıda yoxlayıb redaktə edin, sağda canlı önizləyin, sonra <b>Deploy</b> edin.</p>
       <div id="updPick" style="display:none;margin-bottom:10px">
-        <label class="note">Yenilənəcək şəhər:</label>
-        <div class="row"><select id="citySel"></select><button class="btn" id="loadCity">Yüklə</button></div>
+        <div class="row" style="margin-bottom:8px">
+          <input id="citySearch" placeholder="🔍 Şəhər/kənd axtar..." style="flex:1">
+          <button class="btn" id="refreshCities" title="Siyahını canlı saytdan yenilə">↻</button>
+        </div>
+        <div id="cityList" class="city-list"></div>
+        <div class="note" id="cityCount"></div>
       </div>
       <div class="drop" id="drop">Excel (.xlsx) və Primavera PDF fayllarını bura atın və ya klikləyin
         <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.pdf" style="display:none"></div>

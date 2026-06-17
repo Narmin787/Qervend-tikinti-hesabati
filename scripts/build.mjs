@@ -81,7 +81,9 @@ if (fs.existsSync(WEBAPP)) {
   fs.copyFileSync(path.join(ROOT, 'engine/report.html'), path.join(appOut, 'report-template.html'));
   fs.copyFileSync(path.join(ROOT, 'engine/config.js'), path.join(appOut, 'config.js'));
   fs.writeFileSync(path.join(appOut, 'cities.json'),
-    JSON.stringify(built.map(b => ({ slug: b.city, village: b.meta.village || b.city }))));
+    JSON.stringify(built.map(b => ({ slug: b.city, village: b.meta.village || b.city,
+      district: b.meta.district || '', overall: b.meta.officialOverall ?? null,
+      plan: b.meta.officialPlan ?? null, reportDate: b.meta.reportDate || '' }))));
   console.log('built builder app -> public/narminreportwebapp/');
 }
 

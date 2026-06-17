@@ -41,6 +41,15 @@
     const cDelays = hdr.map((h,i)=>/Gecikmə|Gecikme/i.test(h)?i:-1).filter(i=>i>=0);
     const cWeekly = find(/Həftəlik|Heftelik/i);
 
+    // Project identity (village / district / contractor / report date) from the sheet.
+    const allcells = [];
+    rows.forEach(row => (row || []).forEach(c => allcells.push(clean(c))));
+    for (const s of allcells) { const m = s.match(/([\wçğıöşüəÇĞİÖŞÜƏ ]+?rayonu)\s+([\wçğıöşüəÇĞİÖŞÜƏ ]+?kəndi)/i);
+      if (m) { out.meta.district = m[1].trim(); out.meta.village = m[2].trim(); break; } }
+    for (const s of allcells) { if (/MMC/.test(s) && s.length < 45) { out.meta.contractor = s.replace(/[“”"]/g, '').trim(); break; } }
+    for (const row of rows.slice(0, 3)) for (const c of (row || [])) { const d = excelDate(c);
+      if (/^\d{2}\.\d{2}\.\d{4}$/.test(d)) { out.meta.cutoffDate = d; out.meta.reportDate = d; break; } }
+
     const objects = [], packets = [], vrows = [];
     for (let r = hi + 1; r < rows.length; r++) {
       const row = rows[r] || []; let name = clean(row[cName]);
@@ -52,7 +61,7 @@
       const delays = cDelays.map(c => pct(row[c])).filter(v => v != null);
       const finish = excelDate(row[cFin]);
       const rec = { name, plan, fakt, finish, delays, weekly: clean(row[cWeekly]) };
-      if (/^Ümumi|^Umumi/i.test(name)) { out.meta.officialOverall = fakt; out.meta.officialPlan = plan; out.meta.revisedFinish = finish; }
+      if (/^Ümumi|^Umumi/i.test(name)) { out.meta.officialOverall = fakt; out.meta.officialPlan = plan; out.meta.revisedFinish = finish; out.meta.plannedFinish = finish; out.meta.startDate = excelDate(row[cStart]); }
       else if (/FYE|Fərdi|Ferdi/i.test(name)) objects.push(rec);
       else if (/Paket|Merhele|Mərhələ/i.test(name)) { objects.push(rec); packets.push(rec); }
       else if (/Sahədaxili|Sahedaxili|kommunikasiya/i.test(name)) { objects.push(rec); out.infrastructure.overallFakt = fakt; out.infrastructure.overallPlan = plan; }
