@@ -73,20 +73,20 @@ window.DASH.theme = {
 window.DASH.labels = {
   "sections": {
     "s2": "",
-    "s3": "ÜMUMİ İCRA VƏ PLANDAN KƏNARLAŞMA (RƏSMİ — 11.06.2026)",
-    "s4": "EVLƏRİN TİKİNTİ GEDİŞATI (PAKET ÜZRƏ)",
-    "s5": "GÖRÜLƏN İŞLƏR — EVLƏR (TƏFSİLATLI)",
-    "s6": "DİGƏR OBYEKTLƏRİN VƏZİYYƏTİ (MƏKTƏB, BAĞÇA, İNZİBATİ, TİBB, QƏBİRİSTANLIQ)",
-    "s7": "KOMMUNİKASİYA VƏ İNFRASTRUKTUR",
-    "s8": "İŞÇİ HEYƏTİ VƏ TEXNİKA",
-    "s9": "HƏFTƏLİK SÜRƏT ANALİZİ — Progress Velocity (Keçən ay → 04.06 → 11.06)",
-    "s10": "TƏKLİFLƏR, RİSKLƏR VƏ ANALİZ (11.06.2026)"
+    "s3": "Tikinti üzrə planlaşdırılan və faktiki icra faizi",
+    "s4": "Evlərin tikinti gedişatı (paket üzrə)",
+    "s5": "Paketlər üzrə görülən işlər",
+    "s6": "Digər obyektlərin vəziyyəti",
+    "s7": "Paketlər üzrə sahədaxili kommunikasiya işləri",
+    "s8": "İşçi heyəti və texnika",
+    "s9": "Həftəlik dəyişiklik analizi (28.05 → 04.06 → 11.06)",
+    "s10": "Təkliflər, risklər və analiz"
   },
   "charts": {
     "overallBar": "Bütün Obyektlər — Plan vs Fakt (%)",
-    "overallDev": "Plandan Kənarlaşma (Fakt − Plan, %)",
+    "overallDev": "Plandan kənarlaşma faizi",
     "pkgBar": "Paketlər Üzrə Plan vs Fakt (%)",
-    "pkgTrend": "Ümumi İcra Trendi (rəsmi)",
+    "pkgTrend": "Keçən həftələrə nisbətən ümumi icra trendi",
     "workItems": "İş Maddələri Üzrə Tamamlanma",
     "otherBar": "Obyektlər — Plan vs Fakt (%)",
     "otherGap": "Tamamlanma Boşluğu (Plan − Fakt, %)",
@@ -94,7 +94,7 @@ window.DASH.labels = {
     "wfDaily": "Personal Kateqoriyaları (gündəlik)",
     "wfTotal": "Ümumi Personal Sayı",
     "machinery": "Texnika Tərkibi",
-    "velDev": "Kənarlaşma Trendi — 3 Nöqtə (Fakt − Plan %)",
+    "velDev": "Son həftələr tikinti gedişatının icrasında müşahidə olunan gecikmə faizi",
     "velTempo": "Həftəlik Tempo — Tələb vs Faktiki (%/həftə)",
     "velCompliance": "Sürət Göstəricisi — Plana Uyğunluq (%)"
   },
@@ -126,7 +126,7 @@ window.DASH.labels = {
   },
   "footer": {
     "sources": "Mənbə: Hesabat icmalı — Ağdam rayonu Qərvənd kəndi (11.06.2026) | QRVND_Upd Primavera cədvəli (11.06.2026) | Həftəlik Sürət Analizi (11.06.2026) | İMA Energy MMC",
-    "prepared": "Hazırlanma tarixi: 16.06.2026"
+    "prepared": "Hazırlanma tarixi: 17.06.2026"
   }
 };
 window.DASH.insightsConfig = {

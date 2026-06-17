@@ -2,7 +2,7 @@
    Avtomatik yaradılıb (2026-06-17). Əl ilə redaktə etmək əvəzinə Excel şablonundan istifadə edin. */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
-  "projectTitle": "QƏRVƏND KƏNDİ — TİKİNTİ GEDİŞATI HESABATI",
+  "projectTitle": "Qərvənd kəndi üzrə tikinti gedişatı hesabatı",
   "village": "Qərvənd kəndi",
   "district": "Ağdam rayonu",
   "contractor": "İMA Energy MMC",
@@ -64,7 +64,7 @@ window.DASH.kpi = [
     "value": null,
     "unit": "",
     "label": "İŞÇİ SAYI (GÜNDƏLİK)",
-    "sub": "Gündəlik hesabat daxil edilməyib",
+    "sub": "Məlumat əlavə edilməyib",
     "accent": "violet",
     "deltaSign": "none",
     "pending": true
@@ -74,7 +74,7 @@ window.DASH.kpi = [
     "value": null,
     "unit": "",
     "label": "TEXNİKA VAHİDİ",
-    "sub": "Gündəlik hesabat daxil edilməyib",
+    "sub": "Məlumat əlavə edilməyib",
     "accent": "orange",
     "deltaSign": "none",
     "pending": true
@@ -1202,7 +1202,7 @@ window.DASH.workforce = {
   "daily": [],
   "totalSeries": [],
   "machinery": [],
-  "emptyNote": "İşçi heyəti və texnika üzrə gündəlik hesabat hələ bu hesabata əlavə edilməyib. Məlumat Excel-ə əlavə edilib göndərildikdə bu bölmə avtomatik olaraq qrafikləri göstərəcək.",
+  "emptyNote": "",
   "alert": ""
 };
 window.DASH.velocity = {
@@ -1210,7 +1210,7 @@ window.DASH.velocity = {
   "priorDate": "2026-05-21",
   "priorWeeks": 3,
   "points": [
-    "Keçən ay (≈28.05)",
+    "28.05",
     "04.06",
     "11.06"
   ],

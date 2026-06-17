@@ -14,7 +14,7 @@ import { dataToWorkbook } from '../lib/schema.mjs';
 
 const data = {
   meta: {
-    projectTitle: 'QƏRVƏND KƏNDİ — TİKİNTİ GEDİŞATI HESABATI',
+    projectTitle: 'Qərvənd kəndi üzrə tikinti gedişatı hesabatı',
     village: 'Qərvənd kəndi', district: 'Ağdam rayonu', contractor: 'İMA Energy MMC',
     reportDate: '16.06.2026', cutoffDate: '11.06.2026',
     startDate: '06.10.2025', plannedFinish: '30.11.2026', revisedFinish: '30.11.2026', // [P] BL Finish 30-Nov-26
@@ -26,8 +26,8 @@ const data = {
   kpi: [
     { id:'umumi',   value:'31.52', unit:'%', label:'ÜMUMİ İCRA (RƏSMİ)', sub:'Plan: 54.86% | -23.34%', accent:'teal',   deltaSign:'neg',  pending:false },
     { id:'evler',   value:'40.90', unit:'%', label:'FƏRDİ EVLƏR (851)',   sub:'Plan: 55.64% | -14.74%', accent:'teal',   deltaSign:'neg',  pending:false },
-    { id:'isciler', value:null,    unit:'',  label:'İŞÇİ SAYI (GÜNDƏLİK)', sub:'Gündəlik hesabat daxil edilməyib', accent:'violet', deltaSign:'none', pending:true },
-    { id:'texnika', value:null,    unit:'',  label:'TEXNİKA VAHİDİ',       sub:'Gündəlik hesabat daxil edilməyib', accent:'orange', deltaSign:'none', pending:true },
+    { id:'isciler', value:null,    unit:'',  label:'İŞÇİ SAYI (GÜNDƏLİK)', sub:'Məlumat əlavə edilməyib', accent:'violet', deltaSign:'none', pending:true },
+    { id:'texnika', value:null,    unit:'',  label:'TEXNİKA VAHİDİ',       sub:'Məlumat əlavə edilməyib', accent:'orange', deltaSign:'none', pending:true },
     { id:'qalan',   value:'~172',  unit:' gün', label:'BİTMƏYƏ QALAN',     sub:'Hədəf: 30.11.2026', accent:'red', deltaSign:'none', pending:false },
   ],
 
@@ -297,14 +297,14 @@ const data = {
 
   workforce: {
     available:false, period:'', daily:[], totalSeries:[], machinery:[],
-    emptyNote:'İşçi heyəti və texnika üzrə gündəlik hesabat hələ bu hesabata əlavə edilməyib. Məlumat Excel-ə əlavə edilib göndərildikdə bu bölmə avtomatik olaraq qrafikləri göstərəcək.',
+    emptyNote:'',
     alert:'',
   },
 
   // [E] yeni (11.06) gecikmələri + Sheet1 (21.05) faktiki = priorFakt.
   velocity: {
     cutoff:'2026-06-11', priorDate:'2026-05-21', priorWeeks:3.0,
-    points:['Keçən ay (≈28.05)','04.06','11.06'],
+    points:['28.05','04.06','11.06'],
     rows: [
       { obyekt:'Ümumi',              plan:54.86, fakt:31.52, finish:'2026-11-30', priorFakt:26.05, dev3:[-19.47,-20.71,-23.34] },
       { obyekt:'FYE (851 ev)',       plan:55.64, fakt:40.90, finish:'2026-11-30', priorFakt:35.24, dev3:[-10.65,-12.40,-14.74] },

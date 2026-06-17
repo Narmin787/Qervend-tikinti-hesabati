@@ -114,6 +114,14 @@ const enhance = `<script>
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
   ready(function(){
+    // Collapsible sections — click the section heading to minimize / expand.
+    [].forEach.call(document.querySelectorAll('.section > .section-title'), function(t){
+      t.setAttribute('role','button'); t.setAttribute('tabindex','0');
+      var toggle=function(){ t.parentNode.classList.toggle('collapsed');
+        setTimeout(function(){ try{ if(window.CHARTS&&CHARTS.resizeAll) CHARTS.resizeAll(); }catch(e){} }, 60); };
+      t.addEventListener('click', toggle);
+      t.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+    });
     var DESK=1180;   // always render the PDF at desktop width (looks like the web, mobile included)
     var bp=document.getElementById('btnPrint');
     if(bp){ bp.addEventListener('click', function(){
@@ -123,12 +131,16 @@ const enhance = `<script>
       var acts=document.querySelector('.et-actions');
       var label=bp.textContent; bp.disabled=true; bp.textContent='PDF hazırlanır…';
       if(acts){ acts.style.visibility='hidden'; }   // keep buttons out of the file
+      // Expand any collapsed sections so the PDF includes every section in full.
+      var wasCollapsed=[].slice.call(document.querySelectorAll('.section.collapsed'));
+      wasCollapsed.forEach(function(s){ s.classList.remove('collapsed'); });
       // Force desktop layout + resize charts.
       var pw=wrap.style.width, pmw=wrap.style.maxWidth, pm=wrap.style.margin;
       wrap.style.width=DESK+'px'; wrap.style.maxWidth=DESK+'px'; wrap.style.margin='0 auto';
       try{ if(window.CHARTS&&CHARTS.resizeAll) CHARTS.resizeAll(); }catch(e){}
       var fname=((window.DASH&&window.DASH.meta&&window.DASH.meta.village)||'tikinti')+' hesabati.pdf';
       var restore=function(){ wrap.style.width=pw; wrap.style.maxWidth=pmw; wrap.style.margin=pm;
+        wasCollapsed.forEach(function(s){ s.classList.add('collapsed'); });
         try{ if(window.CHARTS&&CHARTS.resizeAll) CHARTS.resizeAll(); }catch(e){}
         if(acts){ acts.style.visibility=''; } bp.disabled=false; bp.textContent=label; };
       window.scrollTo(0,0);
@@ -173,7 +185,7 @@ html = html.replace(
 }`,
   `.report-title{
   font-size:19px; font-weight:800; letter-spacing:.04em; color:#fff;
-  text-transform:uppercase; margin:0 0 12px;
+  text-transform:none; margin:0 0 12px;
   background:linear-gradient(90deg,#1F3F66,#2A6FA8); padding:13px 16px;
   border-radius:var(--radius); box-shadow:var(--shadow);
   display:flex; align-items:center; justify-content:space-between; gap:14px;
@@ -313,10 +325,20 @@ html = html.replace(
   `    <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velCompliance"></div><div class="chart" id="ch-velCompliance" style="height:320px"></div></div>
     <div class="chart-card" style="margin-top:16px"><div class="chart-title" id="ct-velWeekly"></div><div class="chart" id="ch-velWeekly" style="height:300px"></div></div>`
 );
-// Tempo "?" help tooltip.
+// Remove the Tempo chart (redundant with Sürət göstəricisi) — drop its card + render.
 html = html.replace(
-  `    $('ct-velTempo').textContent=(L.charts&&L.charts.velTempo)||'';`,
-  `    $('ct-velTempo').innerHTML=esc((L.charts&&L.charts.velTempo)||'')+' <span class="tip" title="Tələb = (100 − faktiki%) ÷ qalan həftə sayı → vaxtında bitirmək üçün həftədə lazım olan faiz.&#10;Faktiki = (bu həftə faktiki − əvvəlki faktiki) ÷ keçən həftələr → real həftəlik templ.&#10;Planla müqayisə nə qədər geridəyik deyir; tempo isə bu templə vaxtında çatırıqmı sualına cavab verir. Tələb faktiki templdən böyükdürsə, geriləmə daha da artacaq.">?</span>';`
+  `    <div class="grid grid-6535">
+      <div class="chart-card"><div class="chart-title" id="ct-velDev"></div><div class="chart" id="ch-velDev" style="height:300px"></div></div>
+      <div class="chart-card"><div class="chart-title" id="ct-velTempo"></div><div class="chart" id="ch-velTempo" style="height:300px"></div></div>
+    </div>`,
+  `    <div class="chart-card"><div class="chart-title" id="ct-velDev"></div><div class="chart" id="ch-velDev" style="height:320px"></div></div>`
+);
+html = html.replace(`    $('ct-velTempo').textContent=(L.charts&&L.charts.velTempo)||'';\n`, '');
+html = html.replace(`    CHARTS.tempoBars('ch-velTempo', velRows);\n`, '');
+// Sürət göstəricisi "?" — official, passive-voice explanation (how it is calculated + why).
+html = html.replace(
+  `    $('ct-velCompliance').textContent=(L.charts&&L.charts.velCompliance)||'';`,
+  `    $('ct-velCompliance').innerHTML=esc((L.charts&&L.charts.velCompliance)||'')+' <span class="tip" title="Plana uyğunluq faktiki həftəlik templin (son həftələrdə görülən iş) tələb olunan templə — tikinti işini vaxtında bitirmək üçün həftədə lazım olan faizə — nisbəti kimi hesablanır. Göstəricinin 100%-dən aşağı olması işlərin cari templə vaxtında tamamlanmayacağını bildirir.">?</span>';`
 );
 // Render the weekly-change chart.
 html = html.replace(
@@ -415,6 +437,62 @@ html = html.replace(
 );
 
 // ------------------------------------------------------------------
+// 13) Bold sentence-case + collapsible headings, regrouped insights,
+//     single velocity note.
+// ------------------------------------------------------------------
+html = html.replace(
+  `.section-title{
+  font-size:12px; font-weight:700; letter-spacing:.09em; color:var(--faint);
+  text-transform:uppercase; margin:0 0 14px;
+}`,
+  `.section-title{
+  font-size:15.5px; font-weight:800; letter-spacing:.005em; color:var(--ink);
+  text-transform:none; margin:0 0 14px; cursor:pointer; user-select:none;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title::before{content:'▾'; font-size:11px; color:var(--muted); transition:transform .15s; flex:0 0 auto}
+.section.collapsed .section-title::before{transform:rotate(-90deg)}
+.section.collapsed .section-title{margin:0}
+.section.collapsed > *:not(.section-title):not(script){display:none !important}
+.insight .i-list{margin:7px 0 0; padding-left:20px}
+.insight .i-list li{margin-bottom:5px; line-height:1.55}`
+);
+// Velocity: replace the verbose qeyd + nəticə with one brief summary note.
+html = html.replace(
+  `    // qeyd + netice (auto)
+    const umumi=velRows.find(r=>/Ümumi/i.test(r.obyekt));
+    const aheadAny = velRows.some(r=>r.ferq>0.5);
+    const qeyd = aheadAny
+      ? \`Bəzi obyektlər plandan qabaqda olduğu üçün onların aşağı həftəlik tempi hələlik risk yaratmır.\`
+      : \`Hazırda bütün obyektlər plandan geri qalır. Plana uyğunluğun 100 faizdən aşağı olması kənarlaşmanın hər həftə artması deməkdir. Geriliyin bərpası üçün faktiki tempin tələb olunan tempi keçməsi zəruridir.\`;
+    $('note-velQeyd').innerHTML=\`<div class="note note-qeyd"><span class="lead">Qeyd:</span> \${esc(qeyd)}</div>\`;
+    if(umumi){
+      const best=velRows.filter(r=>!/Ümumi/i.test(r.obyekt)).slice().sort((a,b)=>b.uygunluq-a.uygunluq)[0];
+      const worst=velRows.filter(r=>!/Ümumi/i.test(r.obyekt)).slice().sort((a,b)=>a.uygunluq-b.uygunluq)[0];
+      const netice = \`Ümumi layihə tələb olunan tempin \${Math.round(umumi.uygunluq)} faizi ilə irəliləyir. Hər həftə \${f2(umumi.teleb)} faiz irəliləmə tələb olunduğu halda faktiki olaraq \${f2(umumi.faktiki)} faiz əldə edilir. \`+
+        \`Nisbətən yaxşı tempə malik sahə \${esc(best.short)} (\${Math.round(best.uygunluq)} faiz), ən böyük risk isə \${esc(worst.short)} (\${Math.round(worst.uygunluq)} faiz) üzərindədir. Əsas risk ümumi tempin tələbdən davamlı aşağı qalmasıdır.\`;
+      $('note-velNetice').innerHTML=\`<div class="note note-blue"><span class="lead">Nəticə:</span> \${esc(netice)}</div>\`;
+    }`,
+  `    $('note-velQeyd').innerHTML='<div class="note note-blue"><span class="lead">Qeyd:</span> Bu bölmə hər obyekt üzrə gecikmənin həftədən-həftəyə dəyişməsini və cari iş templi ilə layihənin vaxtında tamamlanma ehtimalını əks etdirir.</div>';
+    $('note-velNetice').innerHTML='';`
+);
+// Insights: regroup into concise bullet blocks (problems / progress / short analiz).
+html = html.replace(
+  `    const cats={kritik:'KRİTİK',diqqet:'DİQQƏT',analiz:'ANALİZ',musbet:'MÜSBƏT'};
+    $('insightsList').innerHTML = list.map(i=>
+      \`<div class="insight \${i.category}"><div class="i-title">\${cats[i.category]||''} — \${esc(i.title)}</div><div class="i-body">\${boldNums(i.body)}</div></div>\`
+    ).join('');`,
+  `    var L2 = list.filter(function(i){ return !/işçi heyəti|texnika|gündəlik məlumat|gündəlik hesabat|daxil edilməyib/i.test((i.title||'')+' '+(i.body||'')); });
+    L2.forEach(function(i){ if(i.category==='analiz'){ var mm=String(i.body||'').match(/^[^.]*\\./); if(mm) i.body=mm[0]; } });
+    function insBlock(title, items, cls){ if(!items.length) return '';
+      return '<div class="insight '+cls+'"><div class="i-title">'+title+'</div><ul class="i-list">'+items.map(function(i){return '<li>'+boldNums(i.body)+'</li>';}).join('')+'</ul></div>'; }
+    $('insightsList').innerHTML =
+      insBlock('Tikinti gedişatında müəyyən olunan problemlər', L2.filter(function(i){return i.category==='kritik'||i.category==='diqqet';}), 'kritik')+
+      insBlock('İcra gedişatındakı irəliləyiş', L2.filter(function(i){return i.category==='musbet';}), 'musbet')+
+      insBlock('Analiz', L2.filter(function(i){return i.category==='analiz';}), 'analiz');`
+);
+
+// ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
 // ------------------------------------------------------------------
 for (const [marker, name] of [
@@ -438,6 +516,11 @@ for (const [marker, name] of [
   ['id="lotSubs"', 'work-items sub-tabs'],
   ['.subtab.active', 'sub-tab styling'],
   ['windowWidth:DESK', 'desktop-width PDF'],
+  ['.section.collapsed > *', 'collapsible-section CSS'],
+  ["classList.toggle('collapsed')", 'collapsible-section toggle'],
+  ['function insBlock', 'regrouped insights bullets'],
+  ['Tikinti gedişatında müəyyən olunan problemlər', 'insights problem block'],
+  ['cari iş templi ilə layihənin', 'single velocity note'],
 ]) {
   if (!html.includes(marker)) { console.error('ERROR: enhancement missing:', name); process.exit(1); }
 }
