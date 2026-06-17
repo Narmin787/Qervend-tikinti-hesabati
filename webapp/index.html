@@ -74,6 +74,15 @@ table.ed-table td.dotcell{width:14px;text-align:center}
 .hc.ok{background:#E8F6F0;color:#0c6b4f}
 .hc.warn{background:#FFF6E5;color:#8a5a00}
 .hc.err{background:#FDECEA;color:#a4271c}
+.btn.ghost{background:#fff;color:var(--muted);border:1px solid var(--border);font-weight:600;box-shadow:none}
+.btn.ghost:hover{background:var(--page);color:var(--ink)}
+details.adv{margin-top:12px;border-top:1px solid var(--border);padding-top:8px}
+details.adv>summary{cursor:pointer;color:var(--muted);font-size:12px;font-weight:600;list-style:none;user-select:none}
+details.adv>summary::-webkit-details-marker{display:none}
+details.adv>summary::before{content:'▸ ';color:var(--muted)}
+details.adv[open]>summary::before{content:'▾ '}
+details.adv .advlab{display:block;font-size:11px;color:var(--muted);margin:8px 0 3px}
+#deployBtn{font-size:14px;padding:9px 18px}
 </style>
 </head>
 <body>
@@ -89,8 +98,8 @@ table.ed-table td.dotcell{width:14px;text-align:center}
   <!-- LEFT: input + editor -->
   <div>
     <div class="panel" id="inputPanel">
-      <h2>1 · Xam fayllar</h2>
-      <p class="note" style="margin-top:-4px">Excel (gecikmə hesabatı) + Primavera PDF atın → <b>Fayllardan oxu</b>. Məlumat avtomatik dolacaq; aşağıda yoxlayıb redaktə edin, sağda canlı önizləyin, sonra <b>Deploy</b> edin.</p>
+      <h2>1 · Fayllar</h2>
+      <p class="note" style="margin-top:-4px">Excel + Primavera PDF atın — <b>avtomatik oxunur və doldurulur</b>. Aşağıda yoxlayın, sağda önizləyin, sonra bir kliklə <b>Deploy</b> edin.</p>
       <div id="updPick" style="display:none;margin-bottom:10px">
         <div class="row" style="margin-bottom:8px">
           <input id="citySearch" placeholder="🔍 Şəhər/kənd axtar..." style="flex:1">
@@ -99,13 +108,13 @@ table.ed-table td.dotcell{width:14px;text-align:center}
         <div id="cityList" class="city-list"></div>
         <div class="note" id="cityCount"></div>
       </div>
-      <div class="drop" id="drop">Excel (.xlsx) və Primavera PDF fayllarını bura atın və ya klikləyin
+      <div class="drop" id="drop">📂 Excel (.xlsx) və Primavera PDF fayllarını bura atın — avtomatik oxunacaq
         <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.pdf" style="display:none"></div>
       <div class="files" id="fileList"></div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="parseBtn" disabled>⚙ Fayllardan oxu</button>
-        <button class="btn" id="blankBtn">Boşdan başla</button>
-        <span class="status" id="parseStatus"></span>
+      <div class="row" style="margin-top:8px;align-items:center">
+        <span class="status" id="parseStatus" style="margin-left:0"></span>
+        <button class="btn ghost" id="parseBtn" disabled style="margin-left:auto" title="Yenidən oxu">↻</button>
+        <button class="btn ghost" id="blankBtn">Boşdan başla</button>
       </div>
     </div>
 
@@ -119,26 +128,27 @@ table.ed-table td.dotcell{width:14px;text-align:center}
   <!-- RIGHT: preview + actions -->
   <div>
     <div class="panel preview-wrap">
-      <h2>3 · Önizləmə</h2>
-      <div class="row"><button class="btn" id="refreshBtn">↻ Önizləməni yenilə</button>
-        <span class="note">Dəyişiklikdən sonra yeniləyin.</span></div>
+      <h2>3 · Önizləmə <span class="note" style="font-weight:400">(avtomatik yenilənir)</span></h2>
       <iframe id="preview"></iframe>
 
       <div class="bar">
-        <button class="btn" id="dlXlsx">⬇ source.xlsx</button>
-        <button class="btn" id="dlData">⬇ data.js</button>
-      </div>
-      <div class="bar">
-        <input id="cityName" placeholder="Şəhər/kənd adı (məs. Qərvənd kəndi)" style="flex:1;min-width:160px">
-        <input id="pwd" type="password" placeholder="Deploy parolu" style="width:150px">
+        <input id="cityName" placeholder="Şəhər/kənd adı (avtomatik dolur)" style="flex:1;min-width:160px">
+        <button class="btn" id="previewDeployBtn" title="Önizləmə filialına göndər — canlı sayt toxunulmur">🔎 Önizləmə</button>
+        <button class="btn good" id="deployBtn">🚀 Deploy</button>
       </div>
       <div id="dupWarn" class="hc warn" style="display:none"></div>
-      <div class="bar">
-        <button class="btn" id="previewDeployBtn" title="Önizləmə filialına göndər (production toxunulmur)">🔎 Önizləmə deploy</button>
-        <button class="btn good" id="deployBtn">🚀 Deploy (production)</button>
-      </div>
       <div class="status" id="deployStatus" style="margin-top:8px"></div>
-      <div class="note"><b>Önizləmə deploy</b> ayrıca filiala göndərir (canlı sayt toxunulmur). <b>Deploy</b> → GitHub-a göndərir, Vercel 1-5 dəqiqəyə canlı versiyanı yeniləyir.</div>
+      <div class="note"><b>Deploy</b> bir kliklə canlı sayta göndərir (Vercel 1-5 dəq.). <b>Önizləmə</b> canlı saytı dəyişmir.</div>
+      <details class="adv">
+        <summary>⚙ Əlavə tənzimləmələr</summary>
+        <label class="advlab">Deploy parolu (avtomatik doldurulub)</label>
+        <input id="pwd" type="password" placeholder="Deploy parolu" style="width:100%">
+        <div class="bar">
+          <button class="btn ghost" id="refreshBtn">↻ Önizləməni yenilə</button>
+          <button class="btn ghost" id="dlXlsx">⬇ source.xlsx</button>
+          <button class="btn ghost" id="dlData">⬇ data.js</button>
+        </div>
+      </details>
     </div>
   </div>
 </div>

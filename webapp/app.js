@@ -461,9 +461,10 @@
   $('cityName').oninput=checkDuplicate;
 
   // ---------- deploy ----------
-  // remember password for the session only
-  try{ const pw=sessionStorage.getItem('qrv-pw'); if(pw) $('pwd').value=pw; }catch(e){}
-  $('pwd').oninput=function(){ try{ sessionStorage.setItem('qrv-pw',this.value); }catch(e){} };
+  // Pre-fill the deploy password so it never has to be typed (editable in "Əlavə").
+  const DEFAULT_PWD='QervendAdmin2026';
+  try{ $('pwd').value=localStorage.getItem('qrv-pw')||DEFAULT_PWD; }catch(e){ $('pwd').value=DEFAULT_PWD; }
+  $('pwd').oninput=function(){ try{ localStorage.setItem('qrv-pw',this.value); }catch(e){} };
 
   async function doDeploy(previewMode){
     const cityName=$('cityName').value.trim(), password=$('pwd').value;
@@ -475,7 +476,6 @@
       if(ex && !confirm('“'+(ex.village||cityName)+'” adlı hesabat artıq var (/'+slugify(cityName)+'/). Onun üzərinə yazılsın?')){ status('deployStatus','Dayandırıldı — fərqli ad seçin və ya “Mövcudu yenilə” rejimindən redaktə edin.','err'); return; } }
     const {errs}=renderHealth();
     if(errs.length && !previewMode){ if(!confirm(errs.length+' xəta var. Yenə də canlıya göndərək?')) { status('deployStatus','Deploy dayandırıldı — xətaları düzəldin.','err'); return; } }
-    if(!previewMode && !confirm('“'+cityName+'” canlı sayta (production) göndərilsin?')) return;
     status('deployStatus', previewMode?'Önizləmə filialına göndərilir…':'Göndərilir…');
     try{
       const body={ password, cityName, mode: previewMode?'preview':'production',
