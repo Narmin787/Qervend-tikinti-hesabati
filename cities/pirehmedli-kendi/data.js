@@ -1,8 +1,8 @@
 /* data.js — Pirəhmədli kəndi
-   Avtomatik yaradılıb (2026-06-18). Əl ilə redaktə etmək əvəzinə Excel şablonundan istifadə edin. */
+   Hesabat Generatoru ilə yaradılıb (2026-06-17). */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
-  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI",
+  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI demo",
   "village": "Pirəhmədli kəndi",
   "district": "Füzuli rayonu",
   "contractor": "SEA BREEZE MMC",
@@ -269,3 +269,4 @@ window.DASH.velocity = {
     }
   ]
 };
+window.DASH.insightsPinned = [];
