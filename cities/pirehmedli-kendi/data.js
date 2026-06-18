@@ -1,8 +1,8 @@
 /* data.js — Pirəhmədli kəndi
-   Hesabat Generatoru ilə yaradılıb (2026-06-17). */
+   Hesabat Generatoru ilə yaradılıb (2026-06-18). */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
-  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI demo",
+  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI",
   "village": "Pirəhmədli kəndi",
   "district": "Füzuli rayonu",
   "contractor": "SEA BREEZE MMC",
@@ -18,13 +18,7 @@ window.DASH.meta = {
   "officialPlan": 56.06,
   "primaveraCode": "",
   "note": "",
-  "sourcePdf": "source.pdf",
-  "sources": [
-    {
-      "label": "Mənbə sənədi (PDF)",
-      "file": "source.pdf"
-    }
-  ]
+  "sourcePdf": "source.pdf"
 };
 window.DASH.kpi = [
   {
@@ -49,7 +43,7 @@ window.DASH.kpi = [
   },
   {
     "id": "isciler",
-    "value": null,
+    "value": "",
     "unit": "",
     "label": "İŞÇİ SAYI (GÜNDƏLİK)",
     "sub": "Məlumat əlavə edilməyib",
@@ -59,7 +53,7 @@ window.DASH.kpi = [
   },
   {
     "id": "texnika",
-    "value": null,
+    "value": "",
     "unit": "",
     "label": "TEXNİKA VAHİDİ",
     "sub": "Məlumat əlavə edilməyib",
@@ -127,11 +121,139 @@ window.DASH.packages = {
       "fakt": 51.7
     }
   ],
-  "trend": [],
-  "trendNote": ""
+  "trend": [
+    {
+      "date": "28.05.2026",
+      "fakt": 43.62,
+      "plan": 52.22
+    },
+    {
+      "date": "04.06.2026",
+      "fakt": 46.32,
+      "plan": 53.31
+    },
+    {
+      "date": "11.06.2026",
+      "fakt": 49.64,
+      "plan": 56.06
+    }
+  ],
+  "trendNote": "Fərdi evlər üzrə faktiki icra (%) — hesabat vərəqlərinin tarixləri üzrə."
 };
 window.DASH.workItems = {
-  "lots": []
+  "lots": [
+    {
+      "id": "cemi",
+      "name": "Cəmi (146 ev)",
+      "ev": 146,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 98.16,
+          "plan": 100
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 48.17,
+          "plan": 93.63
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 22.27,
+          "plan": 31.14
+        },
+        {
+          "name": "MEP",
+          "fakt": 31.97,
+          "plan": 48.63
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 38.41,
+          "plan": 34.82
+        },
+        {
+          "name": "Təsərrüfat / tamamlama",
+          "fakt": 4.2,
+          "plan": 6.21
+        }
+      ]
+    },
+    {
+      "id": "p1",
+      "name": "Sahə 1 (60 ev)",
+      "ev": 60,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 97.33,
+          "plan": 100
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 59.54,
+          "plan": 93.63
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 23.83,
+          "plan": 31.14
+        },
+        {
+          "name": "MEP",
+          "fakt": 31.14,
+          "plan": 48.63
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 38.36,
+          "plan": 34.82
+        },
+        {
+          "name": "Təsərrüfat / tamamlama",
+          "fakt": 4.8,
+          "plan": 6.21
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Sahə 3 (86 ev)",
+      "ev": 86,
+      "items": [
+        {
+          "name": "Qaba işlər",
+          "fakt": 99,
+          "plan": 100
+        },
+        {
+          "name": "Dam örtüyü",
+          "fakt": 36.8,
+          "plan": 93.63
+        },
+        {
+          "name": "Daxili bəzək",
+          "fakt": 20.71,
+          "plan": 31.14
+        },
+        {
+          "name": "MEP",
+          "fakt": 32.79,
+          "plan": 48.63
+        },
+        {
+          "name": "Xarici bəzək (fasad)",
+          "fakt": 38.46,
+          "plan": 34.82
+        },
+        {
+          "name": "Təsərrüfat / tamamlama",
+          "fakt": 3.6,
+          "plan": 6.21
+        }
+      ]
+    }
+  ]
 };
 window.DASH.otherObjects = {
   "asOf": "11.06.2026",
@@ -159,10 +281,36 @@ window.DASH.otherObjects = {
 };
 window.DASH.infrastructure = {
   "asOf": "",
-  "overallFakt": null,
-  "overallPlan": null,
-  "items": [],
-  "weeklyNote": ""
+  "overallFakt": 20.78,
+  "overallPlan": 21.74,
+  "items": [
+    {
+      "name": "Elektrik / zəif cərəyan",
+      "fakt": 36.21,
+      "plan": 73.98
+    },
+    {
+      "name": "Su və kanalizasiya",
+      "fakt": 33.34,
+      "plan": 5.56
+    },
+    {
+      "name": "Qaz təchizatı",
+      "fakt": 0,
+      "plan": 0
+    },
+    {
+      "name": "İstilik və ventilyasiya",
+      "fakt": 34.35,
+      "plan": 29.17
+    },
+    {
+      "name": "Rabitə şəbəkəsi",
+      "fakt": 0,
+      "plan": 0
+    }
+  ],
+  "weeklyNote": "Sahədaxili kommunikasiya işləri üzrə icra Primavera qrafikindən paketlərin orta göstəricisi kimi hesablanmışdır."
 };
 window.DASH.workforce = {
   "available": false,
