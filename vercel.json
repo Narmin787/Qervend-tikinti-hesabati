@@ -4,5 +4,15 @@
   "installCommand": "npm install",
   "outputDirectory": "public",
   "framework": null,
-  "github": { "enabled": true, "silent": false }
+  "github": { "enabled": true, "silent": false },
+  "headers": [
+    {
+      "source": "/narminreportwebapp/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
+    }
+  ]
 }

@@ -512,7 +512,9 @@
 
   // ---------- preview ----------
   let tpl=null, cfg=null;
-  async function loadEngine(){ if(tpl&&cfg) return; tpl=await fetch('./report-template.html').then(r=>r.text()); cfg=await fetch('./config.js').then(r=>r.text()); }
+  async function loadEngine(){ if(tpl&&cfg) return; const cb='?cb='+Date.now();
+    tpl=await fetch('./report-template.html'+cb).then(r=>r.text());
+    cfg=await fetch('./config.js'+cb).then(r=>r.text()); }
   async function refresh(){
     try{ await loadEngine();
       const js=window.dataToJs(data);
