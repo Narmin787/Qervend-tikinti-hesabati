@@ -187,6 +187,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
 /* ---------- Footer ---------- */
 .foot{margin-top:22px; padding-top:16px; border-top:1px solid var(--border); font-size:11.5px; color:var(--muted); line-height:1.7}
 .foot .prep{margin-top:4px; color:var(--faint)}
+.foot .built-by{margin-top:6px; font-size:8.5px; letter-spacing:.02em; color:var(--faint); opacity:.45}
 .foot .src-pdf{margin-bottom:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
 .foot .src-pdf .src-title{width:100%; font-weight:700; color:var(--ink); margin-bottom:2px}
 .foot .src-pdf a{display:inline-block; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--blue); text-decoration:none; font-weight:600}
@@ -999,7 +1000,7 @@ table.vel td .pos{color:var(--good); font-weight:600}
     var links=src.map(function(s){ var u=String(s.file||''); if(!ok(u)) return '';
       return '<a href="'+esc(encodeURI(u))+'" target="_blank" rel="noopener" download>'+icon(u)+' '+esc(s.label||u)+'</a>'; }).filter(Boolean).join('');
     var block = links ? ('<div class="src-pdf"><span class="src-title">Mənbə kimi istifadə olunan sənədlər:</span>'+links+'</div>') : '';
-    $('footer').innerHTML = block + '<div>'+esc(fo.sources||'')+'</div><div class="prep">'+esc(fo.prepared||'')+'</div>';
+    $('footer').innerHTML = block + '<div>'+esc(fo.sources||'')+'</div><div class="prep">'+esc(fo.prepared||'')+'</div>'+'<div class="built-by">Built by Emin İsmayilov</div>';
   }
 
   /* ---------- boot ---------- */

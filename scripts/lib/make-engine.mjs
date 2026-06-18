@@ -100,8 +100,13 @@ html = html.replace(
     var links=src.map(function(s){ var u=String(s.file||''); if(!ok(u)) return '';
       return '<a href="'+esc(encodeURI(u))+'" target="_blank" rel="noopener" download>'+icon(u)+' '+esc(s.label||u)+'</a>'; }).filter(Boolean).join('');
     var block = links ? ('<div class="src-pdf"><span class="src-title">Mənbə kimi istifadə olunan sənədlər:</span>'+links+'</div>') : '';
-    $('footer').innerHTML = block + '<div>'+esc(fo.sources||'')+'</div><div class="prep">'+esc(fo.prepared||'')+'</div>';
+    $('footer').innerHTML = block + '<div>'+esc(fo.sources||'')+'</div><div class="prep">'+esc(fo.prepared||'')+'</div>'+'<div class="built-by">Built by Emin İsmayilov</div>';
   }`
+);
+// Tiny, low-visibility build credit on every report.
+html = html.replace(
+  '.foot .prep{margin-top:4px; color:var(--faint)}',
+  '.foot .prep{margin-top:4px; color:var(--faint)}\n.foot .built-by{margin-top:6px; font-size:8.5px; letter-spacing:.02em; color:var(--faint); opacity:.45}'
 );
 
 // ------------------------------------------------------------------
@@ -565,6 +570,7 @@ for (const [marker, name] of [
   ['ctx.pinned.forEach', 'per-city manual insights'],
   ['D.labelOverrides', 'per-report label overrides'],
   ['hiddenSections', 'section show/hide'],
+  ['Built by Emin', 'build credit'],
   ['Tikinti gedişatında müəyyən olunan problemlər', 'insights problem block'],
   ['cari iş templi ilə layihənin', 'single velocity note'],
 ]) {

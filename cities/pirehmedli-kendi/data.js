@@ -1,5 +1,5 @@
 /* data.js — Pirəhmədli kəndi
-   Hesabat Generatoru ilə yaradılıb (2026-06-18). */
+   Avtomatik yaradılıb (2026-06-18). Əl ilə redaktə etmək əvəzinə Excel şablonundan istifadə edin. */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
   "projectTitle": "Pirəhmədli kəndi üzrə tikinti gedişatı hesabatı",
@@ -180,18 +180,18 @@ window.DASH.workItems = {
         },
         {
           "name": "Qapı və pəncərə",
-          "plan": 31.03,
-          "fakt": 24
+          "fakt": 24,
+          "plan": 31.03
         },
         {
           "name": "Mebel",
-          "plan": 0,
-          "fakt": 0
+          "fakt": 0,
+          "plan": 0
         },
         {
           "name": "Həyətyanı işlər",
-          "plan": 0,
-          "fakt": 0
+          "fakt": 0,
+          "plan": 0
         }
       ]
     },
@@ -227,18 +227,18 @@ window.DASH.workItems = {
         },
         {
           "name": "Qapı və pəncərə",
-          "plan": 31.03,
-          "fakt": 18
+          "fakt": 18,
+          "plan": 31.03
         },
         {
           "name": "Mebel",
-          "plan": 0,
-          "fakt": 0
+          "fakt": 0,
+          "plan": 0
         },
         {
           "name": "Həyətyanı işlər",
-          "plan": 0,
-          "fakt": 0
+          "fakt": 0,
+          "plan": 0
         }
       ]
     }
@@ -406,4 +406,3 @@ window.DASH.velocity = {
     }
   ]
 };
-window.DASH.insightsPinned = [];
