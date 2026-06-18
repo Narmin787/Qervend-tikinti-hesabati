@@ -105,13 +105,18 @@
   async function runParse(){
     status('parseStatus','Oxunur…');
     try{
-      let exData=null, pdfData=null;
+      let exData=null, pdfData=null, schemaData=null;
       for(const f of pickedFiles){
         const lower=f.name.toLowerCase();
         if(lower.endsWith('.xlsx')||lower.endsWith('.xls')){
-          const wb = XLSX.read(await f.arrayBuffer(), {type:'array', cellDates:false});
-          const sheets = wb.SheetNames.map(n=>({name:n, rows:XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:''})}));
-          exData = P.parseExcelRows(sheets);
+          const buf = await f.arrayBuffer();
+          const sch = window.xlsxToData && window.xlsxToData(new Uint8Array(buf));
+          if(sch){ schemaData = sch; }   // complete data workbook (app's own format)
+          else {
+            const wb = XLSX.read(buf, {type:'array', cellDates:false});
+            const sheets = wb.SheetNames.map(n=>({name:n, rows:XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:''})}));
+            exData = P.parseExcelRows(sheets);
+          }
         } else if(lower.endsWith('.pdf')){
           const bytes = new Uint8Array(await f.arrayBuffer());
           const parsed = P.parsePrimaveraText(await pdfText(bytes.slice())); // copy: pdf.js may detach
@@ -119,20 +124,24 @@
         }
       }
       // Identify the city from the imported file and decide new-vs-update.
-      const parsedVillage = (exData && exData.meta && exData.meta.village) || (data.meta && data.meta.village) || '';
+      const idMeta = (schemaData&&schemaData.meta) || (exData&&exData.meta) || (data&&data.meta) || {};
+      const parsedVillage = idMeta.village || '';
       const slug = slugify(parsedVillage || $('cityName').value);
       const existing = slug && findCity(slug);
-      let base;
-      if(existing){                                   // recognised an existing city -> update it
-        status('parseStatus','“'+(existing.village||slug)+'” tanındı — mövcud məlumat yüklənir…');
-        base = await fetchCityData(existing.slug) || P.blankData();
-        curSlug = existing.slug; updatingExisting = true;
-      } else if(mode==='upd' && data && data.meta && curSlug!=='new'){
-        base = data; updatingExisting = true;          // keep editing the already-loaded city
+      if(existing){ curSlug = existing.slug; updatingExisting = true; }
+      else if(!(mode==='upd' && data && data.meta && curSlug!=='new')){ curSlug='new'; updatingExisting=false; }
+
+      if(schemaData){                                  // complete data file -> use directly
+        data = schemaData;
+        if(pdfData) data = merge(data, null, pdfData); // still allow a PDF to enrich it
       } else {
-        base = P.blankData(); curSlug='new'; updatingExisting = false;
+        let base;
+        if(existing){ status('parseStatus','“'+(existing.village||slug)+'” tanındı — mövcud məlumat yüklənir…');
+          base = await fetchCityData(existing.slug) || P.blankData(); }
+        else if(mode==='upd' && data && data.meta && curSlug!=='new'){ base = data; }
+        else base = P.blankData();
+        data = merge(base, exData, pdfData);
       }
-      data = merge(base, exData, pdfData);
       if(pdfBase64) data.meta.sourcePdf = 'source.pdf';
       defaults(data);
       // Auto-fill the city name from the parsed village.
@@ -141,6 +150,8 @@
       dirty=true; saveDraft(); renderEditor(); refresh();
       const filled=[]; if(data.packages.items.length) filled.push(data.packages.items.length+' paket');
       if(data.otherObjects.objects.length) filled.push(data.otherObjects.objects.length+' digər obyekt');
+      if(data.workItems&&data.workItems.lots&&data.workItems.lots.length) filled.push(data.workItems.lots.length+' görülən iş bölməsi');
+      if(data.infrastructure&&data.infrastructure.items&&data.infrastructure.items.length) filled.push(data.infrastructure.items.length+' infrastruktur komponenti');
       if(data.velocity.rows.length) filled.push(data.velocity.rows.length+' sürət sətri');
       const head = updatingExisting
         ? '✓ Mövcud şəhər tanındı və yeniləndi: “'+(data.meta.village||slug)+'”'
