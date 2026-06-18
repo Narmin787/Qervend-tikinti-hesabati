@@ -2,11 +2,11 @@
    Hesabat Generatoru ilə yaradılıb (2026-06-18). */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
-  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI",
+  "projectTitle": "Pirəhmədli kəndi üzrə tikinti gedişatı hesabatı",
   "village": "Pirəhmədli kəndi",
   "district": "Füzuli rayonu",
   "contractor": "SEA BREEZE MMC",
-  "reportDate": "11.06.2026",
+  "reportDate": "18.06.2026",
   "cutoffDate": "11.06.2026",
   "startDate": "06.08.2025",
   "plannedFinish": "30.10.2026",
@@ -18,7 +18,13 @@ window.DASH.meta = {
   "officialPlan": 56.06,
   "primaveraCode": "",
   "note": "",
-  "sourcePdf": "source.pdf"
+  "sourcePdf": "source.pdf",
+  "sources": [
+    {
+      "label": "Mənbə sənədi (PDF)",
+      "file": "source.pdf"
+    }
+  ]
 };
 window.DASH.kpi = [
   {
@@ -43,7 +49,7 @@ window.DASH.kpi = [
   },
   {
     "id": "isciler",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "İŞÇİ SAYI (GÜNDƏLİK)",
     "sub": "Məlumat əlavə edilməyib",
@@ -53,7 +59,7 @@ window.DASH.kpi = [
   },
   {
     "id": "texnika",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "TEXNİKA VAHİDİ",
     "sub": "Məlumat əlavə edilməyib",
@@ -123,12 +129,19 @@ window.DASH.packages = {
   ],
   "trend": [
     {
-      "date": "23.04.2026",
-      "fakt": 35.87
+      "date": "28.05.2026",
+      "fakt": 43.62,
+      "plan": 52.22
+    },
+    {
+      "date": "04.06.2026",
+      "fakt": 46.32,
+      "plan": 53.31
     },
     {
       "date": "11.06.2026",
-      "fakt": 52.57
+      "fakt": 49.64,
+      "plan": 56.06
     }
   ],
   "trendNote": "Fərdi evlər üzrə faktiki icra (%) — hesabat vərəqlərinin tarixləri üzrə."
@@ -136,50 +149,13 @@ window.DASH.packages = {
 window.DASH.workItems = {
   "lots": [
     {
-      "id": "cemi",
-      "name": "Cəmi (146 ev)",
-      "ev": 146,
-      "items": [
-        {
-          "name": "Qaba işlər",
-          "fakt": 98.16,
-          "plan": 100
-        },
-        {
-          "name": "Dam örtüyü",
-          "fakt": 48.17,
-          "plan": 93.63
-        },
-        {
-          "name": "Daxili bəzək",
-          "fakt": 22.27,
-          "plan": 31.14
-        },
-        {
-          "name": "MEP",
-          "fakt": 31.97,
-          "plan": 48.63
-        },
-        {
-          "name": "Xarici bəzək (fasad)",
-          "fakt": 38.41,
-          "plan": 34.82
-        },
-        {
-          "name": "Təsərrüfat / tamamlama",
-          "fakt": 4.2,
-          "plan": 6.21
-        }
-      ]
-    },
-    {
       "id": "p1",
       "name": "Sahə 1 (60 ev)",
       "ev": 60,
       "items": [
         {
-          "name": "Qaba işlər",
-          "fakt": 97.33,
+          "name": "Hörgü işləri",
+          "fakt": 89.31,
           "plan": 100
         },
         {
@@ -203,9 +179,19 @@ window.DASH.workItems = {
           "plan": 34.82
         },
         {
-          "name": "Təsərrüfat / tamamlama",
-          "fakt": 4.8,
-          "plan": 6.21
+          "name": "Qapı və pəncərə",
+          "plan": 31.03,
+          "fakt": 24
+        },
+        {
+          "name": "Mebel",
+          "plan": 0,
+          "fakt": 0
+        },
+        {
+          "name": "Həyətyanı işlər",
+          "plan": 0,
+          "fakt": 0
         }
       ]
     },
@@ -215,8 +201,8 @@ window.DASH.workItems = {
       "ev": 86,
       "items": [
         {
-          "name": "Qaba işlər",
-          "fakt": 99,
+          "name": "Hörgü işləri",
+          "fakt": 96,
           "plan": 100
         },
         {
@@ -240,9 +226,19 @@ window.DASH.workItems = {
           "plan": 34.82
         },
         {
-          "name": "Təsərrüfat / tamamlama",
-          "fakt": 3.6,
-          "plan": 6.21
+          "name": "Qapı və pəncərə",
+          "plan": 31.03,
+          "fakt": 18
+        },
+        {
+          "name": "Mebel",
+          "plan": 0,
+          "fakt": 0
+        },
+        {
+          "name": "Həyətyanı işlər",
+          "plan": 0,
+          "fakt": 0
         }
       ]
     }
