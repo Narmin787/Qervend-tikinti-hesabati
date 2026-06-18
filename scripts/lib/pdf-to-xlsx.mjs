@@ -35,14 +35,19 @@ export async function buildCompleteData(xlsxPath, pdfPath) {
 
   if (pdfPath) {
     const pdf = P.parsePrimaveraText(await pdfText(pdfPath));
-    if (pdf.workItems.lots.length) d.workItems = pdf.workItems;           // Görülən işlər per package
-    if (pdf.infrastructure.items.length) {                                // sahədaxili kommunikasiya
+    // Align the PDF's package labels with the Excel's (e.g. PDF "Sahə 3 (86 ev)" -> Excel "Sahə 2 (86 ev)").
+    const byEv = ev => (d.packages.items || []).find(p => p.ev === ev);
+    const relabel = lots => (lots || []).map(l => { if (/cəmi|cemi/i.test(l.name)) return l; const m = byEv(l.ev); return m ? { ...l, name: m.name } : l; });
+
+    if (pdf.workItems.lots.length) d.workItems = { lots: relabel(pdf.workItems.lots) };   // Görülən işlər per package
+    if (pdf.infrastructure.lots && pdf.infrastructure.lots.length) {                       // sahədaxili kommunikasiya PER PACKAGE
+      d.infrastructure.lots = relabel(pdf.infrastructure.lots);
       d.infrastructure.items = pdf.infrastructure.items;
       if (d.infrastructure.overallFakt == null) {
         d.infrastructure.overallFakt = pdf.infrastructure.overallFakt;
         d.infrastructure.overallPlan = pdf.infrastructure.overallPlan;
       }
-      d.infrastructure.weeklyNote = 'Sahədaxili kommunikasiya işləri üzrə icra Primavera qrafikindən paketlərin orta göstəricisi kimi hesablanmışdır.';
+      d.infrastructure.weeklyNote = 'Sahədaxili kommunikasiya işləri hər paket üzrə ayrıca göstərilir (Primavera qrafikindən).';
     }
     d.meta.sourcePdf = 'source.pdf';
   }

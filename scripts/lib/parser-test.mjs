@@ -81,8 +81,10 @@ eq('PDF: Sahə 1 Qaba işlər (Torpaq+Hörgü avg)', s1['Qaba işlər'], 94.66);
 eq('PDF: Sahə 1 Dam örtüyü', s1['Dam örtüyü'], 59.54);
 eq('PDF: Sahə 1 MEP', s1['MEP'], 31.14);
 const infra = (pd.infrastructure.items||[]).reduce((m,i)=>(m[i.name]=i.fakt,m),{});
-eq('PDF infra: Elektrik', infra['Elektrik / zəif cərəyan'], 41.38);
-eq('PDF infra: Su və kanalizasiya', infra['Su və kanalizasiya'], 0);
+eq('PDF infra: Elektrik', infra['Elektrik / zəif axın'], 41.38);
+eq('PDF infra: Su kanalizasiya', infra['Su kanalizasiya'], 0);
+eq('PDF infra: per-package lots', (pd.infrastructure.lots||[]).length, 1);
+eq('PDF infra: lot named for package', (pd.infrastructure.lots||[{}])[0].name, 'Sahə 1 (60 ev)');
 eq('PDF: FYE total', pd.meta._fye, {fakt:52.57, plan:60.22});
 
 console.log(fails ? `\n${fails} parser assertion(s) failed` : '\nPARSER TEST PASSED — Excel + Primavera-PDF parsing extracts all sections.');

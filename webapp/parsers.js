@@ -172,11 +172,11 @@
       [/heyət|heyet|hasar|kölgə|kolge|abadla|təsərrüf|teserruf|qapi ve pencere|qapı və pəncərə/i, 'Təsərrüfat / tamamlama'],
     ];
     const INFRA = [
-      [/elekt|zeif|zəif/i, 'Elektrik / zəif cərəyan'],
-      [/su kanal|su kəm|su kemeri|kanalizasiya/i, 'Su və kanalizasiya'],
+      [/elekt|zeif|zəif/i, 'Elektrik / zəif axın'],
+      [/su kanal|su kəm|su kemeri|kanalizasiya/i, 'Su kanalizasiya'],
+      [/isitm|istilik|ventilyasiya|kondisioner/i, 'İsitmə ventilyasiya'],
       [/qaz/i, 'Qaz təchizatı'],
-      [/isitm|istilik|ventilyasiya|kondisioner/i, 'İstilik və ventilyasiya'],
-      [/rabit|komnukasiya|kommunikasiya/i, 'Rabitə şəbəkəsi'],
+      [/komnukasiya|kommunikasiya|rabit/i, 'Kommunikasiya birləşmələri'],
     ];
     const catOf = (name, table) => { for (const [re, c] of table) if (re.test(name)) return c; return null; };
     const avg = arr => ({ plan: round2(arr.reduce((s, x) => s + x.plan, 0) / arr.length), fakt: round2(arr.reduce((s, x) => s + x.fakt, 0) / arr.length) });
@@ -210,12 +210,20 @@
       out.workItems.lots = lots;
     }
 
-    const infraOrder = ['Elektrik / zəif cərəyan', 'Su və kanalizasiya', 'Qaz təchizatı', 'İstilik və ventilyasiya', 'Rabitə şəbəkəsi'];
-    const infraItems = infraOrder.map(c => { const all = []; packages.forEach(p => { if (p.infra[c]) all.push(...p.infra[c]); }); if (!all.length) return null; const a = avg(all); return { name: c, plan: a.plan, fakt: a.fakt }; }).filter(Boolean);
-    if (infraItems.length) {
-      out.infrastructure.items = infraItems;
-      out.infrastructure.overallFakt = round2(infraItems.reduce((s, x) => s + x.fakt, 0) / infraItems.length);
-      out.infrastructure.overallPlan = round2(infraItems.reduce((s, x) => s + x.plan, 0) / infraItems.length);
+    // Infrastructure (sahədaxili kommunikasiya) — PER PACKAGE (tabs), not averaged.
+    const infraOrder = ['Elektrik / zəif axın', 'Su kanalizasiya', 'İsitmə ventilyasiya', 'Qaz təchizatı', 'Kommunikasiya birləşmələri'];
+    const infraLots = [];
+    packages.forEach((p, k) => {
+      const items = infraOrder.filter(c => p.infra[c]).map(c => { const a = avg(p.infra[c]); return { name: c, plan: a.plan, fakt: a.fakt }; });
+      if (items.length) infraLots.push({ id: 'inf' + (k + 1), name: p.name, ev: p.ev, items });
+    });
+    if (infraLots.length) {
+      out.infrastructure.lots = infraLots;
+      // Combined items + overall (fallback for the section header / non-tab view).
+      const combined = infraOrder.map(c => { const all = []; packages.forEach(p => { if (p.infra[c]) all.push(...p.infra[c]); }); if (!all.length) return null; const a = avg(all); return { name: c, plan: a.plan, fakt: a.fakt }; }).filter(Boolean);
+      out.infrastructure.items = combined;
+      out.infrastructure.overallFakt = round2(combined.reduce((s, x) => s + x.fakt, 0) / combined.length);
+      out.infrastructure.overallPlan = round2(combined.reduce((s, x) => s + x.plan, 0) / combined.length);
     }
     out.packages.items = packages.map(p => ({ name: p.name, ev: p.ev, plan: p.plan, fakt: p.fakt }));
     const fye = lines.map(rollup).find(r => r && /ferdi ya[sş]ayi[sş]|fərdi yaşayış/i.test(r.name));

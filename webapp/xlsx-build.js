@@ -99,6 +99,10 @@
       objects: readTable('Other').map(r => ({ name:str(r.name), plan:num(r.plan), fakt:num(r.fakt), status:str(r.status) })) };
     const infrastructure = { asOf:str(N.infraAsOf), overallFakt:num(N.infraOverallFakt), overallPlan:num(N.infraOverallPlan),
       items: readTable('Infrastructure').map(r => ({ name:str(r.name), fakt:num(r.fakt), plan:num(r.plan) })), weeklyNote:str(N.infraWeeklyNote) };
+    const infLotsMap = new Map();   // per-package infrastructure (tabs)
+    readTable('InfraItems').forEach(r => { const id=str(r.lot_id); if(!infLotsMap.has(id)) infLotsMap.set(id,{ id, name:str(r.lot_name), items:[] });
+      infLotsMap.get(id).items.push({ name:str(r.item), fakt:num(r.fakt), plan:num(r.plan) }); });
+    if(infLotsMap.size) infrastructure.lots=[...infLotsMap.values()];
     const wfDaily = readTable('WorkforceDaily').map(r => ({ date:str(r.date), sahe:num(r.sahe), texniki:num(r.texniki), idari:num(r.idari) }));
     const workforce = { available:bool(N.workforceAvailable), period:str(N.workforcePeriod), daily:wfDaily, totalSeries:[],
       machinery: readTable('WorkforceMachinery').map(r => ({ name:str(r.name), count:num(r.count) })),
