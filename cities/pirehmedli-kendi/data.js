@@ -173,17 +173,17 @@ window.DASH.workItems = {
           "plan": 34.82
         },
         {
-          "name": "Mebel",
-          "fakt": 0,
-          "plan": 0
-        },
-        {
           "name": "Qapı və pəncərə",
           "plan": 31.03,
           "fakt": 24
         },
         {
-          "name": "Həyətyanı işlər ",
+          "name": "Mebel",
+          "plan": 0,
+          "fakt": 0
+        },
+        {
+          "name": "Həyətyanı işlər",
           "plan": 0,
           "fakt": 0
         }
@@ -195,8 +195,8 @@ window.DASH.workItems = {
       "ev": 86,
       "items": [
         {
-          "name": "Qaba işlər",
-          "fakt": 99,
+          "name": "Hörgü işləri",
+          "fakt": 96,
           "plan": 100
         },
         {
@@ -220,9 +220,19 @@ window.DASH.workItems = {
           "plan": 34.82
         },
         {
-          "name": "Təsərrüfat / tamamlama",
-          "fakt": 3.6,
-          "plan": 6.21
+          "name": "Qapı və pəncərə",
+          "fakt": 18,
+          "plan": 31.03
+        },
+        {
+          "name": "Mebel",
+          "plan": 0,
+          "fakt": 0
+        },
+        {
+          "name": "Həyətyanı işlər",
+          "plan": 0,
+          "fakt": 0
         }
       ]
     }
