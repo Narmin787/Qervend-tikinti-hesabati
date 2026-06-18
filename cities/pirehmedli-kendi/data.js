@@ -148,8 +148,8 @@ window.DASH.workItems = {
       "ev": 146,
       "items": [
         {
-          "name": "Qaba işlər",
-          "fakt": 98.16,
+          "name": "Hörgü işləri",
+          "fakt": 89.31,
           "plan": 100
         },
         {
@@ -176,6 +176,11 @@ window.DASH.workItems = {
           "name": "Təsərrüfat / tamamlama",
           "fakt": 4.2,
           "plan": 6.21
+        },
+        {
+          "name": "Qapı və pəncərə",
+          "plan": 31.03,
+          "fakt": 24
         }
       ]
     },
