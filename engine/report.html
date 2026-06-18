@@ -731,6 +731,8 @@ table.vel td .pos{color:var(--good); font-weight:600}
 (function(){
   const D = window.DASH || {};
   const L = D.labels || {}; const TH = D.theme || {}; const C = (TH.colors||{});
+  (function(){ var o=D.labelOverrides; if(!o) return; ['sections','charts','table','footer','legend'].forEach(function(g){
+    if(!o[g]) return; if(!L[g]) L[g]={}; for(var k in o[g]){ var val=o[g][k]; if(val!=null && val!=='') L[g][k]=val; } }); })();
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const f2 = v => v==null ? '—' : (Math.round(v*100)/100).toFixed(2);
@@ -1017,6 +1019,9 @@ table.vel td .pos{color:var(--good); font-weight:600}
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
   ready(function(){
+    // Hide whole sections turned off in the editor (data.meta.hiddenSections).
+    try{ var hsec=(window.DASH&&window.DASH.meta&&window.DASH.meta.hiddenSections)||[];
+      hsec.forEach(function(id){ var s=document.getElementById(id); if(s) s.style.display='none'; }); }catch(e){}
     // Collapsible sections — click the section heading to minimize / expand.
     [].forEach.call(document.querySelectorAll('.section > .section-title'), function(t){
       t.setAttribute('role','button'); t.setAttribute('tabindex','0');

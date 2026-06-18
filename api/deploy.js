@@ -59,6 +59,40 @@ async function putFile(path, base64Content, message, branch) {
   return res.json();
 }
 
+// Commit several files in ONE atomic commit via the Git Data API. This avoids the
+// partial/intermediate state (and multiple rebuilds) of committing files one-by-one,
+// so a half-finished deploy can never leave a city's live report broken.
+async function commitFiles(branch, message, files) {
+  const refRes = await gh(`/repos/${OWNER}/${REPO}/git/ref/heads/${encodeURIComponent(branch)}`);
+  if (!refRes.ok) throw new Error(`ref: ${refRes.status}`);
+  const headSha = (await refRes.json()).object.sha;
+  const commitRes = await gh(`/repos/${OWNER}/${REPO}/git/commits/${headSha}`);
+  const baseTree = (await commitRes.json()).tree.sha;
+
+  const tree = [];
+  for (const f of files) {
+    const blob = await gh(`/repos/${OWNER}/${REPO}/git/blobs`, {
+      method: 'POST', body: JSON.stringify({ content: f.base64, encoding: 'base64' }),
+    });
+    if (!blob.ok) throw new Error(`blob ${f.path}: ${blob.status}`);
+    tree.push({ path: f.path, mode: '100644', type: 'blob', sha: (await blob.json()).sha });
+  }
+  const treeRes = await gh(`/repos/${OWNER}/${REPO}/git/trees`, {
+    method: 'POST', body: JSON.stringify({ base_tree: baseTree, tree }),
+  });
+  if (!treeRes.ok) throw new Error(`tree: ${treeRes.status} ${(await treeRes.text()).slice(0,120)}`);
+  const newTree = (await treeRes.json()).sha;
+  const mkCommit = await gh(`/repos/${OWNER}/${REPO}/git/commits`, {
+    method: 'POST', body: JSON.stringify({ message, tree: newTree, parents: [headSha] }),
+  });
+  if (!mkCommit.ok) throw new Error(`commit: ${mkCommit.status}`);
+  const newCommit = (await mkCommit.json()).sha;
+  const upd = await gh(`/repos/${OWNER}/${REPO}/git/refs/heads/${encodeURIComponent(branch)}`, {
+    method: 'PATCH', body: JSON.stringify({ sha: newCommit }),
+  });
+  if (!upd.ok) throw new Error(`update ref: ${upd.status}`);
+}
+
 // Best-effort: ask the Vercel API for the latest deployment of a branch and
 // return its public URL. No-op (returns null) unless VERCEL_TOKEN is configured.
 async function vercelPreviewUrl(branch) {
@@ -110,9 +144,12 @@ export default async function handler(req, res) {
     await ensureBranch(branch);
     const b64 = s => Buffer.from(s, 'utf8').toString('base64');
     const msg = `Report: ${cityName} (via builder app${preview ? ', preview' : ''})`;
-    await putFile(`cities/${slug}/data.js`, b64(dataJs), msg, branch);
-    await putFile(`cities/${slug}/source.xlsx`, xlsxBase64, msg, branch);
-    if (pdfBase64) await putFile(`cities/${slug}/source.pdf`, pdfBase64, msg, branch);
+    const files = [
+      { path: `cities/${slug}/data.js`, base64: b64(dataJs) },
+      { path: `cities/${slug}/source.xlsx`, base64: xlsxBase64 },
+    ];
+    if (pdfBase64) files.push({ path: `cities/${slug}/source.pdf`, base64: pdfBase64 });
+    await commitFiles(branch, msg, files);   // single atomic commit
 
     if (preview) {
       const github = `https://github.com/${OWNER}/${REPO}/tree/${branch}`;

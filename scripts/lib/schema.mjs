@@ -123,6 +123,8 @@ export function dataToWorkbook(d) {
     ['velPoint1', vel.points?.[0]], ['velPoint2', vel.points?.[1]], ['velPoint3', vel.points?.[2]],
     ['workforceAvailable', wf.available ? 'true' : 'false'], ['workforcePeriod', wf.period],
     ['workforceEmptyNote', wf.emptyNote], ['workforceAlert', wf.alert],
+    ['hiddenSections', (d.meta?.hiddenSections || []).join(',')],
+    ['labelOverrides', JSON.stringify(d.labelOverrides || {})],
   ]);
 
   return wb;
@@ -216,7 +218,12 @@ export async function workbookToData(bufferOrPath) {
     .map(r => ({ category: str(r.category), title: str(r.title), body: str(r.body) }))
     .filter(p => p.category && p.title && p.body);
 
+  const _hs = str(N.hiddenSections) ? str(N.hiddenSections).split(',').map(s => s.trim()).filter(Boolean) : [];
+  if (_hs.length) meta.hiddenSections = _hs;
+  let labelOverrides = {}; try { labelOverrides = JSON.parse(str(N.labelOverrides) || '{}'); } catch (e) {}
+
   const out = { meta, kpi, overall, packages, workItems, otherObjects, infrastructure, workforce, velocity };
   if (insightsPinned.length) out.insightsPinned = insightsPinned;
+  if (labelOverrides && Object.keys(labelOverrides).length) out.labelOverrides = labelOverrides;
   return out;
 }

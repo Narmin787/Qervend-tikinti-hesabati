@@ -114,6 +114,9 @@ const enhance = `<script>
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
   ready(function(){
+    // Hide whole sections turned off in the editor (data.meta.hiddenSections).
+    try{ var hsec=(window.DASH&&window.DASH.meta&&window.DASH.meta.hiddenSections)||[];
+      hsec.forEach(function(id){ var s=document.getElementById(id); if(s) s.style.display='none'; }); }catch(e){}
     // Collapsible sections — click the section heading to minimize / expand.
     [].forEach.call(document.querySelectorAll('.section > .section-title'), function(t){
       t.setAttribute('role','button'); t.setAttribute('tabindex','0');
@@ -523,6 +526,14 @@ html = html.replace(
     }`
 );
 
+// Per-report label overrides: merge data.labelOverrides over the shared config labels.
+html = html.replace(
+  `  const L = D.labels || {}; const TH = D.theme || {}; const C = (TH.colors||{});`,
+  `  const L = D.labels || {}; const TH = D.theme || {}; const C = (TH.colors||{});
+  (function(){ var o=D.labelOverrides; if(!o) return; ['sections','charts','table','footer','legend'].forEach(function(g){
+    if(!o[g]) return; if(!L[g]) L[g]={}; for(var k in o[g]){ var val=o[g][k]; if(val!=null && val!=='') L[g][k]=val; } }); })();`
+);
+
 // ------------------------------------------------------------------
 // Guards: ensure every enhancement actually applied
 // ------------------------------------------------------------------
@@ -552,6 +563,8 @@ for (const [marker, name] of [
   ['function insBlock', 'regrouped insights bullets'],
   ['Mənbə kimi istifadə olunan sənədlər', 'sources footer label'],
   ['ctx.pinned.forEach', 'per-city manual insights'],
+  ['D.labelOverrides', 'per-report label overrides'],
+  ['hiddenSections', 'section show/hide'],
   ['Tikinti gedişatında müəyyən olunan problemlər', 'insights problem block'],
   ['cari iş templi ilə layihənin', 'single velocity note'],
 ]) {

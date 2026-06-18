@@ -143,7 +143,7 @@
         data = merge(base, exData, pdfData);
       }
       if(pdfBase64) data.meta.sourcePdf = 'source.pdf';
-      defaults(data);
+      defaults(data); recompute(data);   // auto-fill derived fields (qalan gün, KPI alt-mətn, işçi cəmləri)
       // Auto-fill the city name from the parsed village.
       if(data.meta.village) $('cityName').value=data.meta.village;
       const dup=checkDuplicate();
@@ -157,6 +157,7 @@
         ? '✓ Mövcud şəhər tanındı və yeniləndi: “'+(data.meta.village||slug)+'”'
         : '✓ Yeni şəhər: “'+(data.meta.village||slug)+'”';
       status('parseStatus', head + (filled.length?(' — '+filled.join(', ')):'') + '. Yoxlayın, sonra Deploy ilə təsdiqləyin.','ok');
+      try{ document.getElementById('preview').scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}  // auto-scroll to the result
     }catch(e){ status('parseStatus','Xəta: '+e.message,'err'); console.error(e); }
   };
 
@@ -347,11 +348,6 @@
 
   function renderEditor(){
     const ed=$('editor'); ed.innerHTML='';
-    const recalc=document.createElement('button'); recalc.className='btn'; recalc.textContent='↻ Avtomatik sahələri yenilə';
-    recalc.title='Qalan gün, KPI alt-mətnləri və işçi cəmlərini cari məlumatdan yenidən hesablayır';
-    recalc.onclick=()=>{ recompute(data); renderEditor(); onEdit(); };
-    ed.appendChild(recalc);
-
     ed.appendChild(section('Layihə (Meta)', kvEditor(data.meta,[
       {key:'projectTitle',label:'Başlıq'},{key:'village',label:'Kənd/Şəhər'},{key:'district',label:'Rayon'},
       {key:'contractor',label:'Podratçı'},{key:'reportDate',label:'Hesabat tarixi'},{key:'cutoffDate',label:'Rəsmi kəsim'},
@@ -376,6 +372,8 @@
     ed.appendChild(section('Həftəlik sürət', velocityEditor()));
     ed.appendChild(section('İşçi heyəti və texnika', workforceEditor()));
     ed.appendChild(section('Əl ilə şərhlər (Təkliflər/risklər)', pinnedEditor()));
+    ed.appendChild(section('Bölmələri göstər / gizlət', sectionTogglesEditor()));
+    ed.appendChild(section('Başlıqlar və mətnlər (bu hesabat üçün)', labelEditor()));
     renderHealth();
   }
   function wrapNote(node, obj, key, label){ const w=document.createElement('div'); w.appendChild(node);
@@ -399,10 +397,30 @@
     draw(); return wrap;
   }
   function infraEditor(){
+    const inf=data.infrastructure; inf.lots=inf.lots||[];
     const w=document.createElement('div');
-    w.appendChild(kvEditor(data.infrastructure,[{key:'overallPlan',label:'Ümumi plan',type:'num'},{key:'overallFakt',label:'Ümumi fakt',type:'num'},{key:'asOf',label:'Tarix'}]));
-    w.appendChild(tableEditor(data.infrastructure.items,[{key:'name',label:'Komponent'},{key:'plan',label:'Plan',type:'num'},{key:'fakt',label:'Fakt',type:'num'}],{dot:true,derived:[devCol]}));
-    w.appendChild(kvEditor(data.infrastructure,[{key:'weeklyNote',label:'Qeyd',area:true}]));
+    w.appendChild(kvEditor(inf,[{key:'overallPlan',label:'Ümumi plan',type:'num'},{key:'overallFakt',label:'Ümumi fakt',type:'num'},{key:'asOf',label:'Tarix'}]));
+    // Per-package infrastructure (tabs in the report). Editable here.
+    const lh=document.createElement('div'); lh.className='subh'; lh.textContent='Paket üzrə (sahədaxili kommunikasiya — hər paket ayrıca)'; w.appendChild(lh);
+    const lwrap=document.createElement('div');
+    function drawLots(){ lwrap.innerHTML='';
+      inf.lots.forEach((lot,li)=>{
+        const box=document.createElement('div'); box.style.marginBottom='8px';
+        box.appendChild(kvEditor(lot,[{key:'name',label:'Paket adı'}]));
+        lot.items=lot.items||[];
+        box.appendChild(tableEditor(lot.items,[{key:'name',label:'Komponent'},{key:'plan',label:'Plan',type:'num'},{key:'fakt',label:'Fakt',type:'num'}],{dot:true,derived:[devCol]}));
+        const del=document.createElement('button'); del.className='mini'; del.textContent='✕ paketi sil';
+        del.onclick=()=>{ inf.lots.splice(li,1); drawLots(); onEdit(); }; box.appendChild(del);
+        lwrap.appendChild(box);
+      });
+      const add=document.createElement('button'); add.className='mini'; add.textContent='＋ paket əlavə et';
+      add.onclick=()=>{ inf.lots.push({id:'inf'+(inf.lots.length+1),name:'Yeni paket',items:[]}); drawLots(); onEdit(); };
+      lwrap.appendChild(add);
+    }
+    drawLots(); w.appendChild(lwrap);
+    const ih=document.createElement('div'); ih.className='subh'; ih.textContent='Ümumi komponentlər (paket tabları yoxdursa istifadə olunur)'; w.appendChild(ih);
+    w.appendChild(tableEditor(inf.items,[{key:'name',label:'Komponent'},{key:'plan',label:'Plan',type:'num'},{key:'fakt',label:'Fakt',type:'num'}],{dot:true,derived:[devCol]}));
+    w.appendChild(kvEditor(inf,[{key:'weeklyNote',label:'Qeyd',area:true}]));
     return w;
   }
   function otherEditor(){
@@ -455,9 +473,42 @@
     return w;
   }
 
-  // ---------- edit hook: autosave + debounced live preview + health ----------
-  let prevTimer=null;
-  function onEdit(){ markDirty(); renderHealth(); clearTimeout(prevTimer); prevTimer=setTimeout(refresh, 450); }
+  // Show / hide whole sections in the report.
+  const SECTIONS=[['sec-overall','Ümumi mənzərə'],['sec-packages','Paketlər (evlər)'],['sec-workitems','Görülən işlər'],
+    ['sec-other','Digər obyektlər'],['sec-infra','Sahədaxili kommunikasiya'],['sec-workforce','İşçi heyəti / texnika'],
+    ['sec-velocity','Həftəlik sürət'],['sec-insights','Təkliflər / risklər']];
+  function sectionTogglesEditor(){
+    data.meta.hiddenSections=data.meta.hiddenSections||[];
+    const w=document.createElement('div');
+    const note=document.createElement('div'); note.className='note'; note.textContent='Söndürülən bölmələr hesabatda görünməyəcək (məlumat silinmir).'; w.appendChild(note);
+    SECTIONS.forEach(([id,label])=>{
+      const row=document.createElement('label'); row.className='toggle-row';
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!data.meta.hiddenSections.includes(id);
+      cb.onchange=()=>{ const s=new Set(data.meta.hiddenSections); cb.checked?s.delete(id):s.add(id); data.meta.hiddenSections=[...s]; onEdit(); };
+      const sw=document.createElement('span'); sw.className='sw';
+      row.appendChild(cb); row.appendChild(sw); row.appendChild(document.createTextNode(' '+label)); w.appendChild(row);
+    });
+    return w;
+  }
+  // Edit any report title / footer text (per this report).
+  function labelEditor(){
+    data.labelOverrides=data.labelOverrides||{}; const lo=data.labelOverrides; lo.sections=lo.sections||{}; lo.charts=lo.charts||{}; lo.footer=lo.footer||{};
+    const w=document.createElement('div');
+    const note=document.createElement('div'); note.className='note'; note.textContent='Boş = standart başlıq. Yazsanız yalnız bu hesabatda başlıq dəyişir.'; w.appendChild(note);
+    w.appendChild(kvEditor(lo.sections,[
+      {key:'s3',label:'Ümumi icra başlığı'},{key:'s4',label:'Paketlər başlığı'},{key:'s5',label:'Görülən işlər başlığı'},
+      {key:'s6',label:'Digər obyektlər başlığı'},{key:'s7',label:'Sahədaxili kommunikasiya başlığı'},{key:'s8',label:'İşçi heyəti başlığı'},
+      {key:'s9',label:'Həftəlik dəyişiklik başlığı'},{key:'s10',label:'Təkliflər/risklər başlığı'}]));
+    const fh=document.createElement('div'); fh.className='subh'; fh.textContent='Altbilgi'; w.appendChild(fh);
+    w.appendChild(kvEditor(lo.footer,[{key:'sources',label:'Mənbə sətri',area:true},{key:'prepared',label:'Hazırlanma tarixi'}]));
+    return w;
+  }
+
+  // ---------- edit hook: autosave + debounced live preview + health + optional auto-deploy ----------
+  let prevTimer=null, autoDepTimer=null;
+  function scheduleAutoDeploy(){ const cb=$('autoDeploy'); if(!cb||!cb.checked) return;
+    clearTimeout(autoDepTimer); autoDepTimer=setTimeout(function(){ doDeploy(false, true); }, 90000); }
+  function onEdit(){ markDirty(); renderHealth(); clearTimeout(prevTimer); prevTimer=setTimeout(refresh, 450); scheduleAutoDeploy(); }
 
   // ---------- preview ----------
   let tpl=null, cfg=null;
@@ -509,19 +560,24 @@
   const DEFAULT_PWD='QervendAdmin2026';
   try{ $('pwd').value=localStorage.getItem('qrv-pw')||DEFAULT_PWD; }catch(e){ $('pwd').value=DEFAULT_PWD; }
   $('pwd').oninput=function(){ try{ localStorage.setItem('qrv-pw',this.value); }catch(e){} };
+  try{ $('autoDeploy').checked = localStorage.getItem('qrv-auto')==='1'; }catch(e){}
+  $('autoDeploy').onchange=function(){ try{ localStorage.setItem('qrv-auto', this.checked?'1':'0'); }catch(e){} if(this.checked) scheduleAutoDeploy(); };
 
-  async function doDeploy(previewMode){
+  async function doDeploy(previewMode, auto){
     const cityName=$('cityName').value.trim(), password=$('pwd').value;
-    if(!cityName){ status('deployStatus','Şəhər adı daxil edin.','err'); return; }
-    if(!password){ status('deployStatus','Parol daxil edin.','err'); return; }
+    if(!cityName){ if(!auto) status('deployStatus','Şəhər adı daxil edin.','err'); return; }
+    if(!password){ if(!auto) status('deployStatus','Parol daxil edin.','err'); return; }
     if(!data.meta.village) data.meta.village=cityName;
     // Guard against silently overwriting an existing report when creating a NEW one
     // (skipped when we intentionally recognised/loaded the city to update it).
     if(mode==='new' && !previewMode && !updatingExisting){ const ex=findCity(slugify(cityName));
-      if(ex && !confirm('“'+(ex.village||cityName)+'” adlı hesabat artıq var (/'+slugify(cityName)+'/). Onun üzərinə yazılsın?')){ status('deployStatus','Dayandırıldı — fərqli ad seçin və ya “Mövcudu yenilə” rejimindən redaktə edin.','err'); return; } }
+      if(ex){ if(auto){ status('deployStatus','⏸ Avtomatik deploy dayandı — bu adda hesabat var, əl ilə təsdiqləyin.','err'); return; }
+        if(!confirm('“'+(ex.village||cityName)+'” adlı hesabat artıq var (/'+slugify(cityName)+'/). Onun üzərinə yazılsın?')){ status('deployStatus','Dayandırıldı — fərqli ad seçin və ya “Mövcudu yenilə” rejimindən redaktə edin.','err'); return; } } }
     const {errs}=renderHealth();
-    if(errs.length && !previewMode){ if(!confirm(errs.length+' xəta var. Yenə də canlıya göndərək?')) { status('deployStatus','Deploy dayandırıldı — xətaları düzəldin.','err'); return; } }
-    status('deployStatus', previewMode?'Önizləmə filialına göndərilir…':'Göndərilir…');
+    if(errs.length && !previewMode){ if(auto){ status('deployStatus','⏸ Avtomatik deploy gözləyir — '+errs.length+' xəta düzəldilməlidir.','err'); return; }
+      if(!confirm(errs.length+' xəta var. Yenə də canlıya göndərək?')) { status('deployStatus','Deploy dayandırıldı — xətaları düzəldin.','err'); return; } }
+    status('deployStatus', (auto?'Avtomatik ':'')+(previewMode?'önizləmə göndərilir…':'göndərilir…'));
+    try{ $('deployStatus').scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
     try{
       const body={ password, cityName, mode: previewMode?'preview':'production',
         dataJs: window.dataToJs(data, cityName),

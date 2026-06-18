@@ -56,6 +56,8 @@
       ['velPoint1',(vel.points||[])[0]],['velPoint2',(vel.points||[])[1]],['velPoint3',(vel.points||[])[2]],
       ['workforceAvailable',wf.available?'true':'false'],['workforcePeriod',wf.period],
       ['workforceEmptyNote',wf.emptyNote],['workforceAlert',wf.alert],
+      ['hiddenSections',((m.hiddenSections)||[]).join(',')],
+      ['labelOverrides',JSON.stringify(data.labelOverrides||{})],
     ].map(([k,x])=>[k,v(x)])]);
 
     return wb;
@@ -113,13 +115,17 @@
         priorFakt:num(r.priorFakt), dev3:[num(r.dev1), num(r.dev2), num(r.dev3)] })) };
     const insightsPinned = readTable('Pinned').map(r => ({ category:str(r.category), title:str(r.title), body:str(r.body) }))
       .filter(p => p.category && p.title && p.body);
+    const _hs = str(N.hiddenSections) ? str(N.hiddenSections).split(',').map(s=>s.trim()).filter(Boolean) : [];
+    if (_hs.length) meta.hiddenSections = _hs;
+    let labelOverrides = {}; try { labelOverrides = JSON.parse(str(N.labelOverrides) || '{}'); } catch(e) {}
     const out = { meta, kpi, overall, packages, workItems, otherObjects, infrastructure, workforce, velocity };
     if (insightsPinned.length) out.insightsPinned = insightsPinned;
+    if (labelOverrides && Object.keys(labelOverrides).length) out.labelOverrides = labelOverrides;
     return out;
   };
 
   root.dataToJs = function (data, label) {
-    const keys = ['meta','kpi','overall','packages','workItems','otherObjects','infrastructure','workforce','velocity','insightsPinned'];
+    const keys = ['meta','kpi','overall','packages','workItems','otherObjects','infrastructure','workforce','velocity','insightsPinned','labelOverrides'];
     let out = `/* data.js — ${label||(data.meta&&data.meta.village)||''}\n   Hesabat Generatoru ilə yaradılıb (${new Date().toISOString().slice(0,10)}). */\n`;
     out += `window.DASH = window.DASH || {};\n`;
     for (const k of keys) if (data[k] !== undefined) out += `window.DASH.${k} = ${JSON.stringify(data[k], null, 2)};\n`;
