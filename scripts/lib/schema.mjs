@@ -124,6 +124,7 @@ export function dataToWorkbook(d) {
     ['workforceAvailable', wf.available ? 'true' : 'false'], ['workforcePeriod', wf.period],
     ['workforceEmptyNote', wf.emptyNote], ['workforceAlert', wf.alert],
     ['hiddenSections', (d.meta?.hiddenSections || []).join(',')],
+    ['hiddenCharts', (d.meta?.hiddenCharts || []).join(',')],
     ['labelOverrides', JSON.stringify(d.labelOverrides || {})],
   ]);
 
@@ -220,6 +221,8 @@ export async function workbookToData(bufferOrPath) {
 
   const _hs = str(N.hiddenSections) ? str(N.hiddenSections).split(',').map(s => s.trim()).filter(Boolean) : [];
   if (_hs.length) meta.hiddenSections = _hs;
+  const _hc = str(N.hiddenCharts) ? str(N.hiddenCharts).split(',').map(s => s.trim()).filter(Boolean) : [];
+  if (_hc.length) meta.hiddenCharts = _hc;
   let labelOverrides = {}; try { labelOverrides = JSON.parse(str(N.labelOverrides) || '{}'); } catch (e) {}
 
   const out = { meta, kpi, overall, packages, workItems, otherObjects, infrastructure, workforce, velocity };

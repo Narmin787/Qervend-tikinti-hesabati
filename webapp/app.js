@@ -473,20 +473,37 @@
     return w;
   }
 
-  // Show / hide whole sections in the report.
-  const SECTIONS=[['sec-overall','Ümumi mənzərə'],['sec-packages','Paketlər (evlər)'],['sec-workitems','Görülən işlər'],
-    ['sec-other','Digər obyektlər'],['sec-infra','Sahədaxili kommunikasiya'],['sec-workforce','İşçi heyəti / texnika'],
-    ['sec-velocity','Həftəlik sürət'],['sec-insights','Təkliflər / risklər']];
+  // Show / hide whole sections AND the individual charts inside them.
+  const SECTIONS=[
+    {id:'sec-overall', label:'Ümumi mənzərə', charts:[['ch-overallBar','Plan vs Fakt'],['ch-overallDev','Plandan kənarlaşma']]},
+    {id:'sec-packages', label:'Paketlər (evlər)', charts:[['ch-pkgBar','Plan vs Fakt'],['ch-pkgTrend','İcra trendi']]},
+    {id:'sec-workitems', label:'Görülən işlər', charts:[]},
+    {id:'sec-other', label:'Digər obyektlər', charts:[['ch-otherBar','Plan vs Fakt'],['ch-otherGap','Tamamlanma boşluğu']]},
+    {id:'sec-infra', label:'Sahədaxili kommunikasiya', charts:[]},
+    {id:'sec-workforce', label:'İşçi heyəti / texnika', charts:[['ch-wfDaily','Gündəlik işçi'],['ch-wfTotal','Ümumi işçi']]},
+    {id:'sec-velocity', label:'Həftəlik sürət', charts:[['ch-velDev','Kənarlaşma (3 nöqtə)'],['ch-velCompliance','Plana uyğunluq'],['ch-velWeekly','Həftəlik dəyişiklik']]},
+    {id:'sec-insights', label:'Təkliflər / risklər', charts:[]},
+  ];
+  function toggleRow(label, on, onChange, indent){
+    const row=document.createElement('label'); row.className='toggle-row'+(indent?' indent':'');
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=on; cb.onchange=()=>onChange(cb.checked);
+    const sw=document.createElement('span'); sw.className='sw';
+    row.appendChild(cb); row.appendChild(sw); row.appendChild(document.createTextNode(' '+label));
+    return row;
+  }
   function sectionTogglesEditor(){
-    data.meta.hiddenSections=data.meta.hiddenSections||[];
+    data.meta.hiddenSections=data.meta.hiddenSections||[]; data.meta.hiddenCharts=data.meta.hiddenCharts||[];
     const w=document.createElement('div');
-    const note=document.createElement('div'); note.className='note'; note.textContent='Söndürülən bölmələr hesabatda görünməyəcək (məlumat silinmir).'; w.appendChild(note);
-    SECTIONS.forEach(([id,label])=>{
-      const row=document.createElement('label'); row.className='toggle-row';
-      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!data.meta.hiddenSections.includes(id);
-      cb.onchange=()=>{ const s=new Set(data.meta.hiddenSections); cb.checked?s.delete(id):s.add(id); data.meta.hiddenSections=[...s]; onEdit(); };
-      const sw=document.createElement('span'); sw.className='sw';
-      row.appendChild(cb); row.appendChild(sw); row.appendChild(document.createTextNode(' '+label)); w.appendChild(row);
+    const note=document.createElement('div'); note.className='note'; note.textContent='Bölməni və ya ayrıca qrafiki söndürün — hesabatda görünməyəcək (məlumat silinmir).'; w.appendChild(note);
+    SECTIONS.forEach(sec=>{
+      w.appendChild(toggleRow(sec.label, !data.meta.hiddenSections.includes(sec.id), on=>{
+        const s=new Set(data.meta.hiddenSections); on?s.delete(sec.id):s.add(sec.id); data.meta.hiddenSections=[...s]; onEdit();
+      }, false));
+      sec.charts.forEach(([cid,clabel])=>{
+        w.appendChild(toggleRow(clabel, !data.meta.hiddenCharts.includes(cid), on=>{
+          const s=new Set(data.meta.hiddenCharts); on?s.delete(cid):s.add(cid); data.meta.hiddenCharts=[...s]; onEdit();
+        }, true));
+      });
     });
     return w;
   }

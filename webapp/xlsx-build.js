@@ -60,6 +60,7 @@
       ['workforceAvailable',wf.available?'true':'false'],['workforcePeriod',wf.period],
       ['workforceEmptyNote',wf.emptyNote],['workforceAlert',wf.alert],
       ['hiddenSections',((m.hiddenSections)||[]).join(',')],
+      ['hiddenCharts',((m.hiddenCharts)||[]).join(',')],
       ['labelOverrides',JSON.stringify(data.labelOverrides||{})],
     ].map(([k,x])=>[k,v(x)])]);
 
@@ -120,6 +121,8 @@
       .filter(p => p.category && p.title && p.body);
     const _hs = str(N.hiddenSections) ? str(N.hiddenSections).split(',').map(s=>s.trim()).filter(Boolean) : [];
     if (_hs.length) meta.hiddenSections = _hs;
+    const _hc = str(N.hiddenCharts) ? str(N.hiddenCharts).split(',').map(s=>s.trim()).filter(Boolean) : [];
+    if (_hc.length) meta.hiddenCharts = _hc;
     let labelOverrides = {}; try { labelOverrides = JSON.parse(str(N.labelOverrides) || '{}'); } catch(e) {}
     const out = { meta, kpi, overall, packages, workItems, otherObjects, infrastructure, workforce, velocity };
     if (insightsPinned.length) out.insightsPinned = insightsPinned;

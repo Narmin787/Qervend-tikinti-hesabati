@@ -1020,9 +1020,11 @@ table.vel td .pos{color:var(--good); font-weight:600}
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
   ready(function(){
-    // Hide whole sections turned off in the editor (data.meta.hiddenSections).
-    try{ var hsec=(window.DASH&&window.DASH.meta&&window.DASH.meta.hiddenSections)||[];
-      hsec.forEach(function(id){ var s=document.getElementById(id); if(s) s.style.display='none'; }); }catch(e){}
+    // Hide whole sections / individual charts turned off in the editor.
+    try{ var M=(window.DASH&&window.DASH.meta)||{};
+      (M.hiddenSections||[]).forEach(function(id){ var s=document.getElementById(id); if(s) s.style.display='none'; });
+      (M.hiddenCharts||[]).forEach(function(id){ var c=document.getElementById(id); if(c){ var card=c.closest&&c.closest('.chart-card'); (card||c).style.display='none'; } });
+    }catch(e){}
     // Collapsible sections — click the section heading to minimize / expand.
     [].forEach.call(document.querySelectorAll('.section > .section-title'), function(t){
       t.setAttribute('role','button'); t.setAttribute('tabindex','0');

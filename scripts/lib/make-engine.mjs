@@ -119,9 +119,11 @@ const enhance = `<script>
 (function(){
   function ready(fn){ if(document.readyState!=='loading'){fn();} else {document.addEventListener('DOMContentLoaded',fn);} }
   ready(function(){
-    // Hide whole sections turned off in the editor (data.meta.hiddenSections).
-    try{ var hsec=(window.DASH&&window.DASH.meta&&window.DASH.meta.hiddenSections)||[];
-      hsec.forEach(function(id){ var s=document.getElementById(id); if(s) s.style.display='none'; }); }catch(e){}
+    // Hide whole sections / individual charts turned off in the editor.
+    try{ var M=(window.DASH&&window.DASH.meta)||{};
+      (M.hiddenSections||[]).forEach(function(id){ var s=document.getElementById(id); if(s) s.style.display='none'; });
+      (M.hiddenCharts||[]).forEach(function(id){ var c=document.getElementById(id); if(c){ var card=c.closest&&c.closest('.chart-card'); (card||c).style.display='none'; } });
+    }catch(e){}
     // Collapsible sections — click the section heading to minimize / expand.
     [].forEach.call(document.querySelectorAll('.section > .section-title'), function(t){
       t.setAttribute('role','button'); t.setAttribute('tabindex','0');
@@ -570,6 +572,7 @@ for (const [marker, name] of [
   ['ctx.pinned.forEach', 'per-city manual insights'],
   ['D.labelOverrides', 'per-report label overrides'],
   ['hiddenSections', 'section show/hide'],
+  ['hiddenCharts', 'per-chart show/hide'],
   ['Built by Emin', 'build credit'],
   ['Tikinti gedişatında müəyyən olunan problemlər', 'insights problem block'],
   ['cari iş templi ilə layihənin', 'single velocity note'],
