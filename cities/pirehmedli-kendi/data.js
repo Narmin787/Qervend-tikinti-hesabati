@@ -2,11 +2,11 @@
    Hesabat Generatoru ilə yaradılıb (2026-06-18). */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
-  "projectTitle": "PIRƏHMƏDLI KƏNDI — TIKINTI GEDIŞATI HESABATI",
+  "projectTitle": "Pirəhmədli kəndi üzrə tikinti gedişatı hesabatı",
   "village": "Pirəhmədli kəndi",
   "district": "Füzuli rayonu",
   "contractor": "SEA BREEZE MMC",
-  "reportDate": "11.06.2026",
+  "reportDate": "18.06.2026",
   "cutoffDate": "11.06.2026",
   "startDate": "06.08.2025",
   "plannedFinish": "30.10.2026",
@@ -18,7 +18,13 @@ window.DASH.meta = {
   "officialPlan": 56.06,
   "primaveraCode": "",
   "note": "",
-  "sourcePdf": "source.pdf"
+  "sourcePdf": "source.pdf",
+  "sources": [
+    {
+      "label": "Mənbə sənədi (PDF)",
+      "file": "source.pdf"
+    }
+  ]
 };
 window.DASH.kpi = [
   {
@@ -43,7 +49,7 @@ window.DASH.kpi = [
   },
   {
     "id": "isciler",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "İŞÇİ SAYI (GÜNDƏLİK)",
     "sub": "Məlumat əlavə edilməyib",
@@ -53,7 +59,7 @@ window.DASH.kpi = [
   },
   {
     "id": "texnika",
-    "value": "",
+    "value": null,
     "unit": "",
     "label": "TEXNİKA VAHİDİ",
     "sub": "Məlumat əlavə edilməyib",
@@ -221,8 +227,8 @@ window.DASH.workItems = {
         },
         {
           "name": "Qapı və pəncərə",
-          "fakt": 18,
-          "plan": 31.03
+          "plan": 31.03,
+          "fakt": 18
         },
         {
           "name": "Mebel",
@@ -268,14 +274,19 @@ window.DASH.infrastructure = {
   "overallPlan": 21.74,
   "items": [
     {
-      "name": "Elektrik / zəif cərəyan",
+      "name": "Elektrik / zəif axın",
       "fakt": 36.21,
       "plan": 73.98
     },
     {
-      "name": "Su və kanalizasiya",
+      "name": "Su kanalizasiya",
       "fakt": 33.34,
       "plan": 5.56
+    },
+    {
+      "name": "İsitmə ventilyasiya",
+      "fakt": 34.35,
+      "plan": 29.17
     },
     {
       "name": "Qaz təchizatı",
@@ -283,17 +294,12 @@ window.DASH.infrastructure = {
       "plan": 0
     },
     {
-      "name": "İstilik və ventilyasiya",
-      "fakt": 34.35,
-      "plan": 29.17
-    },
-    {
-      "name": "Rabitə şəbəkəsi",
+      "name": "Kommunikasiya birləşmələri",
       "fakt": 0,
       "plan": 0
     }
   ],
-  "weeklyNote": "Sahədaxili kommunikasiya işləri üzrə icra Primavera qrafikindən paketlərin orta göstəricisi kimi hesablanmışdır."
+  "weeklyNote": "Sahədaxili kommunikasiya işləri hər paket üzrə ayrıca göstərilir (Primavera qrafikindən)."
 };
 window.DASH.workforce = {
   "available": false,
