@@ -178,9 +178,12 @@
       if(ex.velocity&&ex.velocity.rows&&ex.velocity.rows.length) d.velocity.rows=ex.velocity.rows;
       if(ex.velocity&&ex.velocity.points&&ex.velocity.points.some(p=>p)) d.velocity.points=ex.velocity.points;
       if(ex.infrastructure&&ex.infrastructure.overallFakt!=null){ d.infrastructure.overallFakt=ex.infrastructure.overallFakt; d.infrastructure.overallPlan=ex.infrastructure.overallPlan; } }
-    if(pdf){ if(pdf.workItems.lots.length) d.workItems=pdf.workItems;
-      if(pdf.infrastructure.items.length) d.infrastructure.items=pdf.infrastructure.items;
-      if(pdf.packages.items.length){
+    if(pdf){ if(pdf.workItems.lots.length) d.workItems=pdf.workItems;   // Görülən işlər (stage detail)
+      if(pdf.infrastructure.items.length){ d.infrastructure.items=pdf.infrastructure.items;
+        if(d.infrastructure.overallFakt==null && pdf.infrastructure.overallFakt!=null){
+          d.infrastructure.overallFakt=pdf.infrastructure.overallFakt; d.infrastructure.overallPlan=pdf.infrastructure.overallPlan; } }
+      // Use PDF packages only if the Excel didn't already provide them (Excel names are cleaner/authoritative).
+      if(pdf.packages.items.length && !(d.packages&&d.packages.items&&d.packages.items.length)){
         d.packages.items = pdf.packages.items.map(p=>({name:p.name,ev:p.ev,plan:p.plan,fakt:p.fakt}));
         d.overall.objects = (d.overall.objects||[]).map(o=>{ const m=pdf.packages.items.find(p=>sameEv(p.name,o.name)); return m?{...o,plan:m.plan,fakt:m.fakt}:o; });
       }

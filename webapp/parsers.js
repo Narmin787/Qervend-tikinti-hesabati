@@ -145,6 +145,84 @@
     return out;
   }
 
+  // ---- Primavera "WBS rollup" PDF (Schedule%/Performance% per WBS summary row) ----
+  // Summary rows repeat their name and end with "<schedule%> <performance%>".
+  // Performance% = actual (fakt); Schedule% = planned (plan). Verified: the top
+  // row equals the Excel overall plan/fakt.
+  function parsePrimaveraWBS(text) {
+    const out = blankData();
+    if (!text) return out;
+    // Collapse runs of whitespace so duplicated WBS names match regardless of the
+    // column spacing the PDF text-extractor emits.
+    const lines = text.split('\n').map(l => l.replace(/\s+/g, ' ').trim());
+    const round2 = n => Math.round(n * 100) / 100;
+    const rollup = line => {
+      const m = line.match(/^(.+?) \1(?:\s|$)/); if (!m) return null;
+      const name = m[1].trim(); if (!name || /^[\d\s.]+$/.test(name)) return null;
+      const pcts = line.match(/(-?\d+(?:\.\d+)?)%/g); if (!pcts || pcts.length < 2) return null;
+      const fakt = parseFloat(pcts[pcts.length - 1]), plan = parseFloat(pcts[pcts.length - 2]);
+      return (isNaN(fakt) || isNaN(plan)) ? null : { name, plan, fakt };
+    };
+    const STAGES = [
+      [/torpaq|bünövr|bunovr|d\/b|demir beton|hörgü|horgu/i, 'Qaba işlər'],
+      [/dam ört|dam ortu|dam isl/i, 'Dam örtüyü'],
+      [/^daxili b[əe]z/i, 'Daxili bəzək'],
+      [/xarici b[əe]z|fasad/i, 'Xarici bəzək (fasad)'],
+      [/^mep\b/i, 'MEP'],
+      [/heyət|heyet|hasar|kölgə|kolge|abadla|təsərrüf|teserruf|qapi ve pencere|qapı və pəncərə/i, 'Təsərrüfat / tamamlama'],
+    ];
+    const INFRA = [
+      [/elekt|zeif|zəif/i, 'Elektrik / zəif cərəyan'],
+      [/su kanal|su kəm|su kemeri|kanalizasiya/i, 'Su və kanalizasiya'],
+      [/qaz/i, 'Qaz təchizatı'],
+      [/isitm|istilik|ventilyasiya|kondisioner/i, 'İstilik və ventilyasiya'],
+      [/rabit|komnukasiya|kommunikasiya/i, 'Rabitə şəbəkəsi'],
+    ];
+    const catOf = (name, table) => { for (const [re, c] of table) if (re.test(name)) return c; return null; };
+    const avg = arr => ({ plan: round2(arr.reduce((s, x) => s + x.plan, 0) / arr.length), fakt: round2(arr.reduce((s, x) => s + x.fakt, 0) / arr.length) });
+
+    let start = lines.findIndex(l => /ferdi ya[sş]ayi[sş]|fərdi yaşayış/i.test(l));
+    if (start < 0) start = 0;
+
+    const packages = []; let cur = null;
+    for (let i = start; i < lines.length; i++) {
+      const r = rollup(lines[i]); if (!r) continue;
+      if (/\(\s*\d+\s*ev\s*\)/i.test(r.name) && /sah[əe?]\s*\d+|paket\s*\d+/i.test(r.name)) {  // package header
+        cur = { name: r.name.replace(/sah[əe?]/i, 'Sahə').replace(/\s+/g, ' ').trim(), ev: evCount(r.name), plan: r.plan, fakt: r.fakt, stages: {}, infra: {} };
+        packages.push(cur); continue;
+      }
+      if (!cur) continue;
+      const sc = catOf(r.name, STAGES); if (sc) (cur.stages[sc] = cur.stages[sc] || []).push(r);
+      const ic = catOf(r.name, INFRA); if (ic) (cur.infra[ic] = cur.infra[ic] || []).push(r);
+    }
+    if (!packages.length) return out;
+
+    const order = ['Qaba işlər', 'Dam örtüyü', 'Daxili bəzək', 'MEP', 'Xarici bəzək (fasad)', 'Təsərrüfat / tamamlama'];
+    const lots = [];
+    packages.forEach((p, k) => {
+      const items = order.filter(c => p.stages[c]).map(c => { const a = avg(p.stages[c]); return { name: c, plan: a.plan, fakt: a.fakt }; });
+      if (items.length) lots.push({ id: 'p' + (k + 1), name: p.name, ev: p.ev, items });
+    });
+    if (lots.length) {
+      const cemi = order.map(c => { const all = []; packages.forEach(p => { if (p.stages[c]) all.push(...p.stages[c]); }); if (!all.length) return null; const a = avg(all); return { name: c, plan: a.plan, fakt: a.fakt }; }).filter(Boolean);
+      const totEv = packages.reduce((s, p) => s + (p.ev || 0), 0);
+      lots.unshift({ id: 'cemi', name: 'Cəmi' + (totEv ? ' (' + totEv + ' ev)' : ''), ev: totEv, items: cemi });
+      out.workItems.lots = lots;
+    }
+
+    const infraOrder = ['Elektrik / zəif cərəyan', 'Su və kanalizasiya', 'Qaz təchizatı', 'İstilik və ventilyasiya', 'Rabitə şəbəkəsi'];
+    const infraItems = infraOrder.map(c => { const all = []; packages.forEach(p => { if (p.infra[c]) all.push(...p.infra[c]); }); if (!all.length) return null; const a = avg(all); return { name: c, plan: a.plan, fakt: a.fakt }; }).filter(Boolean);
+    if (infraItems.length) {
+      out.infrastructure.items = infraItems;
+      out.infrastructure.overallFakt = round2(infraItems.reduce((s, x) => s + x.fakt, 0) / infraItems.length);
+      out.infrastructure.overallPlan = round2(infraItems.reduce((s, x) => s + x.plan, 0) / infraItems.length);
+    }
+    out.packages.items = packages.map(p => ({ name: p.name, ev: p.ev, plan: p.plan, fakt: p.fakt }));
+    const fye = lines.map(rollup).find(r => r && /ferdi ya[sş]ayi[sş]|fərdi yaşayış/i.test(r.name));
+    if (fye) out.meta._fye = { fakt: fye.fakt, plan: fye.plan };
+    return out;
+  }
+
   // ---- Primavera text ----
   function parsePrimaveraText(text) {
     const out = blankData();
@@ -160,7 +238,7 @@
       for (const ln of lines) { if (codeRe.test(ln)) { const p = pctPair(ln); if (p) return { fakt:p[0], plan:p[1], line:ln }; } }
       return null;
     };
-    if (!root) return out;
+    if (!root) return parsePrimaveraWBS(text);   // PDF uses WBS-rollup format, not dotted codes
     const R = root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     // FYE (3.1)

@@ -56,5 +56,34 @@ eq('velocity points', d.velocity.points, ['Əvvəlki ay','04.06','11.06']);
 eq('Ümumi dev3', d.velocity.rows[0].dev3, [-8.6, -6.99, -6.42]);
 eq('trend (FYE, 2 dates)', d.packages.trend, [{date:'23.04.2026',fakt:35.87},{date:'11.06.2026',fakt:52.57}]);
 
-console.log(fails ? `\n${fails} parser assertion(s) failed` : '\nPARSER TEST PASSED — Excel parsing extracts all sections.');
+// ---- Primavera WBS-rollup PDF (Schedule%/Performance% summary rows) ----
+const PDF = [
+  'Pirehmedli kendi is qrafiki Pirehmedli kendi is qrafiki 513 06-Aug-25 30-Oct-26 56.06% 49.64%',
+  'Qeyri-Yasayis Binalari Qeyri-Yasayis Binalari 400 40.32% 37.96%',
+  'Horgu isleri Horgu isleri 100 100% 100%',                 // civic stage — must be ignored (before residential)
+  'Ferdi yasayis evler ve teserrufat tikilileri Ferdi yasayis evler ve teserrufat tikilileri 273 60.22% 52.57%',
+  'Sah? 1 (60 ev) Sah? 1 (60 ev) 251 60.22% 53.44%',
+  'Torpaq islari Torpaq islari 50 100% 100%',
+  'Horgu isleri Horgu isleri 155 100% 89.31%',
+  'Dam örtüyü Dam örtüyü 180 93.63% 59.54%',
+  'Daxili bezek isleri Daxili bezek isleri 150 31.14% 23.83%',
+  'Xarici bezek isleri Xarici bezek isleri 100 34.82% 38.36%',
+  'MEP MEP 100 48.63% 31.14%',
+  'Elektik/ Zeif axin Elektik/ Zeif axin 90 73.98% 41.38%',
+  'Su kanalizasiya Su kanalizasiya 60 5.56% 0%',
+].join('\n');
+const pd = P.parsePrimaveraText(PDF);
+const lots = pd.workItems.lots || [];
+eq('PDF: lot count (Cəmi + Sahə 1)', lots.length, 2);
+eq('PDF: Sahə 1 ev', (lots.find(l=>/Sahə 1/.test(l.name))||{}).ev, 60);
+const s1 = (lots.find(l=>/Sahə 1/.test(l.name))||{items:[]}).items.reduce((m,i)=>(m[i.name]=i.fakt,m),{});
+eq('PDF: Sahə 1 Qaba işlər (Torpaq+Hörgü avg)', s1['Qaba işlər'], 94.66);
+eq('PDF: Sahə 1 Dam örtüyü', s1['Dam örtüyü'], 59.54);
+eq('PDF: Sahə 1 MEP', s1['MEP'], 31.14);
+const infra = (pd.infrastructure.items||[]).reduce((m,i)=>(m[i.name]=i.fakt,m),{});
+eq('PDF infra: Elektrik', infra['Elektrik / zəif cərəyan'], 41.38);
+eq('PDF infra: Su və kanalizasiya', infra['Su və kanalizasiya'], 0);
+eq('PDF: FYE total', pd.meta._fye, {fakt:52.57, plan:60.22});
+
+console.log(fails ? `\n${fails} parser assertion(s) failed` : '\nPARSER TEST PASSED — Excel + Primavera-PDF parsing extracts all sections.');
 process.exit(fails ? 1 : 0);

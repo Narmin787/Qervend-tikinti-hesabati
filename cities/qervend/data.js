@@ -1,5 +1,5 @@
 /* data.js — Qərvənd kəndi
-   Avtomatik yaradılıb (2026-06-17). Əl ilə redaktə etmək əvəzinə Excel şablonundan istifadə edin. */
+   Avtomatik yaradılıb (2026-06-18). Əl ilə redaktə etmək əvəzinə Excel şablonundan istifadə edin. */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
   "projectTitle": "Qərvənd kəndi üzrə tikinti gedişatı hesabatı",
