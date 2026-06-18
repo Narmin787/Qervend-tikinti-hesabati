@@ -143,55 +143,13 @@ window.DASH.packages = {
 window.DASH.workItems = {
   "lots": [
     {
-      "id": "cemi",
-      "name": "Cəmi (146 ev)",
-      "ev": 146,
-      "items": [
-        {
-          "name": "Hörgü işləri",
-          "fakt": 89.31,
-          "plan": 100
-        },
-        {
-          "name": "Dam örtüyü",
-          "fakt": 48.17,
-          "plan": 93.63
-        },
-        {
-          "name": "Daxili bəzək",
-          "fakt": 22.27,
-          "plan": 31.14
-        },
-        {
-          "name": "MEP",
-          "fakt": 31.97,
-          "plan": 48.63
-        },
-        {
-          "name": "Xarici bəzək (fasad)",
-          "fakt": 38.41,
-          "plan": 34.82
-        },
-        {
-          "name": "Təsərrüfat / tamamlama",
-          "fakt": 4.2,
-          "plan": 6.21
-        },
-        {
-          "name": "Qapı və pəncərə",
-          "plan": 31.03,
-          "fakt": 24
-        }
-      ]
-    },
-    {
       "id": "p1",
       "name": "Sahə 1 (60 ev)",
       "ev": 60,
       "items": [
         {
-          "name": "Qaba işlər",
-          "fakt": 97.33,
+          "name": "Hörgü işləri",
+          "fakt": 89.31,
           "plan": 100
         },
         {
@@ -215,15 +173,25 @@ window.DASH.workItems = {
           "plan": 34.82
         },
         {
-          "name": "Təsərrüfat / tamamlama",
-          "fakt": 4.8,
-          "plan": 6.21
+          "name": "Mebel",
+          "fakt": 0,
+          "plan": 0
+        },
+        {
+          "name": "Qapı və pəncərə",
+          "plan": 31.03,
+          "fakt": 24
+        },
+        {
+          "name": "Həyətyanı işlər ",
+          "plan": 0,
+          "fakt": 0
         }
       ]
     },
     {
       "id": "p2",
-      "name": "Sahə 3 (86 ev)",
+      "name": "Sahə 2 (86 ev)",
       "ev": 86,
       "items": [
         {
