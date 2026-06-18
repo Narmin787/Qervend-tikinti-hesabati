@@ -1,6 +1,9 @@
-/* Browser: build a schema-correct source.xlsx (base64) from a data object,
-   mirroring scripts/lib/schema.mjs dataToWorkbook so the Node build can read it.
-   Exposes window.dataToXlsxBase64(data) and window.dataToJs(data). */
+/* Browser ⇄ data workbook bridge (mirrors scripts/lib/schema.mjs so the Node build
+   and the app agree on the schema).
+   Exposes:
+     window.dataToXlsxBase64(data) — data object  -> source.xlsx (base64)
+     window.xlsxToData(arrayBuffer) — source.xlsx -> data object (or null if not this schema)
+     window.dataToJs(data, label)   — data object  -> data.js text */
 (function () {
   const root = (typeof window !== 'undefined') ? window : globalThis;
   const getXLSX = () => root.XLSX || (typeof require !== 'undefined' ? require('xlsx') : null);

@@ -77,14 +77,21 @@ Bundan sonra hər `git push` avtomatik deploy yaradır.
 ## Fayl strukturu
 
 ```
-engine/        report.html, config.js        — şablon + motor (deploy olunur)
-cities/        <şəhər>/source.xlsx|pdf|data.js — şəhər məlumatı
+engine/        report.html, config.js          — şablon + motor (deploy olunur)
+cities/        <şəhər>/source.xlsx|pdf|data.js  — şəhər məlumatı
+webapp/        index.html, app.js, parsers.js, xlsx-build.js
+                                               — brauzer builder app (→ /narminreportwebapp)
+api/deploy.js  — Vercel serverless funksiyası (GitHub-a atomik commit + Vercel deploy)
 scripts/
   build.mjs                 — public/ qurur (Vercel bunu çağırır)
   make-template.mjs         — boş Excel şablonu yaradır
-  xlsx-to-data.mjs          — Excel → data.js (köməkçi)
   seed/qervend.mjs          — Qərvənd məlumatının mənbə-istinadlı yenidən qurulması
-  lib/                      — schema (Excel↔data), serialize, make-engine, testlər
+  lib/
+    schema.mjs              — Excel ↔ data (Node; build və test bunu işlədir)
+    serialize.mjs           — data → data.js
+    make-engine.mjs         — index.html → engine/report.html (təkmilləşdirmələrlə)
+    pdf-to-xlsx.mjs         — Primavera PDF + podratçı Excel → tam data workbook (CLI)
+    parser-test / roundtrip-test / smoke / smoke-ux  — testlər
 template/      data-template.xlsx, example-qervend.xlsx
 index.html     — şablonun mənbəyi (make-engine.mjs bundan report.html qurur; deploy olunmur)
 ```
@@ -104,14 +111,32 @@ Gizli ünvanda işləyən, brauzerdə çalışan generator (heç bir AI yoxdur):
 
 **`/narminreportwebapp`** (məs. `https://qervend-tikinti-hesabati.vercel.app/narminreportwebapp`)
 
-- **Yeni** hesabat yarat və ya **mövcudu** seçib yenilə.
-- Xam **Excel + Primavera PDF** yüklə → avtomatik oxunur (deterministik).
-- Hər detalı (rəqəm, ad, qeyd, KPI) **redaktə et**, yanında **canlı önizləmə**.
-- **⬇ source.xlsx / data.js** yüklə (tam offline) **və ya 🚀 Deploy** —
-  GitHub-a göndərir, Vercel 1-5 dəqiqəyə canlı versiyanı yeniləyir.
+- Faylları (Excel + Primavera PDF, **və ya** tam data workbook) **at** → avtomatik
+  oxunur və doldurulur (heç bir düymə yox). Şəhər adı fayldan oxunur.
+- **Mövcud şəhəri tanıyır**: ad siyahıda varsa, həmin hesabatı yükləyib yeni
+  rəqəmlərlə **yeniləyir** (əl ilə dəyişikliklər qalır); yeni addırsa yeni hesabat.
+- Hər mətni redaktə et — rəqəmlər, adlar, **bölmə başlıqları/altbilgi** (per-hesabat),
+  paket üzrə **sahədaxili kommunikasiya**, KPI, qeydlər, əl ilə şərhlər.
+- **Bölmələri göstər/gizlət** açarları; **canlı önizləmə** (yazdıqca yenilənir);
+  deploy öncəsi **yoxlama** (0–100%, tarix formatı və s.).
+- **🚀 Deploy** bir kliklə (parol əvvəlcədən doldurulub) — GitHub-a **bir atomik
+  commit**, Vercel 1–5 dəqiqəyə dərc edir. **🔎 Önizləmə** ayrıca filiala (canlı
+  toxunulmur). İstəyə bağlı **avtomatik deploy** (yalnız yeni, təkrarlanmayan adlı hesabat üçün).
 
 Mənbə faylları `webapp/`-də; `npm run build` onları `public/narminreportwebapp/`-ə
 köçürür. Səhifəyə görünən keçid yoxdur (yalnız ünvanı bilən açır).
+
+### Primavera PDF → tam Excel (oflayn, etibarlı)
+
+Bəzi Primavera PDF-ləri brauzerdə oxumaq kövrəkdir. Bunun əvəzinə oflayn generator
+podratçı Excel + Primavera PDF-dən **bütün dashboardları dolduran** tam data
+workbook yaradır (görülən işlər, paket üzrə sahədaxili kommunikasiya və s.):
+
+```
+node scripts/lib/pdf-to-xlsx.mjs <podratçı.xlsx> <primavera.pdf|-> <çıxış.xlsx>
+```
+
+Çıxan Excel-i app-a yükləmək kifayətdir (`window.xlsxToData` onu tam oxuyur).
 
 ### Deploy düyməsi üçün Vercel parametrləri (bir dəfəlik)
 

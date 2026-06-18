@@ -46,19 +46,6 @@ async function ensureBranch(branch) {
   if (!mk.ok && mk.status !== 422) throw new Error(`create branch: ${mk.status} ${(await mk.text()).slice(0,120)}`);
 }
 
-async function putFile(path, base64Content, message, branch) {
-  const enc = encodeURIComponent(path).replace(/%2F/g, '/');
-  let sha;
-  const cur = await gh(`/repos/${OWNER}/${REPO}/contents/${enc}?ref=${encodeURIComponent(branch)}`);
-  if (cur.status === 200) sha = (await cur.json()).sha;
-  const res = await gh(`/repos/${OWNER}/${REPO}/contents/${enc}`, {
-    method: 'PUT',
-    body: JSON.stringify({ message, content: base64Content, branch, ...(sha ? { sha } : {}) }),
-  });
-  if (!res.ok) throw new Error(`${path}: ${res.status} ${(await res.text()).slice(0,200)}`);
-  return res.json();
-}
-
 // Commit several files in ONE atomic commit via the Git Data API. This avoids the
 // partial/intermediate state (and multiple rebuilds) of committing files one-by-one,
 // so a half-finished deploy can never leave a city's live report broken.
