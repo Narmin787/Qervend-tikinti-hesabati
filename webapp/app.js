@@ -506,8 +506,16 @@
 
   // ---------- edit hook: autosave + debounced live preview + health + optional auto-deploy ----------
   let prevTimer=null, autoDepTimer=null;
+  // Auto-deploy is ONLY for a brand-new report whose name is not already in the list.
+  // It must never auto-override an existing report you are reading / updating.
+  function autoDeployAllowed(){
+    if(updatingExisting) return false;
+    const slug=slugify($('cityName').value);
+    return !!slug && !findCity(slug);
+  }
   function scheduleAutoDeploy(){ const cb=$('autoDeploy'); if(!cb||!cb.checked) return;
-    clearTimeout(autoDepTimer); autoDepTimer=setTimeout(function(){ doDeploy(false, true); }, 90000); }
+    if(!autoDeployAllowed()) return;
+    clearTimeout(autoDepTimer); autoDepTimer=setTimeout(function(){ if(autoDeployAllowed()) doDeploy(false, true); }, 90000); }
   function onEdit(){ markDirty(); renderHealth(); clearTimeout(prevTimer); prevTimer=setTimeout(refresh, 450); scheduleAutoDeploy(); }
 
   // ---------- preview ----------
@@ -570,6 +578,10 @@
     if(!cityName){ if(!auto) status('deployStatus','Şəhər adı daxil edin.','err'); return; }
     if(!password){ if(!auto) status('deployStatus','Parol daxil edin.','err'); return; }
     if(!data.meta.village) data.meta.village=cityName;
+    // Auto-deploy is strictly for NEW, uniquely-named reports — never override an
+    // existing one (whether we're updating it or the name already exists).
+    if(auto && (updatingExisting || findCity(slugify(cityName)))){
+      status('deployStatus','⏸ Avtomatik deploy yalnız yeni (təkrarlanmayan adlı) hesabat üçündür. Mövcud hesabatı yeniləmək üçün əl ilə Deploy edin.','err'); return; }
     // Guard against silently overwriting an existing report when creating a NEW one
     // (skipped when we intentionally recognised/loaded the city to update it).
     if(mode==='new' && !previewMode && !updatingExisting){ const ex=findCity(slugify(cityName));
@@ -591,7 +603,11 @@
         const links=[]; if(j.url) links.push({u:j.url, t: previewMode?'🔗 Önizləməni aç':'🔗 Hesabatı aç'});
         if(j.previewUrl && j.previewUrl!==j.url) links.push({u:j.previewUrl, t:'🔗 Vercel önizləməsi'});
         statusLinks('deployStatus','✅ '+(j.message||'Göndərildi.'), links, 'ok');
-        if(!previewMode){ dirty=false; clearDraft(curSlug); $('dirtyFlag').textContent=''; }
+        if(!previewMode){ dirty=false; clearDraft(curSlug); $('dirtyFlag').textContent='';
+          // Once deployed, the report exists — further edits are updates (so auto-deploy won't re-fire).
+          updatingExisting=true; if(j.slug) curSlug=j.slug;
+          if(j.slug && !findCity(j.slug)) ALL_CITIES.push({slug:j.slug, village:(data.meta&&data.meta.village)||j.slug});
+          clearTimeout(autoDepTimer); checkDuplicate(); }
         if((mode==='upd'||updatingExisting) && !previewMode) setTimeout(loadCityList, 1500); }
       else if(/not configured/i.test(j.error||'')) status('deployStatus','⚙️ Deploy hələ qurulmayıb: Vercel-də GITHUB_TOKEN və DEPLOY_PASSWORD əlavə edin.','err');
       else status('deployStatus','❌ '+(j.error||res.status),'err');
