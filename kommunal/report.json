@@ -1,0 +1,42 @@
+{
+  "title": "Füzulidə kommunal yığımlara dair",
+  "subtitle": "Həftəlik İcmal",
+  "complex": "Füzuli Yaşayış Kompleksi",
+  "period": { "label": "08.06–12.06.2026", "previousLabel": "01.06–05.06" },
+  "month": "İYUN 2026",
+  "kpis": { "hotWaterStopped": 41, "heatingRestored": 10, "weeklyCollection": 3977.85, "nextCutoff": 29 },
+  "changes": [
+    { "dir": "down", "text": "Həftəlik yığımda müşahidə olunan azalma", "value": "−3641,45 AZN" },
+    { "dir": "up",   "text": "İsti suyu dayandırılan mənzil sayında artım", "value": "+7 mənzil" },
+    { "dir": "down", "text": "Növbəti kəsimi planlaşdırılan mənzil sayında azalma", "value": "−17 mənzil" },
+    { "dir": "down", "text": "İsti suyu bərpa olunan mənzil sayında azalma", "value": "−1 mənzil" }
+  ],
+  "weeks": [
+    { "label": "01 – 05.06.2026", "collection": 7619.30, "hotWaterStopped": 34, "contracts": 11 },
+    { "label": "08 – 12.06.2026", "collection": 3977.85, "hotWaterStopped": 41, "contracts": 8 },
+    { "label": "15 – 19.06.2026", "collection": null, "hotWaterStopped": null, "contracts": null },
+    { "label": "22 – 26.06.2026", "collection": null, "hotWaterStopped": null, "contracts": null },
+    { "label": "29 – 30.06.2026", "collection": null, "hotWaterStopped": null, "contracts": null }
+  ],
+  "totals": { "collection": 11597.15, "hotWaterStopped": 75, "contracts": 19, "rangeLabel": "01.06–12.06" },
+  "comparisonLabels": { "w1": "01.06–05.06", "w2": "08.06–12.06" },
+  "comparison": [
+    { "metric": "Həftəlik yığım (AZN)", "w1": 7619.30, "w2": 3977.85, "diff": -3641.45 },
+    { "metric": "İsti suyu dayandırılan mənzil sayı", "w1": 34, "w2": 41, "diff": 7 },
+    { "metric": "Bərpa olunan mənzil sayı", "w1": 11, "w2": 10, "diff": -1 },
+    { "metric": "Növbəti kəsim olacaq mənzil", "w1": 46, "w2": 29, "diff": -17 },
+    { "metric": "Müqaviləsiz mənzil sayı", "w1": 111, "w2": 103, "diff": -8 },
+    { "metric": "Müqavilə + ödənişsiz mənzil", "w1": 271, "w2": 266, "diff": -5 },
+    { "metric": "İmzalanmış müqavilə sayı", "w1": 11, "w2": 8, "diff": -3 },
+    { "metric": "Ay üzrə cəmi yığım (AZN)", "w1": 7619.30, "w2": 11597.15, "diff": null }
+  ],
+  "categories": [
+    { "name": "Kirayə Mənzillər", "total": 93, "noContract": 7, "stopped": 5, "restored": 3, "nextCutoff": 0, "collected": 1314.15 },
+    { "name": "Yaşayış Olmayan Mənzillər", "total": 60, "noContract": 12, "stopped": 2, "restored": 2, "nextCutoff": 3, "collected": 120.00 },
+    { "name": "Şəhid və Qazi Ailələri", "total": 30, "noContract": 1, "stopped": 0, "restored": 0, "nextCutoff": 1, "collected": 225.60 },
+    { "name": "İcarədarlar", "total": 77, "noContract": 11, "stopped": 6, "restored": 2, "nextCutoff": 2, "collected": 243.00 },
+    { "name": "Digər Sakinlər", "total": 578, "noContract": 72, "stopped": 28, "restored": 3, "nextCutoff": 23, "collected": 2075.10 }
+  ],
+  "categoryTotal": { "total": 838, "noContract": 103, "stopped": 41, "restored": 10, "nextCutoff": 29, "collected": 3977.85 },
+  "preparedDate": ""
+}

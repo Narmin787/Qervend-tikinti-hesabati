@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Füzulidə kommunal yığımlara dair — Həftəlik İcmal</title>
+<style>
+  :root{
+    --ink:#1F2440; --muted:#6B7280; --faint:#9AA1AB; --line:#E6E9EF; --page:#F4F6F9; --card:#fff;
+    --blue:#2A6FA8; --blueDeep:#1F3F66; --good:#1FA67E; --risk:#E0483D; --warn:#F2A93B;
+    --radius:14px; --shadow:0 1px 3px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--page);color:var(--ink);font-size:14px;line-height:1.5}
+  .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
+  .report-head{background:linear-gradient(90deg,var(--blueDeep),var(--blue));color:#fff;border-radius:var(--radius);
+    padding:22px 26px;box-shadow:var(--shadow);margin-bottom:20px}
+  .report-head h1{margin:0;font-size:22px;font-weight:800;letter-spacing:.01em}
+  .report-head .sub{font-size:15px;font-weight:600;opacity:.92;margin-top:2px}
+  .report-head .period{margin-top:12px;display:inline-block;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600}
+  .section{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;box-shadow:var(--shadow);margin-bottom:18px}
+  .section-title{font-size:16px;font-weight:800;margin:0 0 14px;color:var(--ink)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .kpi{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#FBFCFE;border-left:4px solid var(--blue)}
+  .kpi .lbl{font-size:12px;color:var(--muted);min-height:32px}
+  .kpi .val{font-size:26px;font-weight:800;margin-top:6px}
+  .kpi .unit{font-size:13px;font-weight:700;color:var(--muted);margin-left:4px}
+  .kpi.teal{border-left-color:var(--good)} .kpi.amber{border-left-color:var(--warn)} .kpi.red{border-left-color:var(--risk)}
+  .changes{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .chg{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#FBFCFE}
+  .chg .arrow{font-size:20px;font-weight:800;line-height:1}
+  .chg.up .arrow{color:var(--risk)} .chg.down .arrow{color:var(--good)}
+  .chg .t{font-size:12.5px;color:var(--muted)}
+  .chg .v{font-size:16px;font-weight:800;margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:#F1F4F9;color:var(--muted);font-weight:700;font-size:12px;border-bottom:2px solid var(--line)}
+  tbody tr:last-child td{border-bottom:none}
+  tr.total td{font-weight:800;background:#F7F9FC;border-top:2px solid var(--line)}
+  .num{font-variant-numeric:tabular-nums}
+  .pos{color:var(--good);font-weight:700} .neg{color:var(--risk);font-weight:700} .dash{color:var(--faint)}
+  .total-line{margin-top:12px;font-size:14px;font-weight:700;background:#EAF2FB;border:1px solid #CFE0F2;
+    border-radius:10px;padding:10px 14px;color:var(--blueDeep)}
+  .foot{color:var(--faint);font-size:11px;text-align:center;margin-top:24px}
+  .grid-tables{display:grid;grid-template-columns:1fr;gap:18px}
+  @media (max-width:760px){ .kpis{grid-template-columns:repeat(2,1fr)} .changes{grid-template-columns:1fr} }
+  @media print{
+    body{background:#fff;font-size:12px}
+    .wrap{max-width:none;padding:0}
+    .section,.report-head{box-shadow:none;break-inside:avoid}
+    .section{border-color:#ddd}
+  }
+  #err{display:none;background:#FDECEA;color:#a4271c;padding:14px;border-radius:10px;margin:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+  <div id="err"></div>
+</div>
+
+<script>
+(function(){
+  const root = document.getElementById('root');
+  // ---- Azerbaijani number formatting: space thousands, comma decimal ----
+  function fmt(n, decimals){
+    if(n==null || n==='') return '—';
+    const neg = n<0; const abs=Math.abs(n);
+    let s = (decimals!=null) ? abs.toFixed(decimals) : (Number.isInteger(abs)? String(abs) : abs.toFixed(2));
+    let [int,frac] = s.split('.');
+    int = int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return (neg?'−':'') + int + (frac?(','+frac):'');
+  }
+  const money = n => (n==null?'—':fmt(n,2));
+  const esc = s => String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+  function el(tag, cls, html){ const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+
+  function render(d){
+    root.innerHTML='';
+    // Header
+    const h=el('div','report-head');
+    h.innerHTML='<h1>'+esc(d.title||'')+'</h1>'+(d.subtitle?'<div class="sub">'+esc(d.subtitle)+'</div>':'')+
+      '<div class="period">Hesabat dövrü: '+esc((d.period&&d.period.label)||'')+'</div>';
+    root.appendChild(h);
+
+    // KPIs
+    const k=d.kpis||{};
+    const ks=el('div','section');
+    ks.appendChild(el('h2','section-title','Əsas göstəricilər'));
+    const kg=el('div','kpis');
+    kg.appendChild(kpi('Həftə ərzində isti suyu dayandırılan mənzil sayı', fmt(k.hotWaterStopped), '', 'red'));
+    kg.appendChild(kpi('Həftə ərzində istiliyi bərpa olunan mənzil sayı', fmt(k.heatingRestored), '', 'teal'));
+    kg.appendChild(kpi('Həftə ərzində yığım', money(k.weeklyCollection), 'AZN', 'teal'));
+    kg.appendChild(kpi('Növbəti mərhələdə kəsim olacaq mənzil sayı', fmt(k.nextCutoff), '', 'amber'));
+    ks.appendChild(kg); root.appendChild(ks);
+
+    // Changes
+    if(d.changes && d.changes.length){
+      const cs=el('div','section');
+      cs.appendChild(el('h2','section-title', (d.period&&d.period.previousLabel?esc(d.period.previousLabel)+' həftəsinə nisbətən dəyişiklik':'Dəyişiklik')));
+      const cg=el('div','changes');
+      d.changes.forEach(c=>{ const isUp=c.dir==='up';
+        cg.appendChild(el('div','chg '+(isUp?'up':'down'),
+          '<div class="arrow">'+(isUp?'↑':'↓')+'</div><div><div class="t">'+esc(c.text)+'</div><div class="v">'+esc(c.value)+'</div></div>'));
+      });
+      cs.appendChild(cg); root.appendChild(cs);
+    }
+
+    // Weekly tables (collection, hotwater, contracts)
+    root.appendChild(weeklyTable(d, 'collection', 'Həftələr üzrə yığılan məbləğ',
+      (w)=>money(w.collection), money(d.totals&&d.totals.collection)+' AZN',
+      ((d.totals&&d.totals.rangeLabel)||'')+' tarixi ərzində ümumi yığılan məbləğ:'));
+    root.appendChild(weeklyTable(d, 'hotWaterStopped', 'Həftələr üzrə isti suyu dayandırılan mənzil sayı',
+      (w)=>fmt(w.hotWaterStopped), fmt(d.totals&&d.totals.hotWaterStopped)+' mənzil',
+      ((d.totals&&d.totals.rangeLabel)||'')+' tarixi ərzində istiliyi dayandırılan ümumi mənzil sayı:'));
+    root.appendChild(weeklyTable(d, 'contracts', 'Həftələr üzrə imzalanmış müqavilə sayı',
+      (w)=>fmt(w.contracts), fmt(d.totals&&d.totals.contracts)+' müqavilə',
+      ((d.totals&&d.totals.rangeLabel)||'')+' tarixi ərzində imzalanmış ümumi müqavilə sayı:'));
+
+    // Comparison
+    if(d.comparison && d.comparison.length){
+      const cs=el('div','section');
+      cs.appendChild(el('h2','section-title','1 və 2-ci həftələrin göstəricilər üzrə müqayisəsi'));
+      const L=d.comparisonLabels||{};
+      let html='<table><thead><tr><th>Göstərici</th><th>'+esc(L.w1||'1-ci həftə')+'</th><th>'+esc(L.w2||'2-ci həftə')+'</th><th>Fərq</th></tr></thead><tbody>';
+      d.comparison.forEach(r=>{ const isMoney=/AZN/.test(r.metric);
+        const f=isMoney?money:fmt;
+        let diff='—'; if(r.diff!=null){ const cls=r.diff>0?'pos':(r.diff<0?'neg':''); const sign=r.diff>0?'+':''; diff='<span class="'+cls+'">'+sign+f(r.diff)+'</span>'; }
+        html+='<tr><td>'+esc(r.metric)+'</td><td class="num">'+f(r.w1)+'</td><td class="num">'+f(r.w2)+'</td><td class="num">'+diff+'</td></tr>';
+      });
+      html+='</tbody></table>';
+      cs.innerHTML='<h2 class="section-title">1 və 2-ci həftələrin göstəricilər üzrə müqayisəsi</h2>'+html;
+      root.appendChild(cs);
+    }
+
+    // Categories
+    if(d.categories && d.categories.length){
+      const cs=el('div','section');
+      let html='<h2 class="section-title">'+esc((d.period&&/(\d)/.test(d.period.label)?'2-ci həftənin':'Həftənin'))+' kateqoriyalar üzrə təsnifatı</h2>';
+      html+='<table><thead><tr><th>Kateqoriya</th><th>Ümumi Mənzil</th><th>Müqaviləsiz</th><th>Dayandırılan</th><th>Bərpa Olunan</th><th>Növbəti Kəsim</th><th>Yığılan (AZN)</th></tr></thead><tbody>';
+      d.categories.forEach(c=>{ html+='<tr><td>'+esc(c.name)+'</td><td class="num">'+fmt(c.total)+'</td><td class="num">'+fmt(c.noContract)+'</td><td class="num">'+fmt(c.stopped)+'</td><td class="num">'+fmt(c.restored)+'</td><td class="num">'+fmt(c.nextCutoff)+'</td><td class="num">'+money(c.collected)+'</td></tr>'; });
+      const t=d.categoryTotal||{};
+      html+='<tr class="total"><td>Cəmi</td><td class="num">'+fmt(t.total)+'</td><td class="num">'+fmt(t.noContract)+'</td><td class="num">'+fmt(t.stopped)+'</td><td class="num">'+fmt(t.restored)+'</td><td class="num">'+fmt(t.nextCutoff)+'</td><td class="num">'+money(t.collected)+'</td></tr>';
+      html+='</tbody></table>';
+      cs.innerHTML=html; root.appendChild(cs);
+    }
+
+    root.appendChild(el('div','foot', (d.preparedDate?('Hazırlanma tarixi: '+esc(d.preparedDate)+' · '):'')+'Built by Emin İsmayilov'));
+  }
+
+  function kpi(lbl,val,unit,cls){ return el('div','kpi '+(cls||''),
+    '<div class="lbl">'+esc(lbl)+'</div><div class="val">'+val+(unit?'<span class="unit">'+esc(unit)+'</span>':'')+'</div>'); }
+
+  function weeklyTable(d, key, title, cell, totalVal, totalLabel){
+    const s=el('div','section');
+    let html='<h2 class="section-title">'+esc(title)+' <span style="color:var(--faint);font-weight:600;font-size:12px">'+esc(d.month||'')+'</span></h2>';
+    html+='<table><tbody>';
+    (d.weeks||[]).forEach(w=>{ html+='<tr><td>'+esc(w.label)+'</td><td class="num">'+(w[key]==null?'<span class="dash">—</span>':cell(w))+'</td></tr>'; });
+    html+='</tbody></table>';
+    html+='<div class="total-line">'+esc(totalLabel)+' '+totalVal+'</div>';
+    s.innerHTML=html; return s;
+  }
+
+  // Live-preview hook: the admin page posts edited data to re-render instantly.
+  window.addEventListener('message', function(e){ if(e.data && e.data.__report){ try{ render(e.data.__report); }catch(err){} } });
+
+  if(window.__REPORT_DATA__){ render(window.__REPORT_DATA__); }
+  else fetch('./report.json?cb='+Date.now())
+    .then(r=>{ if(!r.ok) throw new Error('report.json tapılmadı'); return r.json(); })
+    .then(render)
+    .catch(e=>{ const er=document.getElementById('err'); er.style.display='block'; er.textContent='Məlumat yüklənmədi: '+e.message; });
+})();
+</script>
+</body>
+</html>

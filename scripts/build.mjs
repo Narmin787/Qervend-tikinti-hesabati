@@ -102,6 +102,17 @@ if (fs.existsSync(WEBAPP)) {
   console.log('built builder app -> public/narminreportwebapp/');
 }
 
+// ---- Kommunal report sub-app (hidden route /kommunalhesabat) — independent of the construction reports ----
+const KOM = path.join(ROOT, 'kommunalhesabat');
+if (fs.existsSync(KOM)) {
+  const komOut = path.join(OUT, 'kommunalhesabat');
+  fs.mkdirSync(komOut, { recursive: true });
+  for (const f of fs.readdirSync(KOM)) fs.copyFileSync(path.join(KOM, f), path.join(komOut, f));
+  const komData = path.join(ROOT, 'kommunal', 'report.json');
+  if (fs.existsSync(komData)) fs.copyFileSync(komData, path.join(komOut, 'report.json'));
+  console.log('built kommunal report -> public/kommunalhesabat/');
+}
+
 // Landing page — executive overview with status badges, "most behind" first.
 function esc(s){ return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function status(m){

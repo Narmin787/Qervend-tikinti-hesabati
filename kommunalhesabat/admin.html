@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kommunal hesabat — yükləmə</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%232A6FA8'/%3E%3C/svg%3E">
+<style>
+  :root{--ink:#1F2440;--muted:#6B7280;--line:#E6E9EF;--page:#F4F6F9;--card:#fff;--blue:#2A6FA8;--good:#1FA67E;--risk:#E0483D;--radius:10px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--page);color:var(--ink);font-size:14px}
+  .top{background:linear-gradient(90deg,#1F3F66,#2A6FA8);color:#fff;padding:14px 20px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .top a{color:#fff;font-size:12px;opacity:.85;text-decoration:none}
+  .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px;max-width:1400px;margin:0 auto}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  h2{font-size:14px;margin:0 0 10px}
+  .drop{border:2px dashed #C7D2E0;border-radius:10px;padding:22px;text-align:center;color:var(--muted);cursor:pointer;background:#FBFCFE}
+  .drop.drag{background:#EAF2FB;border-color:var(--blue)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  input,button,textarea{font-family:inherit}
+  input[type=password],input[type=text]{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+  .btn{padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-weight:600;font-size:13px}
+  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .btn.good{background:var(--good);color:#fff;border-color:var(--good)}
+  .btn:disabled{opacity:.5;cursor:default}
+  textarea{width:100%;height:340px;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.45}
+  iframe{width:100%;height:70vh;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .status{font-size:12.5px;margin-top:8px;min-height:18px}
+  .status.ok{color:var(--good)} .status.err{color:var(--risk)}
+  .note{font-size:11.5px;color:var(--muted);margin:6px 0}
+  a.golink{display:inline-block;margin-top:6px;padding:5px 10px;background:#E8F1FB;border:1px solid #BBD6F2;border-radius:7px;color:#1F5FA8;text-decoration:none;font-weight:700;font-size:12px}
+  .jsonbad{outline:2px solid var(--risk)}
+</style>
+</head>
+<body>
+<div class="top"><span>📊 Kommunal hesabat — yükləmə və dərc</span><a href="./" target="_blank">Hesabatı aç ↗</a></div>
+<div class="layout">
+  <div>
+    <div class="panel">
+      <h2>1 · Fayl və parol</h2>
+      <div class="row"><input id="pwd" type="password" placeholder="Parol" style="flex:1;min-width:120px"></div>
+      <div class="drop" id="drop" style="margin-top:10px">📂 PDF və ya Excel faylını bura atın və ya klikləyin
+        <input type="file" id="file" accept=".pdf,.xlsx,.xls" style="display:none"></div>
+      <div class="files note" id="files"></div>
+      <div class="row">
+        <button class="btn primary" id="readBtn" disabled>⚙ Fayldan oxu (AI)</button>
+        <button class="btn" id="loadCur">Cari məlumatı yüklə</button>
+        <span class="status" id="readStatus"></span>
+      </div>
+      <div class="note">Fayl Anthropic API ilə oxunur → rəqəmlər aşağıda çıxır → yoxlayıb redaktə edin → Dərc edin.</div>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h2>2 · Məlumatı yoxla / redaktə et (JSON)</h2>
+      <textarea id="json" spellcheck="false" placeholder="Fayl oxunduqdan sonra məlumat burada görünəcək…"></textarea>
+      <div class="status" id="jsonStatus"></div>
+      <div class="row">
+        <button class="btn good" id="publishBtn">🚀 Dərc et</button>
+        <span class="status" id="pubStatus"></span>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>3 · Canlı önizləmə</h2>
+    <iframe id="preview" src="./index.html"></iframe>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  let picked=null;
+  try{ $('pwd').value=localStorage.getItem('kom-pw')||''; }catch(e){}
+  $('pwd').oninput=function(){ try{ localStorage.setItem('kom-pw',this.value); }catch(e){} };
+
+  const drop=$('drop'), file=$('file');
+  drop.onclick=()=>file.click();
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add('drag')};
+  drop.ondragleave=()=>drop.classList.remove('drag');
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove('drag');pick(e.dataTransfer.files[0])};
+  file.onchange=()=>pick(file.files[0]);
+  function pick(f){ if(!f)return; picked=f; $('files').textContent='• '+f.name+' ('+(f.size/1024|0)+' KB)'; $('readBtn').disabled=false; }
+
+  function status(id,msg,cls){ const e=$(id); e.textContent=msg||''; e.className='status '+(cls||''); }
+
+  async function fileToBase64(f){ const buf=new Uint8Array(await f.arrayBuffer()); let bin='',CH=0x8000;
+    for(let i=0;i<buf.length;i+=CH) bin+=String.fromCharCode.apply(null,buf.subarray(i,i+CH)); return btoa(bin); }
+  async function excelToText(f){ const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+    return wb.SheetNames.map(n=>'### '+n+'\n'+XLSX.utils.sheet_to_csv(wb.Sheets[n])).join('\n\n'); }
+
+  $('readBtn').onclick=async()=>{
+    if(!picked) return; status('readStatus','Oxunur… (bir neçə saniyə)','');
+    try{
+      const lower=picked.name.toLowerCase(); let payload={ password:$('pwd').value };
+      if(lower.endsWith('.pdf')){ payload.kind='pdf'; payload.base64=await fileToBase64(picked); }
+      else { payload.kind='text'; payload.text=await excelToText(picked); }
+      const res=await fetch('/api/kommunal-extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const j=await res.json().catch(()=>({error:'HTTP '+res.status}));
+      if(res.ok && j.ok){ setJson(j.data); status('readStatus','✓ Oxundu — yoxlayın, sonra Dərc edin.','ok'); }
+      else status('readStatus','❌ '+(j.error||res.status),'err');
+    }catch(e){ status('readStatus','❌ '+e.message,'err'); }
+  };
+
+  $('loadCur').onclick=async()=>{ try{ const d=await fetch('./report.json?cb='+Date.now()).then(r=>r.json()); setJson(d); status('readStatus','Cari məlumat yükləndi.','ok'); }catch(e){ status('readStatus','❌ '+e.message,'err'); } };
+
+  function setJson(obj){ $('json').value=JSON.stringify(obj,null,2); syncPreview(); }
+  function currentData(){ try{ const d=JSON.parse($('json').value); $('json').classList.remove('jsonbad'); status('jsonStatus','',''); return d; }
+    catch(e){ $('json').classList.add('jsonbad'); status('jsonStatus','JSON xətası: '+e.message,'err'); return null; } }
+  let t=null;
+  function syncPreview(){ const d=currentData(); if(d){ try{ $('preview').contentWindow.postMessage({__report:d},'*'); }catch(e){} } }
+  $('json').oninput=()=>{ clearTimeout(t); t=setTimeout(syncPreview,300); };
+  $('preview').onload=syncPreview;
+
+  $('publishBtn').onclick=async()=>{
+    const d=currentData(); if(!d){ status('pubStatus','Əvvəlcə JSON xətasını düzəldin.','err'); return; }
+    if(!$('pwd').value){ status('pubStatus','Parol daxil edin.','err'); return; }
+    if(!confirm('Bu məlumat canlı hesabata dərc edilsin?')) return;
+    status('pubStatus','Dərc edilir…','');
+    try{
+      const res=await fetch('/api/kommunal-publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('pwd').value,data:d})});
+      const j=await res.json().catch(()=>({error:'HTTP '+res.status}));
+      if(res.ok && j.ok){ $('pubStatus').className='status ok'; $('pubStatus').innerHTML='✅ '+j.message+' <a class="golink" href="'+j.url+'" target="_blank">Hesabatı aç ↗</a>'; }
+      else status('pubStatus','❌ '+(j.error||res.status),'err');
+    }catch(e){ status('pubStatus','❌ '+e.message,'err'); }
+  };
+})();
+</script>
+</body>
+</html>
