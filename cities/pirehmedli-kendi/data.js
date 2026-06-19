@@ -1,5 +1,5 @@
 /* data.js — Pirəhmədli kəndi
-   Avtomatik yaradılıb (2026-06-18). Əl ilə redaktə etmək əvəzinə Excel şablonundan istifadə edin. */
+   Hesabat Generatoru ilə yaradılıb (2026-06-18). */
 window.DASH = window.DASH || {};
 window.DASH.meta = {
   "projectTitle": "Pirəhmədli kəndi üzrə tikinti gedişatı hesabatı",
@@ -24,6 +24,11 @@ window.DASH.meta = {
       "label": "Mənbə sənədi (PDF)",
       "file": "source.pdf"
     }
+  ],
+  "hiddenSections": [],
+  "hiddenCharts": [
+    "ch-otherGap",
+    "ch-velCompliance"
   ]
 };
 window.DASH.kpi = [
@@ -272,34 +277,72 @@ window.DASH.infrastructure = {
   "asOf": "",
   "overallFakt": 20.78,
   "overallPlan": 21.74,
-  "items": [
+  "items": [],
+  "weeklyNote": "",
+  "lots": [
     {
-      "name": "Elektrik / zəif axın",
-      "fakt": 36.21,
-      "plan": 73.98
+      "id": "inf1",
+      "name": "Sahə 1 (60 ev)",
+      "items": [
+        {
+          "name": "Elektrik / zəif axın",
+          "plan": 73.98,
+          "fakt": 41.38
+        },
+        {
+          "name": "Su kanalizasiyası ",
+          "plan": 5.56,
+          "fakt": 0
+        },
+        {
+          "name": "İsitmə ventilyasiya",
+          "plan": 29.17,
+          "fakt": 34.95
+        },
+        {
+          "name": "Qaz təchizatı ",
+          "plan": 0,
+          "fakt": 0
+        },
+        {
+          "name": "Kommunikasiya birləşmələri ",
+          "plan": 0,
+          "fakt": 0
+        }
+      ]
     },
     {
-      "name": "Su kanalizasiya",
-      "fakt": 33.34,
-      "plan": 5.56
-    },
-    {
-      "name": "İsitmə ventilyasiya",
-      "fakt": 34.35,
-      "plan": 29.17
-    },
-    {
-      "name": "Qaz təchizatı",
-      "fakt": 0,
-      "plan": 0
-    },
-    {
-      "name": "Kommunikasiya birləşmələri",
-      "fakt": 0,
-      "plan": 0
+      "id": "inf2",
+      "name": "Sahə 2 (86 ev)",
+      "items": [
+        {
+          "name": "Elektrik / zəif axın",
+          "plan": 73.98,
+          "fakt": 31.03
+        },
+        {
+          "name": "Su kanalizasiyası",
+          "plan": 5.56,
+          "fakt": 66.67
+        },
+        {
+          "name": "İsitmə ventilyasiya",
+          "plan": 29.17,
+          "fakt": 33.75
+        },
+        {
+          "name": "Qaz təchizatı ",
+          "plan": 0,
+          "fakt": 0
+        },
+        {
+          "name": "Kommunikasiya birləşmələri ",
+          "plan": 0,
+          "fakt": 0
+        }
+      ]
     }
-  ],
-  "weeklyNote": "Sahədaxili kommunikasiya işləri hər paket üzrə ayrıca göstərilir (Primavera qrafikindən)."
+  ]
 };
 window.DASH.workforce = {
   "available": false,
@@ -405,4 +448,10 @@ window.DASH.velocity = {
       ]
     }
   ]
+};
+window.DASH.insightsPinned = [];
+window.DASH.labelOverrides = {
+  "sections": {},
+  "charts": {},
+  "footer": {}
 };
