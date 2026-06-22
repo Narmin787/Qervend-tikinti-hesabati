@@ -1,9 +1,8 @@
 // Vercel serverless function: publish the kommunal report by committing
 // kommunal/report.json to GitHub in ONE atomic commit — Vercel's Git integration
-// then redeploys. Password-gated. Does not touch any other file.
+// then redeploys. No password (one-click). Does not touch any other file.
 //
-// Env: GITHUB_TOKEN, KOMMUNAL_PASSWORD (or DEPLOY_PASSWORD),
-//      GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH (optional)
+// Env: GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH (optional)
 
 const OWNER  = process.env.GITHUB_OWNER  || 'Narmin787';
 const REPO   = process.env.GITHUB_REPO   || 'Qervend-tikinti-hesabati';
@@ -25,14 +24,12 @@ async function gh(path, opts = {}) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
-  if (!process.env.GITHUB_TOKEN) return res.status(500).json({ error: 'GITHUB_TOKEN təyin edilməyib.' });
-  const pass = process.env.KOMMUNAL_PASSWORD || process.env.DEPLOY_PASSWORD;
+  if (!process.env.GITHUB_TOKEN) return res.status(500).json({ error: 'GITHUB_TOKEN is not set.' });
 
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
-  const { password, data } = body || {};
-  if (pass && password !== pass) return res.status(401).json({ error: 'Yanlış parol.' });
-  if (!data || typeof data !== 'object') return res.status(400).json({ error: 'Məlumat tələb olunur.' });
+  const { data } = body || {};
+  if (!data || typeof data !== 'object') return res.status(400).json({ error: 'Report data is required.' });
 
   const content = JSON.stringify(data, null, 2) + '\n';
   const b64 = Buffer.from(content, 'utf8').toString('base64');
@@ -63,7 +60,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       url: 'https://qervend-tikinti-hesabati.vercel.app/kommunalhesabat/',
-      message: 'Dərc edildi. Vercel 1-3 dəqiqəyə yeni versiyanı yayımlayacaq.',
+      message: 'Published. Vercel will go live with the new version in 1–3 minutes.',
     });
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e) });

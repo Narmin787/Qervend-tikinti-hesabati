@@ -1,9 +1,8 @@
 // Vercel serverless function: extract the kommunal weekly-report numbers from an
 // uploaded PDF or Excel (sent as text) using the Anthropic API, returning JSON in
-// the report's exact data shape. Password-gated.
+// the report's exact data shape. No password (one-click).
 //
-// Env: ANTHROPIC_API_KEY, KOMMUNAL_PASSWORD (or DEPLOY_PASSWORD),
-//      ANTHROPIC_MODEL (optional, default claude-sonnet-4-6)
+// Env: ANTHROPIC_API_KEY, ANTHROPIC_MODEL (optional, default claude-sonnet-4-6)
 
 const SCHEMA = `{
   "title": string,                 // e.g. "Füzulidə kommunal yığımlara dair"
@@ -37,14 +36,12 @@ Rules:
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   const key = process.env.ANTHROPIC_API_KEY;
-  const pass = process.env.KOMMUNAL_PASSWORD || process.env.DEPLOY_PASSWORD;
-  if (!key) return res.status(500).json({ error: 'ANTHROPIC_API_KEY təyin edilməyib.' });
+  if (!key) return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not set.' });
 
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
-  const { password, kind, base64, text } = body || {};
-  if (pass && password !== pass) return res.status(401).json({ error: 'Yanlış parol.' });
-  if (!base64 && !text) return res.status(400).json({ error: 'Fayl tələb olunur.' });
+  const { kind, base64, text } = body || {};
+  if (!base64 && !text) return res.status(400).json({ error: 'A file is required.' });
 
   const content = [];
   if (kind === 'pdf' && base64) {
@@ -72,7 +69,7 @@ export default async function handler(req, res) {
     const j = await r.json();
     let out = (j.content || []).filter(c => c.type === 'text').map(c => c.text).join('');
     const m = out.match(/\{[\s\S]*\}/);          // strip any stray prose/markdown fences
-    if (!m) return res.status(502).json({ error: 'Modeldən JSON alınmadı.' });
+    if (!m) return res.status(502).json({ error: 'The model did not return JSON.' });
     let data;
     try { data = JSON.parse(m[0]); } catch (e) { return res.status(502).json({ error: 'JSON parse: ' + e.message }); }
     return res.status(200).json({ ok: true, data });
