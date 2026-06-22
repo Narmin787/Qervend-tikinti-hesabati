@@ -36,23 +36,29 @@
   .chg .t{font-size:12.5px;color:var(--muted)}
   .chg .v{font-size:16px;font-weight:800;margin-top:2px}
   table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
   th:first-child,td:first-child{text-align:left}
+  .tscroll td:first-child{position:sticky;left:0;background:var(--card)}
+  .tscroll th:first-child{position:sticky;left:0;background:#F1F4F9}
+  .tscroll tr.total td:first-child{background:#F7F9FC}
   thead th{background:#F1F4F9;color:var(--muted);font-weight:700;font-size:12px;border-bottom:2px solid var(--line)}
   tbody tr:last-child td{border-bottom:none}
   tr.total td{font-weight:800;background:#F7F9FC;border-top:2px solid var(--line)}
-  .num{font-variant-numeric:tabular-nums}
+  .num{font-variant-numeric:tabular-nums;white-space:nowrap}
   .pos{color:var(--good);font-weight:700} .neg{color:var(--risk);font-weight:700} .dash{color:var(--faint)}
   .total-line{margin-top:12px;font-size:14px;font-weight:700;background:#EAF2FB;border:1px solid #CFE0F2;
     border-radius:10px;padding:10px 14px;color:var(--blueDeep)}
   .foot{color:var(--faint);font-size:11px;text-align:center;margin-top:24px}
   .grid-tables{display:grid;grid-template-columns:1fr;gap:18px}
-  @media (max-width:760px){ .kpis{grid-template-columns:repeat(2,1fr)} .changes{grid-template-columns:1fr} }
+  @media (max-width:760px){ .kpis{grid-template-columns:repeat(2,1fr)} .changes{grid-template-columns:1fr} table{font-size:12.5px} th,td{padding:8px 9px} .report-head h1{font-size:19px} .wrap{padding:18px 12px 48px} }
   @media print{
     body{background:#fff;font-size:12px}
     .wrap{max-width:none;padding:0}
     .section,.report-head{box-shadow:none;break-inside:avoid}
     .section{border-color:#ddd}
+    .tscroll{overflow:visible}
+    .tscroll td:first-child,.tscroll th:first-child{position:static}
   }
   #err{display:none;background:#FDECEA;color:#a4271c;padding:14px;border-radius:10px;margin:20px 0}
 </style>
@@ -133,7 +139,7 @@
         html+='<tr><td>'+esc(r.metric)+'</td><td class="num">'+f(r.w1)+'</td><td class="num">'+f(r.w2)+'</td><td class="num">'+diff+'</td></tr>';
       });
       html+='</tbody></table>';
-      cs.innerHTML='<h2 class="section-title">1 və 2-ci həftələrin göstəricilər üzrə müqayisəsi</h2>'+html;
+      cs.innerHTML='<h2 class="section-title">1 və 2-ci həftələrin göstəricilər üzrə müqayisəsi</h2><div class="tscroll">'+html+'</div>';
       root.appendChild(cs);
     }
 
@@ -141,11 +147,11 @@
     if(d.categories && d.categories.length){
       const cs=el('div','section');
       let html='<h2 class="section-title">'+esc((d.period&&/(\d)/.test(d.period.label)?'2-ci həftənin':'Həftənin'))+' kateqoriyalar üzrə təsnifatı</h2>';
-      html+='<table><thead><tr><th>Kateqoriya</th><th>Ümumi Mənzil</th><th>Müqaviləsiz</th><th>Dayandırılan</th><th>Bərpa Olunan</th><th>Növbəti Kəsim</th><th>Yığılan (AZN)</th></tr></thead><tbody>';
+      html+='<div class="tscroll"><table><thead><tr><th>Kateqoriya</th><th>Ümumi Mənzil</th><th>Müqaviləsiz</th><th>Dayandırılan</th><th>Bərpa Olunan</th><th>Növbəti Kəsim</th><th>Yığılan (AZN)</th></tr></thead><tbody>';
       d.categories.forEach(c=>{ html+='<tr><td>'+esc(c.name)+'</td><td class="num">'+fmt(c.total)+'</td><td class="num">'+fmt(c.noContract)+'</td><td class="num">'+fmt(c.stopped)+'</td><td class="num">'+fmt(c.restored)+'</td><td class="num">'+fmt(c.nextCutoff)+'</td><td class="num">'+money(c.collected)+'</td></tr>'; });
       const t=d.categoryTotal||{};
       html+='<tr class="total"><td>Cəmi</td><td class="num">'+fmt(t.total)+'</td><td class="num">'+fmt(t.noContract)+'</td><td class="num">'+fmt(t.stopped)+'</td><td class="num">'+fmt(t.restored)+'</td><td class="num">'+fmt(t.nextCutoff)+'</td><td class="num">'+money(t.collected)+'</td></tr>';
-      html+='</tbody></table>';
+      html+='</tbody></table></div>';
       cs.innerHTML=html; root.appendChild(cs);
     }
 
@@ -158,9 +164,9 @@
   function weeklyTable(d, key, title, cell, totalVal, totalLabel){
     const s=el('div','section');
     let html='<h2 class="section-title">'+esc(title)+' <span style="color:var(--faint);font-weight:600;font-size:12px">'+esc(d.month||'')+'</span></h2>';
-    html+='<table><tbody>';
+    html+='<div class="tscroll"><table><tbody>';
     (d.weeks||[]).forEach(w=>{ html+='<tr><td>'+esc(w.label)+'</td><td class="num">'+(w[key]==null?'<span class="dash">—</span>':cell(w))+'</td></tr>'; });
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
     html+='<div class="total-line">'+esc(totalLabel)+' '+totalVal+'</div>';
     s.innerHTML=html; return s;
   }
