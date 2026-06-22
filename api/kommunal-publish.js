@@ -5,7 +5,7 @@
 // Env: GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH (optional)
 
 const OWNER  = process.env.GITHUB_OWNER  || 'Narmin787';
-const REPO   = process.env.GITHUB_REPO   || 'Qervend-tikinti-hesabati';
+const REPO   = process.env.GITHUB_REPO   || 'hesabat';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
 const PATH   = 'kommunal/report.json';
 
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      url: 'https://qervend-tikinti-hesabati.vercel.app/k/',
+      url: 'https://hesabat.vercel.app/k/',
       message: 'Published. Vercel will go live with the new version in 1–3 minutes.',
     });
   } catch (e) {
