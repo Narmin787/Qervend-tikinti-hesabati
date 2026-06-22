@@ -8,7 +8,7 @@
 //   (optional) GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH
 //   (optional) NOTIFY_WEBHOOK - URL that receives a POST {text} after a deploy
 const OWNER  = process.env.GITHUB_OWNER  || 'Narmin787';
-const REPO   = process.env.GITHUB_REPO   || 'Qervend-tikinti-hesabati';
+const REPO   = process.env.GITHUB_REPO   || 'hesabat';
 const MAIN   = process.env.GITHUB_BRANCH || 'main';
 
 const slugify = s => String(s || '').toLowerCase()
@@ -84,7 +84,7 @@ async function commitFiles(branch, message, files) {
 // return its public URL. No-op (returns null) unless VERCEL_TOKEN is configured.
 async function vercelPreviewUrl(branch) {
   const tok = process.env.VERCEL_TOKEN;
-  const proj = process.env.VERCEL_PROJECT_ID || 'qervend-tikinti-hesabati';
+  const proj = process.env.VERCEL_PROJECT_ID || 'hesabat';
   if (!tok) return null;
   try {
     const team = process.env.VERCEL_TEAM_ID ? `&teamId=${process.env.VERCEL_TEAM_ID}` : '';
@@ -152,7 +152,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const url = `https://qervend-tikinti-hesabati.vercel.app/${slug}/`;
+    const url = `https://hesabat.vercel.app/${slug}/`;
     await notify(`✅ Report deployed: ${cityName} → ${url}`);
     return res.status(200).json({
       ok: true, slug, url,
