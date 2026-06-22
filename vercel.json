@@ -5,6 +5,13 @@
   "outputDirectory": "public",
   "framework": null,
   "github": { "enabled": true, "silent": false },
+  "redirects": [
+    { "source": "/k", "destination": "/k/", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/k/", "destination": "/kommunalhesabat/index.html" },
+    { "source": "/k/:path*", "destination": "/kommunalhesabat/:path*" }
+  ],
   "headers": [
     {
       "source": "/narminreportwebapp/(.*)",

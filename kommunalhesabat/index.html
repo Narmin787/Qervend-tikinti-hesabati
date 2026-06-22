@@ -149,7 +149,7 @@
       cs.innerHTML=html; root.appendChild(cs);
     }
 
-    root.appendChild(el('div','foot', (d.preparedDate?('Hazırlanma tarixi: '+esc(d.preparedDate)+' · '):'')+'Built by Emin İsmayilov'));
+    if(d.preparedDate){ root.appendChild(el('div','foot', 'Hazırlanma tarixi: '+esc(d.preparedDate))); }
   }
 
   function kpi(lbl,val,unit,cls){ return el('div','kpi '+(cls||''),

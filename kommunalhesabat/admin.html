@@ -1,68 +1,127 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kommunal hesabat — yükləmə</title>
+<title>Communal Report — Admin</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%232A6FA8'/%3E%3C/svg%3E">
 <style>
-  :root{--ink:#1F2440;--muted:#6B7280;--line:#E6E9EF;--page:#F4F6F9;--card:#fff;--blue:#2A6FA8;--good:#1FA67E;--risk:#E0483D;--radius:10px}
+  :root{
+    --ink:#1F2440;--muted:#6B7280;--faint:#9AA1AB;--line:#E6E9EF;--page:#F4F6F9;--card:#fff;
+    --blue:#2A6FA8;--blueDeep:#1F3F66;--good:#1FA67E;--risk:#E0483D;--warn:#F2A93B;
+    --radius:12px;--shadow:0 1px 3px rgba(16,24,40,.06);
+  }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--page);color:var(--ink);font-size:14px}
-  .top{background:linear-gradient(90deg,#1F3F66,#2A6FA8);color:#fff;padding:14px 20px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-  .top a{color:#fff;font-size:12px;opacity:.85;text-decoration:none}
-  .layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px;max-width:1400px;margin:0 auto}
-  @media(max-width:900px){.layout{grid-template-columns:1fr}}
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
-  h2{font-size:14px;margin:0 0 10px}
-  .drop{border:2px dashed #C7D2E0;border-radius:10px;padding:22px;text-align:center;color:var(--muted);cursor:pointer;background:#FBFCFE}
-  .drop.drag{background:#EAF2FB;border-color:var(--blue)}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
-  input,button,textarea{font-family:inherit}
-  input[type=password],input[type=text]{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px}
-  .btn{padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-weight:600;font-size:13px}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--page);color:var(--ink);font-size:14px;line-height:1.5}
+  .top{background:linear-gradient(90deg,var(--blueDeep),var(--blue));color:#fff;padding:14px 20px;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .top .brand{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px}
+  .top a{color:#fff;font-size:13px;text-decoration:none;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-weight:600}
+  .top a:hover{background:rgba(255,255,255,.28)}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;padding:18px;max-width:1400px;margin:0 auto}
+  @media(max-width:920px){.layout{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .panel+.panel{margin-top:16px}
+  .step-head{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+  .step-num{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;
+    font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .step-head h2{font-size:15px;margin:0;font-weight:800}
+  .drop{border:2px dashed #C7D2E0;border-radius:12px;padding:30px 18px;text-align:center;color:var(--muted);
+    cursor:pointer;background:#FBFCFE;transition:.15s}
+  .drop:hover{border-color:var(--blue);background:#F4F8FD}
+  .drop.drag{background:#EAF2FB;border-color:var(--blue);color:var(--blue)}
+  .drop .big{font-size:30px;line-height:1;margin-bottom:8px}
+  .drop .hint{font-size:12px;color:var(--faint);margin-top:6px}
+  .filechip{display:none;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;background:#EAF2FB;
+    border:1px solid #CFE0F2;border-radius:10px;font-size:13px}
+  .filechip.show{display:flex}
+  .filechip .nm{font-weight:700;color:var(--blueDeep);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .filechip .sz{color:var(--muted);font-size:12px;white-space:nowrap}
+  .filechip .x{margin-left:auto;cursor:pointer;border:none;background:none;font-size:18px;color:var(--muted);line-height:1}
+  .filechip .x:hover{color:var(--risk)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .btn{padding:9px 16px;border:1px solid var(--line);border-radius:9px;background:#fff;cursor:pointer;
+    font-weight:600;font-size:13px;font-family:inherit;display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{background:#F7F9FC}
   .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-  .btn.good{background:var(--good);color:#fff;border-color:var(--good)}
-  .btn:disabled{opacity:.5;cursor:default}
-  textarea{width:100%;height:340px;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.45}
-  iframe{width:100%;height:70vh;border:1px solid var(--line);border-radius:8px;background:#fff}
-  .status{font-size:12.5px;margin-top:8px;min-height:18px}
-  .status.ok{color:var(--good)} .status.err{color:var(--risk)}
-  .note{font-size:11.5px;color:var(--muted);margin:6px 0}
-  a.golink{display:inline-block;margin-top:6px;padding:5px 10px;background:#E8F1FB;border:1px solid #BBD6F2;border-radius:7px;color:#1F5FA8;text-decoration:none;font-weight:700;font-size:12px}
-  .jsonbad{outline:2px solid var(--risk)}
+  .btn.primary:hover{background:#24608f}
+  .btn.deploy{background:var(--good);color:#fff;border-color:var(--good);font-size:15px;padding:13px 22px;width:100%;justify-content:center}
+  .btn.deploy:hover{background:#198a68}
+  .btn:disabled{opacity:.45;cursor:default;background:#fff;color:var(--ink)}
+  .btn.primary:disabled,.btn.deploy:disabled{color:#fff}
+  .ghost{background:none;border:none;color:var(--blue);font-weight:600;font-size:13px;cursor:pointer;padding:0;font-family:inherit}
+  .ghost:hover{text-decoration:underline}
+  .note{font-size:12px;color:var(--muted);margin:10px 0 0}
+  .editor-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .valid{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+  .valid.ok{background:#E6F6F0;color:var(--good)} .valid.bad{background:#FDECEA;color:var(--risk)}
+  textarea{width:100%;height:300px;border:1px solid var(--line);border-radius:9px;padding:12px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;resize:vertical}
+  textarea.bad{outline:2px solid var(--risk);outline-offset:-1px}
+  iframe{width:100%;height:74vh;min-height:480px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .status{font-size:13px;margin-top:10px;min-height:18px;display:flex;align-items:center;gap:7px}
+  .status.ok{color:var(--good)} .status.err{color:var(--risk)} .status.busy{color:var(--blue)}
+  .spinner{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;
+    display:inline-block;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .golink{display:inline-flex;align-items:center;gap:6px;margin-left:4px;padding:5px 12px;background:#E8F1FB;
+    border:1px solid #BBD6F2;border-radius:8px;color:#1F5FA8;text-decoration:none;font-weight:700;font-size:12px}
+  .preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .preview-head .reload{font-size:12px}
 </style>
 </head>
 <body>
-<div class="top"><span>📊 Kommunal hesabat — yükləmə və dərc</span><a href="./" target="_blank">Hesabatı aç ↗</a></div>
+<div class="top">
+  <span class="brand">📊 Communal Report — Admin</span>
+  <a href="./" target="_blank" rel="noopener">Open live report ↗</a>
+</div>
+
 <div class="layout">
   <div>
+    <!-- STEP 1 -->
     <div class="panel">
-      <h2>1 · Fayl və parol</h2>
-      <div class="row"><input id="pwd" type="password" placeholder="Parol" style="flex:1;min-width:120px"></div>
-      <div class="drop" id="drop" style="margin-top:10px">📂 PDF və ya Excel faylını bura atın və ya klikləyin
-        <input type="file" id="file" accept=".pdf,.xlsx,.xls" style="display:none"></div>
-      <div class="files note" id="files"></div>
-      <div class="row">
-        <button class="btn primary" id="readBtn" disabled>⚙ Fayldan oxu (AI)</button>
-        <button class="btn" id="loadCur">Cari məlumatı yüklə</button>
-        <span class="status" id="readStatus"></span>
+      <div class="step-head"><span class="step-num">1</span><h2>Upload a file</h2></div>
+      <div class="drop" id="drop">
+        <div class="big">📂</div>
+        <div><b>Drop a PDF or Excel file here</b>, or click to browse</div>
+        <div class="hint">Numbers are read automatically — no buttons, no password.</div>
+        <input type="file" id="file" accept=".pdf,.xlsx,.xls" hidden>
       </div>
-      <div class="note">Fayl Anthropic API ilə oxunur → rəqəmlər aşağıda çıxır → yoxlayıb redaktə edin → Dərc edin.</div>
+      <div class="filechip" id="filechip">
+        <span class="nm" id="fileNm"></span><span class="sz" id="fileSz"></span>
+        <button class="x" id="fileX" title="Remove" aria-label="Remove file">×</button>
+      </div>
+      <div class="status" id="readStatus"></div>
+      <div class="row">
+        <button class="ghost" id="loadCur">↺ Load the current live report instead</button>
+      </div>
     </div>
-    <div class="panel" style="margin-top:14px">
-      <h2>2 · Məlumatı yoxla / redaktə et (JSON)</h2>
-      <textarea id="json" spellcheck="false" placeholder="Fayl oxunduqdan sonra məlumat burada görünəcək…"></textarea>
-      <div class="status" id="jsonStatus"></div>
-      <div class="row">
-        <button class="btn good" id="publishBtn">🚀 Dərc et</button>
-        <span class="status" id="pubStatus"></span>
+
+    <!-- STEP 2 -->
+    <div class="panel">
+      <div class="step-head"><span class="step-num">2</span><h2>Review &amp; publish</h2></div>
+      <div class="editor-head">
+        <span class="note" style="margin:0">Check the numbers below, edit if needed.</span>
+        <span class="valid" id="valid" style="display:none"></span>
       </div>
+      <textarea id="json" spellcheck="false" placeholder="Upload a file or load the current report — the data will appear here…"></textarea>
+      <div class="row" style="margin-top:14px">
+        <button class="btn deploy" id="publishBtn" disabled>🚀 Publish to live report</button>
+      </div>
+      <div class="status" id="pubStatus"></div>
+      <div class="note">One click publishes to the live report. It goes live in 1–3 minutes.</div>
     </div>
   </div>
+
+  <!-- PREVIEW -->
   <div class="panel">
-    <h2>3 · Canlı önizləmə</h2>
-    <iframe id="preview" src="./index.html"></iframe>
+    <div class="preview-head">
+      <div class="step-head" style="margin:0"><span class="step-num">3</span><h2>Live preview</h2></div>
+      <button class="ghost reload" id="reloadPrev">⟳ Reload</button>
+    </div>
+    <iframe id="preview" src="./index.html" title="Report preview"></iframe>
   </div>
 </div>
 
@@ -70,59 +129,91 @@
 <script>
 (function(){
   const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   let picked=null;
-  try{ $('pwd').value=localStorage.getItem('kom-pw')||''; }catch(e){}
-  $('pwd').oninput=function(){ try{ localStorage.setItem('kom-pw',this.value); }catch(e){} };
 
+  /* ---------- status helpers ---------- */
+  function status(id,msg,cls,busy){
+    const e=$(id); e.className='status '+(cls||'');
+    e.innerHTML=(busy?'<span class="spinner"></span>':'')+(msg||'');
+  }
+
+  /* ---------- file pick / drop ---------- */
   const drop=$('drop'), file=$('file');
   drop.onclick=()=>file.click();
   drop.ondragover=e=>{e.preventDefault();drop.classList.add('drag')};
   drop.ondragleave=()=>drop.classList.remove('drag');
   drop.ondrop=e=>{e.preventDefault();drop.classList.remove('drag');pick(e.dataTransfer.files[0])};
   file.onchange=()=>pick(file.files[0]);
-  function pick(f){ if(!f)return; picked=f; $('files').textContent='• '+f.name+' ('+(f.size/1024|0)+' KB)'; $('readBtn').disabled=false; }
+  $('fileX').onclick=()=>{ picked=null; file.value=''; $('filechip').classList.remove('show'); status('readStatus',''); };
 
-  function status(id,msg,cls){ const e=$(id); e.textContent=msg||''; e.className='status '+(cls||''); }
+  function fmtSize(b){ return b<1024?b+' B':(b<1048576?(b/1024).toFixed(0)+' KB':(b/1048576).toFixed(1)+' MB'); }
+  function pick(f){
+    if(!f) return;
+    picked=f;
+    $('fileNm').textContent=f.name; $('fileSz').textContent=fmtSize(f.size);
+    $('filechip').classList.add('show');
+    readFile();            // auto-read — no button needed
+  }
 
+  /* ---------- read file via AI ---------- */
   async function fileToBase64(f){ const buf=new Uint8Array(await f.arrayBuffer()); let bin='',CH=0x8000;
     for(let i=0;i<buf.length;i+=CH) bin+=String.fromCharCode.apply(null,buf.subarray(i,i+CH)); return btoa(bin); }
   async function excelToText(f){ const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
     return wb.SheetNames.map(n=>'### '+n+'\n'+XLSX.utils.sheet_to_csv(wb.Sheets[n])).join('\n\n'); }
 
-  $('readBtn').onclick=async()=>{
-    if(!picked) return; status('readStatus','Oxunur… (bir neçə saniyə)','');
+  async function readFile(){
+    if(!picked) return;
+    status('readStatus','Reading the file…','busy',true);
     try{
-      const lower=picked.name.toLowerCase(); let payload={ password:$('pwd').value };
+      const lower=picked.name.toLowerCase(); let payload={};
       if(lower.endsWith('.pdf')){ payload.kind='pdf'; payload.base64=await fileToBase64(picked); }
       else { payload.kind='text'; payload.text=await excelToText(picked); }
       const res=await fetch('/api/kommunal-extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       const j=await res.json().catch(()=>({error:'HTTP '+res.status}));
-      if(res.ok && j.ok){ setJson(j.data); status('readStatus','✓ Oxundu — yoxlayın, sonra Dərc edin.','ok'); }
-      else status('readStatus','❌ '+(j.error||res.status),'err');
-    }catch(e){ status('readStatus','❌ '+e.message,'err'); }
+      if(res.ok && j.ok){ setJson(j.data); status('readStatus','✓ Read successfully — review below, then publish.','ok'); }
+      else status('readStatus','❌ '+esc(j.error||res.status),'err');
+    }catch(e){ status('readStatus','❌ '+esc(e.message),'err'); }
+  }
+
+  /* ---------- load current report ---------- */
+  $('loadCur').onclick=async()=>{
+    status('readStatus','Loading the current report…','busy',true);
+    try{ const d=await fetch('./report.json?cb='+Date.now()).then(r=>r.json());
+      setJson(d); status('readStatus','✓ Current report loaded.','ok'); }
+    catch(e){ status('readStatus','❌ '+esc(e.message),'err'); }
   };
 
-  $('loadCur').onclick=async()=>{ try{ const d=await fetch('./report.json?cb='+Date.now()).then(r=>r.json()); setJson(d); status('readStatus','Cari məlumat yükləndi.','ok'); }catch(e){ status('readStatus','❌ '+e.message,'err'); } };
-
-  function setJson(obj){ $('json').value=JSON.stringify(obj,null,2); syncPreview(); }
-  function currentData(){ try{ const d=JSON.parse($('json').value); $('json').classList.remove('jsonbad'); status('jsonStatus','',''); return d; }
-    catch(e){ $('json').classList.add('jsonbad'); status('jsonStatus','JSON xətası: '+e.message,'err'); return null; } }
+  /* ---------- JSON editor + validation + preview ---------- */
+  function setJson(obj){ $('json').value=JSON.stringify(obj,null,2); validate(); syncPreview(); }
+  function validate(){
+    const v=$('valid'); try{ JSON.parse($('json').value);
+      $('json').classList.remove('bad'); v.style.display=''; v.className='valid ok'; v.textContent='✓ Valid JSON';
+      $('publishBtn').disabled=false; return true;
+    }catch(e){ $('json').classList.add('bad'); v.style.display=''; v.className='valid bad'; v.textContent='✗ Invalid JSON';
+      $('publishBtn').disabled=true; return false; }
+  }
+  function currentData(){ try{ return JSON.parse($('json').value); }catch(e){ return null; } }
   let t=null;
   function syncPreview(){ const d=currentData(); if(d){ try{ $('preview').contentWindow.postMessage({__report:d},'*'); }catch(e){} } }
-  $('json').oninput=()=>{ clearTimeout(t); t=setTimeout(syncPreview,300); };
+  $('json').oninput=()=>{ validate(); clearTimeout(t); t=setTimeout(syncPreview,300); };
   $('preview').onload=syncPreview;
+  $('reloadPrev').onclick=()=>{ $('preview').src='./index.html?cb='+Date.now(); };
 
+  /* ---------- one-click publish ---------- */
   $('publishBtn').onclick=async()=>{
-    const d=currentData(); if(!d){ status('pubStatus','Əvvəlcə JSON xətasını düzəldin.','err'); return; }
-    if(!$('pwd').value){ status('pubStatus','Parol daxil edin.','err'); return; }
-    if(!confirm('Bu məlumat canlı hesabata dərc edilsin?')) return;
-    status('pubStatus','Dərc edilir…','');
+    if(!validate()){ status('pubStatus','Please fix the JSON first.','err'); return; }
+    const d=currentData();
+    const btn=$('publishBtn'); btn.disabled=true;
+    status('pubStatus','Publishing…','busy',true);
     try{
-      const res=await fetch('/api/kommunal-publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('pwd').value,data:d})});
+      const res=await fetch('/api/kommunal-publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:d})});
       const j=await res.json().catch(()=>({error:'HTTP '+res.status}));
-      if(res.ok && j.ok){ $('pubStatus').className='status ok'; $('pubStatus').innerHTML='✅ '+j.message+' <a class="golink" href="'+j.url+'" target="_blank">Hesabatı aç ↗</a>'; }
-      else status('pubStatus','❌ '+(j.error||res.status),'err');
-    }catch(e){ status('pubStatus','❌ '+e.message,'err'); }
+      if(res.ok && j.ok){ $('pubStatus').className='status ok';
+        $('pubStatus').innerHTML='✅ '+esc(j.message)+' <a class="golink" href="'+esc(j.url)+'" target="_blank" rel="noopener">Open report ↗</a>'; }
+      else status('pubStatus','❌ '+esc(j.error||res.status),'err');
+    }catch(e){ status('pubStatus','❌ '+esc(e.message),'err'); }
+    btn.disabled=false;
   };
 })();
 </script>
