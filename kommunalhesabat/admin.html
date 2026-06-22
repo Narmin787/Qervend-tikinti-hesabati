@@ -70,8 +70,6 @@
     border:1px solid #BBD6F2;border-radius:8px;color:#1F5FA8;text-decoration:none;font-weight:700;font-size:12px}
   .preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
   .preview-head .reload{font-size:12px}
-  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-    color:var(--faint);font-size:13px;padding:40px 16px}
 </style>
 </head>
 <body>
@@ -131,6 +129,7 @@
 <script>
 (function(){
   const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   let picked=null;
 
   /* ---------- status helpers ---------- */
@@ -173,8 +172,8 @@
       const res=await fetch('/api/kommunal-extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       const j=await res.json().catch(()=>({error:'HTTP '+res.status}));
       if(res.ok && j.ok){ setJson(j.data); status('readStatus','✓ Read successfully — review below, then publish.','ok'); }
-      else status('readStatus','❌ '+(j.error||res.status),'err');
-    }catch(e){ status('readStatus','❌ '+e.message,'err'); }
+      else status('readStatus','❌ '+esc(j.error||res.status),'err');
+    }catch(e){ status('readStatus','❌ '+esc(e.message),'err'); }
   }
 
   /* ---------- load current report ---------- */
@@ -182,7 +181,7 @@
     status('readStatus','Loading the current report…','busy',true);
     try{ const d=await fetch('./report.json?cb='+Date.now()).then(r=>r.json());
       setJson(d); status('readStatus','✓ Current report loaded.','ok'); }
-    catch(e){ status('readStatus','❌ '+e.message,'err'); }
+    catch(e){ status('readStatus','❌ '+esc(e.message),'err'); }
   };
 
   /* ---------- JSON editor + validation + preview ---------- */
@@ -211,9 +210,9 @@
       const res=await fetch('/api/kommunal-publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:d})});
       const j=await res.json().catch(()=>({error:'HTTP '+res.status}));
       if(res.ok && j.ok){ $('pubStatus').className='status ok';
-        $('pubStatus').innerHTML='✅ '+j.message+' <a class="golink" href="'+j.url+'" target="_blank" rel="noopener">Open report ↗</a>'; }
-      else status('pubStatus','❌ '+(j.error||res.status),'err');
-    }catch(e){ status('pubStatus','❌ '+e.message,'err'); }
+        $('pubStatus').innerHTML='✅ '+esc(j.message)+' <a class="golink" href="'+esc(j.url)+'" target="_blank" rel="noopener">Open report ↗</a>'; }
+      else status('pubStatus','❌ '+esc(j.error||res.status),'err');
+    }catch(e){ status('pubStatus','❌ '+esc(e.message),'err'); }
     btn.disabled=false;
   };
 })();
