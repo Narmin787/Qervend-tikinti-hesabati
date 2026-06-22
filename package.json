@@ -1,5 +1,5 @@
 {
-  "name": "tikinti-hesabati-generator",
+  "name": "hesabat",
   "version": "1.0.0",
   "private": true,
   "description": "Tikinti gedişatı hesabatlarını Excel-dən avtomatik yaradan generator (AI olmadan).",
