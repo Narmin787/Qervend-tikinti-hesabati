@@ -5,7 +5,7 @@ etməyən statik veb-hesabat sistemi. Hər kənd/şəhər üçün yalnız bir Ex
 istəyə bağlı PDF) doldurub GitHub-a göndərirsiniz — Vercel hesabatı avtomatik
 dərc edir.
 
-**Canlı nümunə:** https://hesabat.vercel.app
+**Canlı nümunə:** https://qervend-tikinti-hesabati.vercel.app
 
 ---
 
@@ -109,7 +109,7 @@ index.html     — şablonun mənbəyi (make-engine.mjs bundan report.html qurur
 
 Gizli ünvanda işləyən, brauzerdə çalışan generator (heç bir AI yoxdur):
 
-**`/narminreportwebapp`** (məs. `https://hesabat.vercel.app/narminreportwebapp`)
+**`/narminreportwebapp`** (məs. `https://qervend-tikinti-hesabati.vercel.app/narminreportwebapp`)
 
 - Faylları (Excel + Primavera PDF, **və ya** tam data workbook) **at** → avtomatik
   oxunur və doldurulur (heç bir düymə yox). Şəhər adı fayldan oxunur.
