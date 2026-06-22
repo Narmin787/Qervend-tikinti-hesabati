@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      url: 'https://qervend-tikinti-hesabati.vercel.app/kommunalhesabat/',
+      url: 'https://qervend-tikinti-hesabati.vercel.app/k/',
       message: 'Published. Vercel will go live with the new version in 1–3 minutes.',
     });
   } catch (e) {
